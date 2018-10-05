@@ -133,6 +133,7 @@ split_sample <- function(
 
   
   # output ----
+  v_group = as.ordered(v_group)
   if( return_data_frame == TRUE){
     return(
       cbind(
