@@ -1,46 +1,43 @@
+################################################################################
+# The goal of this script is to split the data/create a column that indicates
+# the set an observation belogs. The output is the same data frame with an 
+# additional column indicating the group
+################################################################################
+
 #01 Load libraries and other sources ----
 library(lubridate)
 library(tidyverse)
 library(gtools)
 
-
 source("Tools/R/split_sample.R")
 
+# 02 Initial parameters ----
+input_directory = "Data/Bike-Sharing-Dataset/"
+input_file = "df_input.RData"
+output_directory = "data/Bike-Sharing-Dataset/"
 
-#02 input data ----
-path_file = "Data/Bike-Sharing-Dataset/hour.csv"
-df = read_csv(path_file)
 
 
-#03 Manipulate data ----
-df = df %>%
-  mutate(
-    dteday = lubridate::date(dteday),
-    season = as.ordered(season),
-    yr = as.ordered(yr),
-    mnth = as.ordered(mnth),
-    hr = as.ordered(hr),
-    holiday = as.factor(holiday),
-    weekday = as.ordered(weekday),
-    workingday = as.factor(workingday),
-    weathersit = as.ordered(weathersit)
-  )
 
-#04 Split ----
+# 03 Load data ----
+load(paste0(input_directory, input_file))
+str(df_input)
 
-# Randomly
+# 04 Split randomnly----
 df_split = split_sample(
-  x = df,
+  x = df_input,
   is_random_method = TRUE,
   number_groups = 5,
   variable = NULL,
   return_data_frame = TRUE
 )
 
+df_split_random = df_split
 
-# Time series
+
+# 05 Split as time series ----
 df_split = split_sample(
-  x = df,
+  x = df_input,
   is_random_method = FALSE,
   number_groups = 5,
   variable = "dteday",
@@ -58,10 +55,10 @@ df_split %>%
   )
 
 
-# Season variable
+# 06 Split using season variable ----
 
 df_split = split_sample(
-  x = df,
+  x = df_input,
   is_random_method = FALSE,
   number_groups = NULL,
   variable = "season",
@@ -78,9 +75,9 @@ df_split %>%
   )
 
 
-# Continuous variable
+# 07 Split using a continuous variable ----
 df_split = split_sample(
-  x = df,
+  x = df_input,
   is_random_method = FALSE,
   number_groups = 5,
   variable = "windspeed",
@@ -95,3 +92,11 @@ df_split %>%
     min_value = min(windspeed),
     max_value = max(windspeed)
   )
+
+# 08 save ----
+df_split = df_split_random
+save(
+  df_split,
+  file = paste0(output_directory, "df_split.RData")
+)
+
