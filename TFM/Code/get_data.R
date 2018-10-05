@@ -38,7 +38,6 @@ df_split = split_sample(
 )
 
 
-
 # Time series
 df_split = split_sample(
   x = df,
