@@ -12,22 +12,31 @@ library(gtools)
 source("Tools/R/split_sample.R")
 
 # 02 Initial parameters ----
-input_directory = "Data/Bike-Sharing-Dataset/"
+input_directory = file.path(
+  getwd(),
+  "Data",
+  "Bike-Sharing-Dataset"
+)
 input_file = "df_input.RData"
-output_directory = "data/Bike-Sharing-Dataset/"
 
 
+output_directory = file.path(
+  getwd(),
+  "Data",
+  "Bike-Sharing-Dataset"
+)
+  
 
 
 # 03 Load data ----
-load(paste0(input_directory, input_file))
+load(file.path(input_directory, input_file))
 str(df_input)
 
 # 04 Split randomnly----
 df_split = split_sample(
   x = df_input,
   is_random_method = TRUE,
-  number_groups = 5,
+  number_groups = 1000,
   variable = NULL,
   return_data_frame = TRUE
 )
@@ -97,6 +106,6 @@ df_split %>%
 df_split = df_split_random
 save(
   df_split,
-  file = paste0(output_directory, "df_split.RData")
+  file = file.path(output_directory, "df_split.RData")
 )
 
