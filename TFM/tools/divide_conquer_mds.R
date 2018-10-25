@@ -8,8 +8,14 @@ divide_conquer_mds <- function(
   # Loading libraries
   if( require(cluster) == FALSE ){
     install.packages('cluster')
-    require(cluster)
+    library(cluster)
   }
+  
+  if( require(pracma) == FALSE ){
+    install.packages('pracma')
+    library(pracma)
+  }
+  
   
   # Initial parameters
   unique_group = unique(groups)
