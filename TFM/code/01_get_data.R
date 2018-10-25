@@ -10,7 +10,7 @@ library(gtools)
 
 
 # 02 Parameters/Variables ----
-input_directory = "Data/Bike-Sharing-Dataset/"
+input_directory = "data/Bike-Sharing-Dataset/"
 input_file = "hour.csv"
 output_directory = "data/Bike-Sharing-Dataset/"
 

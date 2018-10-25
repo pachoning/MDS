@@ -3,17 +3,22 @@ library(tidyverse)
 source("tools/divide_conquer_mds.R")
 source("tools/split_sample.R")
 
+
+
+
+
 # 02 Load data set ----
-input_directory = file.path(getwd(),"data", "Bike-Sharing-Dataset")
+input_directory = file.path("data", "Bike-Sharing-Dataset")
 input_file = "df_input.RData"
 
 
 load(file.path(input_directory, input_file))
 dim(df_input)
+str(df_input)
 
 # 03 Performance algorithm ----
-first_number_groups = 50
-last_number_groups = 52
+first_number_groups = 20
+last_number_groups = 200
 number_coordinates = 2
 i_iteration = 1
 
@@ -22,7 +27,12 @@ total_number_groups = last_number_groups - first_number_groups + 1
 
 df_performance = data.frame(
   number_groups = rep(NA, total_number_groups),
+  min_observations_per_group = rep(NA, total_number_groups),
+  max_observations_per_group = rep(NA, total_number_groups),
+  mean_observations_per_group = rep(NA, total_number_groups),
+  
   elapsed_time_divide_conquer = rep(NA, total_number_groups),
+  
   max_error_procrustes = rep(NA, total_number_groups),
   min_error_procrustes = rep(NA, total_number_groups),
   mean_error_procrustes = rep(NA, total_number_groups),
@@ -61,16 +71,38 @@ for(i_group in first_number_groups:last_number_groups){
     number_coordinates = number_coordinates,
     metric = "gower"
   )
-  
+   
   procrustes_error = divide_conquer_mds_result$error
   
   # Elapsed time calculation for divide and conquer algorithm
   end_proc = proc.time()
   elapsed_time_divide_conquer = as.numeric((end_proc - ini_proc)[3])
   
+  # Observations per group
+  df_observations_per_group = df_split %>% 
+    group_by(group_member) %>% 
+    summarise(
+      total_observations = n()
+    ) %>% 
+    ungroup(
+      
+    ) %>% 
+    summarise(
+      min_observations_per_group = min(total_observations),
+      max_observations_per_group = max(total_observations),
+      mean_observations_per_group = mean(total_observations)
+    )
+  
+  
   # Storing the performance informatiob
   df_performance$number_groups[i_iteration] = i_group
+  
+  df_performance$min_observations_per_group[i_iteration] = df_observations_per_group$min_observations_per_group
+  df_performance$max_observations_per_group[i_iteration] = df_observations_per_group$max_observations_per_group
+  df_performance$mean_observations_per_group[i_iteration] = df_observations_per_group$mean_observations_per_group
+  
   df_performance$elapsed_time_divide_conquer[i_iteration] = elapsed_time_divide_conquer
+  
   df_performance$max_error_procrustes[i_iteration] = max(procrustes_error)
   df_performance$min_error_procrustes[i_iteration] = min(procrustes_error) 
   df_performance$mean_error_procrustes[i_iteration] = mean(procrustes_error)   
@@ -80,3 +112,12 @@ for(i_group in first_number_groups:last_number_groups){
   i_iteration = i_iteration + 1
 }
 
+save_directory = file.path(
+  getwd(),
+  "data",
+  "Bike-Sharing-Dataset",
+  "df_performance.RData"
+)
+save(df_performance, file = save_directory)
+
+View(df_performance)
