@@ -51,15 +51,15 @@ divide_conquer_mds <- function(
     # Matrix to apply MDS
     submatrix_data = x[filter_rows_by_position, ]
     
-    # Calculate gower's distance
-    gower_distance_matrix = daisy(
+    # Calculate distance
+    distance_matrix = daisy(
       submatrix_data,
       metric = metric
     )
     
     # Applying MDS to the submatrix of data
     mds_iteration = cmdscale(
-      gower_distance_matrix, 
+      distance_matrix, 
       eig = TRUE, 
       k = number_coordinates
     ) 
