@@ -21,7 +21,7 @@ divide_conquer_mds <- function(
     current_group = unique_group[k]
     positions_current_group = which(groups == current_group)
     total_elements_current_group = length(positions_current_group)
-    rows_names_current = row.names(x)[positions_current_group]
+    
     ls_positions[[k]] = positions_current_group
     
     # Take the data in the following way:
@@ -29,12 +29,7 @@ divide_conquer_mds <- function(
     #   else, take the data from k-1 and k groups
     if(k == 1){
       filter_rows_by_position = positions_current_group
-      rows_processed = rows_names_current
     }else{
-      rows_processed = c(
-        rows_processed,
-        rows_names_current
-      )
       previous_group = unique_group[k-1]
       positions_previous_group =  which(groups == previous_group)
       total_elements_previous_group = length(positions_previous_group)
@@ -62,7 +57,7 @@ divide_conquer_mds <- function(
     # Applying MDS to the submatrix of data
     message("computing MDS")
     mds_iteration =  stats::cmdscale(
-      d = distance_matrix,
+      d = dist_matrix,
       k = number_coordinates
     )
     
@@ -96,7 +91,7 @@ divide_conquer_mds <- function(
       rotation_matrix = procrustes_result$rotation
       dilation = procrustes_result$dilation
       translation = procrustes_result$translation
-        
+      
       
       # Transforming the data for the k-th group  
       cum_mds_current = dilation * mds_current %*% rotation_matrix + translation
@@ -120,7 +115,7 @@ divide_conquer_mds <- function(
   reording_permutation = match(row.names(x), rows_processed)
   cum_mds = cum_mds[reording_permutation, ]
   
- 
+  
   return(
     list(
       mds = cum_mds,

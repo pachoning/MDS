@@ -4,37 +4,27 @@ divide_conquer_mds <- function(
   x,
   groups,
   number_coordinates,
-  metric = "euclidean",
+  metric = "gower",
   ...
 ){
-  
-  # List positions
-  ls_positions = list()
-  
   
   # Initial parameters
   unique_group = unique(groups)
   total_groups = length(unique_group)
+  error = c()
   
   for(k in 1:total_groups){
     # Getting the group that is being processed
     current_group = unique_group[k]
     positions_current_group = which(groups == current_group)
     total_elements_current_group = length(positions_current_group)
-    rows_names_current = row.names(x)[positions_current_group]
-    ls_positions[[k]] = positions_current_group
     
     # Take the data in the following way:
     #   If it is the first iteration, take the data from fist group
     #   else, take the data from k-1 and k groups
     if(k == 1){
       filter_rows_by_position = positions_current_group
-      rows_processed = rows_names_current
     }else{
-      rows_processed = c(
-        rows_processed,
-        rows_names_current
-      )
       previous_group = unique_group[k-1]
       positions_previous_group =  which(groups == previous_group)
       total_elements_previous_group = length(positions_previous_group)
@@ -53,18 +43,19 @@ divide_conquer_mds <- function(
     submatrix_data = x[filter_rows_by_position, ]
     
     # Calculate distance
-    message("computing matrix distance")
-    distance_matrix = cluster::daisy(
-      x = submatrix_data,
+    distance_matrix = daisy(
+      submatrix_data,
       metric = metric
     )
     
     # Applying MDS to the submatrix of data
-    message("computing MDS")
-    mds_iteration =  stats::cmdscale(
-      d = distance_matrix,
+    mds_iteration = cmdscale(
+      distance_matrix, 
+      eig = TRUE, 
       k = number_coordinates
-    )
+    ) 
+    
+    mds_iteration = mds_iteration$points
     
     
     if(k == 1){
@@ -86,21 +77,17 @@ divide_conquer_mds <- function(
       
       
       # Applying Procrustes transformation
-      message("computing Procrustes")
-      procrustes_result =  smacof::Procrustes(
-        X = cum_mds_previous, 
-        Y = mds_previous
+      procrustes_result = pracma::procrustes(
+        cum_mds_previous, 
+        mds_previous
       )
       
+      error[k-1] = procrustes_result$d
       
-      rotation_matrix = procrustes_result$rotation
-      dilation = procrustes_result$dilation
-      translation = procrustes_result$translation
-        
+      translation_matrix = procrustes_result$Q
       
-      # Transforming the data for the k-th group  
-      cum_mds_current = dilation * mds_current %*% rotation_matrix + translation
-      
+      # Rotating the data for the k-th group  
+      cum_mds_current = mds_current %*% procrustes_result$Q
       cum_mds = rbind(
         cum_mds,
         cum_mds_current
@@ -117,14 +104,14 @@ divide_conquer_mds <- function(
     
   }
   # Reordering
-  reording_permutation = match(row.names(x), rows_processed)
+  reording_permutation = match(row.names(x), row.names(cum_mds))
   cum_mds = cum_mds[reording_permutation, ]
   
  
   return(
     list(
       mds = cum_mds,
-      ls_positions = ls_positions
+      error = error
     )
   )
 }
