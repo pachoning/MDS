@@ -1,5 +1,5 @@
 # 01 Load libraries ----
-library(tidyverse)
+source("tools/load_libraries.R")
 source("tools/divide_conquer_mds.R")
 source("tools/split_sample.R")
 

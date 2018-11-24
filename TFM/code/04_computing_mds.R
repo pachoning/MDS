@@ -3,11 +3,9 @@
 ################################################################################
 
 # 01 Load libraries ----
-library(tidyverse)
+source("tools/load_libraries.R")
 source("tools/divide_conquer_mds.R")
-library(ggplot2)
-library(ggrepel)
-
+set.seed(12345)
 
 # 02 Testing the algorithm on Australian cities ----
 # Traditional MDS
@@ -157,7 +155,75 @@ ggplot(
     y = 'y'
   )
 
-# 04 Applying to a big data set ----
+# 05 Applying to random data ----
+n_obs = 3*10^3
+x = data.frame(
+  x1 = rnorm(n_obs),
+  x2 = rnorm(n_obs),
+  x3 = rnorm(n_obs),
+  x4 = rnorm(n_obs),
+  x5 = rnorm(n_obs),
+  x6 = rnorm(n_obs)
+)
+
+groups = sample(x = 5, size = nrow(x), replace = TRUE)
+
+mds_algorithm = divide_conquer_mds(
+  x = x,
+  groups = groups,
+  number_coordinates = 2,
+  metric = "euclidean"
+)
+
+
+distance_x = daisy(
+  x = x,
+  metric = "euclidean"
+)
+
+
+mds_x = cmdscale(
+  d = distance_x, 
+  eig = TRUE, 
+  k = 2
+)
+
+mds_x = mds_x$points
+head(mds_algorithm$mds, 10)
+head(mds_x, 10)
+
+
+rotate_matrix_divide = pracma::procrustes(
+  mds_x,
+  mds_algorithm$mds
+)
+
+mds_rotated = rotate_matrix_divide$P
+
+head(mds_rotated)
+head(mds_x)
+
+df_divide_conquer = as.data.frame(mds_rotated)
+
+df_mds_x = as.data.frame(mds_x)
+df_divide_conquer$source = "divide"
+df_mds_x$source = "classical"
+
+df_divide_conquer$obs = row.names(df_divide_conquer)
+df_mds_x$obs = row.names(df_mds_x)
+
+all_results = rbind(
+  df_divide_conquer[1:10, ],
+  df_mds_x[1:10,]
+)
+
+all_results %>% 
+  ggplot(aes(x = V1, y = V2, group = source, color = source)) +
+  geom_point() +
+  geom_text(aes(label=obs),hjust=0, vjust=0)
+
+
+# 06 Applying to a big data set ----
 input_directory = file.path(getwd(),"Data", "Bike-Sharing-Dataset")
 input_file = "df_split.RData"
 
