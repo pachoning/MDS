@@ -125,6 +125,6 @@ mds_classical2 = mds_classical2[nrow(x):1, ]
 head(mds_classical)
 head(mds_classical2)
 
-proc2 =  Procrustes(mds_classical, mds_classical2)
+proc2 = Procrustes(mds_classical, mds_classical2)
 head(mds_classical)
 head(proc2$Yhat)

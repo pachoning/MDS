@@ -29,11 +29,11 @@ divide_conquer_mds <- function(
     #   else, take the data from k-1 and k groups
     if(k == 1){
       filter_rows_by_position = positions_current_group
-      rows_processed = rows_names_current
+      rows_processed = positions_current_group
     }else{
       rows_processed = c(
         rows_processed,
-        rows_names_current
+        positions_current_group
       )
       previous_group = unique_group[k-1]
       positions_previous_group =  which(groups == previous_group)
@@ -92,7 +92,6 @@ divide_conquer_mds <- function(
         Y = mds_previous
       )
       
-      
       rotation_matrix = procrustes_result$rotation
       dilation = procrustes_result$dilation
       translation = procrustes_result$translation
@@ -117,7 +116,7 @@ divide_conquer_mds <- function(
     
   }
   # Reordering
-  reording_permutation = match(row.names(x), rows_processed)
+  reording_permutation = match(1:nrow(x), rows_processed)
   cum_mds = cum_mds[reording_permutation, ]
   
  

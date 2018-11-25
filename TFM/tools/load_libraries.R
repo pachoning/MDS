@@ -8,6 +8,11 @@ if( require(coenocliner) == FALSE ){
   library(coenocliner)
 }
 
+if( require(fields) == FALSE ){
+  install.packages('fields')
+  library(fields)
+}
+
 
 if( require(future) == FALSE ){
   install.packages('future')
