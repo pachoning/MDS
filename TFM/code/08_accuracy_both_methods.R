@@ -27,7 +27,7 @@ x = data.frame(
 
 # Divide and conquer MDS
 metric = "euclidean"
-mds_divide_conquer = divide_conquer_mds(
+mds_divide_conquer_random = divide_conquer_mds(
   x = x,
   groups =  sample(x = 3, size = nrow(x), replace = TRUE),
   # groups = c(rep(1,25), 26),
@@ -35,18 +35,22 @@ mds_divide_conquer = divide_conquer_mds(
   metric = metric
 )
 
-
-results_compare_divide_conquer = compare_methods(
-  mds_new_approach = mds_divide_conquer$mds,
+results_classical_mds_random = classical_mds(
   x = x,
-  metric = metric,
-  number_coordinates = 2
+  number_coordinates = 2,
+  metric = metric
 )
-head(mds_divide_conquer$mds, 8)
-head(results_compare_divide_conquer$mds_classical_transformed, 8)
+
+results_compare_divide_conquer_random = compare_methods(
+  mds_new_approach = mds_divide_conquer_random$mds,
+  mds_classical = results_classical_mds_random
+)
+
+head(mds_divide_conquer_random$mds, 8)
+head(results_compare_divide_conquer_random$mds_classical_transformed, 8)
 
 # Plot coordinates
-results_compare_divide_conquer$df_both_mds_labels[1:20, ] %>% 
+results_compare_divide_conquer_random$df_both_mds_labels[1:20, ] %>% 
   ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
   geom_text(aes(label=label),hjust=0, vjust=0)
 
@@ -54,38 +58,36 @@ results_compare_divide_conquer$df_both_mds_labels[1:20, ] %>%
 # Plot the error
 ggplot(
   data.frame(
-    error = results_compare_divide_conquer$distance_between_coordinates
+    error = results_compare_divide_conquer_random$distance_between_coordinates
   ), 
   aes(error)
 ) +
   geom_density()
 
-summary(results_compare_divide_conquer$distance_between_coordinates)
+summary(results_compare_divide_conquer_random$distance_between_coordinates)
 
 ################################################################################
 
 # Fast MDS
-mds_fast = fast_mds(
-  x = x,
+mds_fast_random = fast_mds(
+  mds_classical = x,
   number_coordinates = 2,
   metric = metric,
   timeout = 1
 )
 
-results_compare_fast = compare_methods(
-  mds_new_approach = mds_fast,
-  x = x,
-  metric = metric,
-  number_coordinates = 2
+results_compare_fast_random = compare_methods(
+  mds_new_approach = mds_fast_random,
+  mds_classical = results_classical_mds_random
 )
 
 
-head(mds_fast, 8)
-head(results_compare_fast$mds_classical_transformed, 8)
+head(mds_fast_random, 8)
+head(results_compare_fast_random$mds_classical_transformed, 8)
 
 
 # Plot coordinates
-results_compare_fast$df_both_mds_labels[1:20, ] %>% 
+results_compare_fast_random$df_both_mds_labels[1:20, ] %>% 
   ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
   geom_text(aes(label=label),hjust=0, vjust=0)
 
@@ -93,13 +95,13 @@ results_compare_fast$df_both_mds_labels[1:20, ] %>%
 # Plot the error
 ggplot(
   data.frame(
-    error = results_compare_fast$distance_between_coordinates
+    error = results_compare_fast_random$distance_between_coordinates
   ), 
   aes(error)
 ) +
   geom_density()
 
-summary(results_compare_fast$distance_between_coordinates)
+summary(results_compare_fast_random$distance_between_coordinates)
 
 
 
@@ -107,7 +109,7 @@ summary(results_compare_fast$distance_between_coordinates)
 metric = "euclidean"
 x = iris[, -5]
 
-mds_divide_conquer = divide_conquer_mds(
+mds_divide_conquer_iris = divide_conquer_mds(
   x = x,
   groups =  sample(x = 2, size = nrow(x), replace = TRUE),
   # groups = c(rep(1,25), 26),
@@ -116,20 +118,24 @@ mds_divide_conquer = divide_conquer_mds(
 )
 
 
-
-results_compare_divide_conquer = compare_methods(
-  mds_new_approach = mds_divide_conquer$mds,
+results_classical_mds_iris = classical_mds(
   x = x,
-  metric = "euclidean",
-  number_coordinates = 2
+  number_coordinates = 2,
+  metric = metric
 )
 
-head(mds_divide_conquer$mds, 8)
-head(results_compare_divide_conquer$mds_classical_transformed, 8)
+
+results_compare_divide_conquer_iris = compare_methods(
+  mds_new_approach = mds_divide_conquer_iris$mds,
+  mds_classical = results_classical_mds_iris
+)
+
+head(mds_divide_conquer_iris$mds, 8)
+head(results_compare_divide_conquer_iris$mds_classical_transformed, 8)
 
 
 # Plot coordinates
-results_compare_divide_conquer$df_both_mds_labels[1:20, ] %>% 
+results_compare_divide_conquer_iris$df_both_mds_labels[1:20, ] %>% 
   ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
   geom_text(aes(label=label),hjust=0, vjust=0)
 
@@ -137,13 +143,13 @@ results_compare_divide_conquer$df_both_mds_labels[1:20, ] %>%
 # Plot the error
 ggplot(
   data.frame(
-    error = results_compare_divide_conquer$distance_between_coordinates
+    error = results_compare_divide_conquer_iris$distance_between_coordinates
   ), 
   aes(error)
 ) +
   geom_density()
 
-summary(results_compare_divide_conquer$distance_between_coordinates)
+summary(results_compare_divide_conquer_iris$distance_between_coordinates)
 
 
 
@@ -161,7 +167,7 @@ x = df_split %>%
 
 
 # Divide and conquer MDS
-mds_divide_conquer = divide_conquer_mds(
+mds_divide_conquer_bike = divide_conquer_mds(
   x = x,
   groups =  sample(x = 5, size = nrow(x), replace = TRUE),
   number_coordinates = 2,
@@ -169,19 +175,23 @@ mds_divide_conquer = divide_conquer_mds(
 )
 
 
-results_compare_divide_conquer = compare_methods(
-  mds_new_approach = mds_divide_conquer$mds,
+results_classical_mds_bike = classical_mds(
   x = x,
-  metric = metric,
-  number_coordinates = 2
+  number_coordinates = 2,
+  metric = metric
+)
+
+results_compare_divide_conquer_bike = compare_methods(
+  mds_new_approach = mds_divide_conquer_bike$mds,
+  mds_classical = results_classical_mds_bike
 )
 
 
-head(mds_divide_conquer$mds, 8)
-head(results_compare_divide_conquer$mds_classical_transformed, 8)
+head(mds_divide_conquer_bike$mds, 8)
+head(results_compare_divide_conquer_bike$mds_classical_transformed, 8)
 
 # Plot coordinates
-results_compare_divide_conquer$df_both_mds_labels[1:20, ] %>% 
+results_compare_divide_conquer_bike$df_both_mds_labels[1:20, ] %>% 
   ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
   geom_text(aes(label=label),hjust=0, vjust=0)
 
@@ -189,39 +199,37 @@ results_compare_divide_conquer$df_both_mds_labels[1:20, ] %>%
 # Plot the error
 ggplot(
   data.frame(
-    error = results_compare_divide_conquer$distance_between_coordinates
+    error = results_compare_divide_conquer_bike$distance_between_coordinates
   ), 
   aes(error)
 ) +
   geom_density()
 
-summary(results_compare_divide_conquer$distance_between_coordinates)
+summary(results_compare_divide_conquer_bike$distance_between_coordinates)
 
 
 ################################################################################
 
 # Fast MDS
-mds_fast = fast_mds(
+mds_fast_bike = fast_mds(
   x = x,
   number_coordinates = 2,
   metric = metric,
   timeout = 1
 )
 
-results_compare_fast = compare_methods(
-  mds_new_approach = mds_fast,
-  x = x,
-  metric = "gower",
-  number_coordinates = 2
+results_compare_fast_bike = compare_methods(
+  mds_new_approach = mds_fast_bike,
+  mds_classical = mds_fast_bike
 )
 
 
-head(mds_fast, 8)
-head(results_compare_fast$mds_classical_transformed, 8)
+head(mds_fast_bike, 8)
+head(results_compare_fast_bike$mds_classical_transformed, 8)
 
 
 # Plot coordinates
-results_compare_fast$df_both_mds_labels[1:20, ] %>% 
+results_compare_fast_bike$df_both_mds_labels[1:20, ] %>% 
   ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
   geom_text(aes(label=label),hjust=0, vjust=0)
 
@@ -229,13 +237,13 @@ results_compare_fast$df_both_mds_labels[1:20, ] %>%
 # Plot the error
 ggplot(
   data.frame(
-    error = results_compare_fast$distance_between_coordinates
+    error = results_compare_fast_bike$distance_between_coordinates
   ), 
   aes(error)
 ) +
   geom_density()
 
-summary(results_compare_fast$distance_between_coordinates)
+summary(results_compare_fast_bike$distance_between_coordinates)
 
 
 
@@ -250,27 +258,31 @@ metric = "euclidean"
 
 
 # Divide and conquer MDS
-mds_divide_conquer = divide_conquer_mds(
+mds_divide_conquer_budget = divide_conquer_mds(
   x = x,
   groups =  sample(x = 5, size = nrow(x), replace = TRUE),
   number_coordinates = 2,
   metric = metric
 )
 
-
-results_compare_divide_conquer = compare_methods(
-  mds_new_approach = mds_divide_conquer$mds,
+results_classical_mds_budget = classical_mds(
   x = x,
-  metric = metric,
-  number_coordinates = 2
+  number_coordinates = 2,
+  metric = metric
 )
 
 
-head(mds_divide_conquer$mds, 8)
-head(results_compare_divide_conquer$mds_classical_transformed, 8)
+results_compare_divide_conquer_budget = compare_methods(
+  mds_new_approach = mds_divide_conquer_budget$mds,
+  mds_classical = results_classical_mds_budget
+)
+
+
+head(mds_divide_conquer_budget$mds, 8)
+head(results_compare_divide_conquer_budget$mds_classical_transformed, 8)
 
 # Plot coordinates
-results_compare_divide_conquer$df_both_mds_labels[1:20, ] %>% 
+results_compare_divide_conquer_budget$df_both_mds_labels[1:20, ] %>% 
   ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
   geom_text(aes(label=label),hjust=0, vjust=0)
 
@@ -278,17 +290,51 @@ results_compare_divide_conquer$df_both_mds_labels[1:20, ] %>%
 # Plot the error
 ggplot(
   data.frame(
-    error = results_compare_divide_conquer$distance_between_coordinates
+    error = results_compare_divide_conquer_budget$distance_between_coordinates
   ), 
   aes(error)
 ) +
   geom_density()
 
-summary(results_compare_divide_conquer$distance_between_coordinates)
+summary(results_compare_divide_conquer_budget$distance_between_coordinates)
 
 
+################################################################################
 
-rdist(
-  results_compare_divide_conquer$mds_classical_transformed,
-  procrustes_result$X.new
+# Fast MDS
+mds_fast_budget = fast_mds(
+  x = x,
+  number_coordinates = 2,
+  metric = metric,
+  timeout = 1
 )
+
+results_compare_fast_budget = compare_methods(
+  mds_new_approach = mds_fast_budget,
+  mds_classical = mds_fast_budget
+)
+
+
+head(mds_fast_budget, 8)
+head(results_compare_fast_budget$mds_classical_transformed, 8)
+
+
+# Plot coordinates
+results_compare_fast_budget$df_both_mds_labels[1:20, ] %>% 
+  ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
+  geom_text(aes(label=label),hjust=0, vjust=0)
+
+
+# Plot the error
+ggplot(
+  data.frame(
+    error = results_compare_fast_budget$distance_between_coordinates
+  ), 
+  aes(error)
+) +
+  geom_density()
+
+summary(results_compare_fast_bike$distance_between_coordinates)
+
+save.image(file = "show_to_pedro.Rproj")
+

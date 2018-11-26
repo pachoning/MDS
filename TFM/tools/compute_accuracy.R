@@ -1,9 +1,9 @@
-compare_methods <- function(
-  mds_new_approach,
+classical_mds <- function(
   x,
   metric,
   number_coordinates
 ){
+  
   # Classical MDS
   dist_matrix = daisy(
     x = x,
@@ -16,6 +16,15 @@ compare_methods <- function(
     k = number_coordinates
   )
   
+  
+  return(mds_classical)
+  
+}
+
+compare_methods <- function(
+  mds_new_approach,
+  mds_classical
+){
   
   # Obtaining Procrustes
   procrustes_result =  MCMCpack::procrustes(
