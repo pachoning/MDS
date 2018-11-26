@@ -31,6 +31,10 @@ if( require(ggrepel) == FALSE ){
 }
 
 
+if( require(MCMCpack) == FALSE ){
+  install.packages('MCMCpack')
+  library(MCMCpack)
+}
 
 if( require(pracma) == FALSE ){
   install.packages('pracma')
@@ -64,3 +68,6 @@ if( require(vegan) == FALSE ){
   install.packages('vegan')
   library(vegan)
 }
+
+
+

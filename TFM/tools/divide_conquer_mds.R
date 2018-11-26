@@ -1,5 +1,3 @@
-source("tools/load_libraries.R")
-
 divide_conquer_mds <- function(
   x,
   groups,
@@ -19,33 +17,30 @@ divide_conquer_mds <- function(
   for(k in 1:total_groups){
     # Getting the group that is being processed
     current_group = unique_group[k]
-    positions_current_group = which(groups == current_group)
-    total_elements_current_group = length(positions_current_group)
-    rows_names_current = row.names(x)[positions_current_group]
-    ls_positions[[k]] = positions_current_group
+    x_positions_current_group = which(groups == current_group)
+    ls_positions[[k]] = x_positions_current_group
     
     # Take the data in the following way:
     #   If it is the first iteration, take the data from fist group
     #   else, take the data from k-1 and k groups
     if(k == 1){
-      filter_rows_by_position = positions_current_group
-      rows_processed = positions_current_group
+      filter_rows_by_position = x_positions_current_group
+      rows_processed = x_positions_current_group
     }else{
+      
       rows_processed = c(
         rows_processed,
-        positions_current_group
+        x_positions_current_group
       )
       previous_group = unique_group[k-1]
-      positions_previous_group =  which(groups == previous_group)
-      total_elements_previous_group = length(positions_previous_group)
+      x_positions_previous_group =  which(groups == previous_group)
       
       # Registers to be filtered
       filter_rows_by_position = c(
-        positions_previous_group,
-        positions_current_group
+        x_positions_previous_group,
+        x_positions_current_group
       )
       
-      total_elements_mds = length(filter_rows_by_position)
     }
     message(paste0("Iteration number ", k, " out of ", total_groups))
     
@@ -66,50 +61,45 @@ divide_conquer_mds <- function(
       k = number_coordinates
     )
     
+    row.names(mds_iteration) = row.names(submatrix_data)
     
     if(k == 1){
       # Define cum-MDS as MDS(1)
       cum_mds = mds_iteration
-      positions_cum_sum = as.vector(rep(current_group, total_elements_current_group))
       
     }else{
       # Take the result of MDS(k-1) obtained with k-1 and k
-      positions_previous_mds_iteration = 1:total_elements_previous_group
-      positins_current_mds_iteration = (total_elements_previous_group+1):total_elements_mds
-      
-      mds_previous = mds_iteration[positions_previous_mds_iteration,]  
-      mds_current = mds_iteration[positins_current_mds_iteration,]
+      positions_previous_group_current_mds = row.names(mds_iteration) %in% row.names(x)[x_positions_previous_group]  
+      positions_current_group_current_mds = row.names(mds_iteration) %in% row.names(x)[x_positions_current_group] 
+      mds_previous = mds_iteration[positions_previous_group_current_mds,]  
+      mds_current = mds_iteration[positions_current_group_current_mds,]
       
       # From cum-MDS take the result of group k-1
-      positions_cum_sum_previous = which(positions_cum_sum == previous_group)
+      positions_cum_sum_previous = which(row.names(cum_mds) %in% row.names(x)[x_positions_previous_group])
       cum_mds_previous = cum_mds[positions_cum_sum_previous, ] 
       
       
       # Applying Procrustes transformation
       message("computing Procrustes")
-      procrustes_result =  smacof::Procrustes(
-        X = cum_mds_previous, 
-        Y = mds_previous
+      procrustes_result =  MCMCpack::procrustes(
+        X = mds_previous, #The matrix to be transformed
+        Xstar = cum_mds_previous, # target matrix
+        translation = TRUE, 
+        dilation = TRUE
       )
       
-      rotation_matrix = procrustes_result$rotation
-      dilation = procrustes_result$dilation
-      translation = procrustes_result$translation
-        
+      rotation_matrix = procrustes_result$R
+      dilation = procrustes_result$s
+      translation = procrustes_result$tt
+      ones_vector = rep(1, nrow(mds_current)) 
+      translation_matrix = ones_vector %*% t(translation)
       
       # Transforming the data for the k-th group  
-      cum_mds_current = dilation * mds_current %*% rotation_matrix + translation
+      cum_mds_current = dilation * mds_current %*% rotation_matrix + translation_matrix
       
       cum_mds = rbind(
         cum_mds,
         cum_mds_current
-      )
-      
-      new_indexes = as.vector(rep(current_group, total_elements_current_group))
-      
-      positions_cum_sum = c(
-        positions_cum_sum,
-        new_indexes
       )
       
     }
