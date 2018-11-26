@@ -1,14 +1,3 @@
-source("tools/load_libraries.R")
-
-# Global variables
-list_mds <<- list()
-n_recursive_calls <<- 1
-list_sample_points <<- list()
-M_align <<- data.frame()
-n_obs_main_matrix <<- NA
-n_sampling_points <<- NA
-
-
 # This function decides whether it is possible to compute distance matrix
 is_possible_to_calculate_distance_matrix <- function(
   x,
@@ -17,7 +6,6 @@ is_possible_to_calculate_distance_matrix <- function(
   
 ){
   
-  plan(multisession, gc = TRUE)
   
   
   # Calculate distance
@@ -38,13 +26,23 @@ is_possible_to_calculate_distance_matrix <- function(
     onTimeout = "silent"
   )
   
+  message(paste0("value for computation on distance matrix: ", is_able_to_resolve))
+  
   is_distance_computed = is.null(is_able_to_resolve) == FALSE && 
     is.na(is_able_to_resolve) == FALSE &&
     is_able_to_resolve == TRUE
   
+  message(paste0("value for boolean: ", is_distance_computed))
+  
+  if(is_distance_computed == FALSE){
+    distance_matrix = NULL
+  }else{
+    distance_matrix = res_distance
+  }
+  
   list_to_return = list(
     is_distance_computed = is_distance_computed,
-    distance_matrix = res_distance
+    distance_matrix = distance_matrix
   )
   
   gc()
@@ -58,7 +56,6 @@ is_possible_to_run_mds <- function(
   number_coordinates,
   timeout
 ){
-  plan(multisession, gc = TRUE)
   
   # Calculating MDS
   mds_classical %<-% {
@@ -97,6 +94,7 @@ is_possible_to_calculate_components_mds <- function(
   metric,
   timeout
 ){
+  plan(multisession, gc = TRUE)
   
   # Check if we can compute distance matrix
   result_distance_computation = is_possible_to_calculate_distance_matrix(
@@ -105,10 +103,9 @@ is_possible_to_calculate_components_mds <- function(
     timeout = timeout
   )
   
-  
+
   able_to_compute_distance = result_distance_computation$is_distance_computed
-  
-  
+  able_to_compute_components_mds = able_to_compute_distance
   # Check if we can compute MDS
   if( able_to_compute_distance == TRUE ){
     able_to_compute_components_mds = is_possible_to_run_mds(
@@ -116,7 +113,7 @@ is_possible_to_calculate_components_mds <- function(
       number_coordinates = number_coordinates,
       timeout = timeout
     )
-    
+
   }
   
   gc()
@@ -131,7 +128,7 @@ recursive_mds <- function(
   timeout
 ){
   
-  # Store the rowns of the main data frame
+  # Store the rows of the main data frame
   if( is.na(n_obs_main_matrix) == TRUE ){
     n_obs_main_matrix <<- nrow(x) 
     message(paste0("Rows of the main matrix: ", n_obs_main_matrix))
@@ -187,16 +184,33 @@ recursive_mds <- function(
     list_mds[[n_recursive_calls]] <<- output_mds
     
     # Take s points from the matrix randomly
-    samled_points = sample(
+    sampled_points = sample(
       x = row.names(x), 
       size = n_sampling_points, 
       replace = FALSE
     )
     
-    list_sample_points[[n_recursive_calls]] <<- samled_points
+    list_sample_points[[n_recursive_calls]] <<- sampled_points
     
     # Append the points no M_align
-    M_align <<- rbind(M_align, x[samled_points, ])
+    ind_position = row.names(x) %in% sampled_points
+    if(is_M_align_empty == TRUE){
+      M_align <<- x[ind_position, ]
+      row.names(M_align) = row.names(x)[ind_position]
+      is_M_align_empty <<- FALSE
+      message(paste0("Dimension after creation: ", nrow(M_align)))
+    }else{
+      M_to_append = x[ind_position, ]
+      row.names(M_to_append) = row.names(x)[ind_position]
+      M_align <<- rbind(
+        M_align,
+        M_to_append
+      )
+      
+      message(paste0("Dimension after append: ", nrow(M_align)))
+      
+    }
+    
 
     
     # Increment for the next MDS
@@ -227,9 +241,20 @@ fast_mds <- function(
   x,
   number_coordinates,
   metric,
-  timeout = 60
+  timeout
 
 ){
+  
+  # Global variables
+  list_mds <<- list()
+  n_recursive_calls <<- 1
+  list_sample_points <<- list()
+  is_M_align_empty <<- TRUE
+  M_align <<- NA
+  n_obs_main_matrix <<- NA
+  n_sampling_points <<- NA
+  
+  
   #Calling the recursive process
   recursive_mds(
     x = x,
@@ -258,24 +283,30 @@ fast_mds <- function(
   
   for(i_group in 1:total_groups){
     # Filter the s points from D_i and M_align
-    rows_to_select = list_sample_points[[i_group]]
+    rows_names_to_select = list_sample_points[[i_group]]
     d_mds_i = list_mds[[i_group]]
-    d_mds_i_filter = d_mds_i[rows_to_select,] 
-    M_align_filter = mds_M_align[rows_to_select, ]
+    rows_to_select_d = which(row.names(d_mds_i) %in% rows_names_to_select)
+    rows_to_select_M = which(row.names(mds_M_align) %in% rows_names_to_select)
+    d_mds_i_filter = d_mds_i[rows_to_select_d,] 
+    M_align_filter = mds_M_align[rows_to_select_M, ]
     
     # Solving procruster problem
-    procrustes_result = smacof::Procrustes(
-      X = M_align_filter, 
-      Y = d_mds_i_filter
+    procrustes_result =  MCMCpack::procrustes(
+      X = M_align_filter, #The matrix to be transformed
+      Xstar = d_mds_i_filter, # target matrix
+      translation = TRUE, 
+      dilation = TRUE
     )
     
-    rotation_matrix = procrustes_result$rotation
-    dilation = procrustes_result$dilation
-    translation = procrustes_result$translation
+    rotation_matrix = procrustes_result$R
+    dilation = procrustes_result$s
+    translation = procrustes_result$tt
+    ones_vector = rep(1, nrow(d_mds_i)) 
+    translation_matrix = ones_vector %*% t(translation)
     
     
     # Transforming the data for the k-th group  
-    tranformation_di = dilation * d_mds_i %*% rotation_matrix + translation
+    tranformation_di = dilation * d_mds_i %*% rotation_matrix + translation_matrix
     
     if(i_group == 1){
       mds_aligned = tranformation_di
@@ -298,90 +329,3 @@ fast_mds <- function(
   return(mds_aligned)
   
 }
-
-
-###########################################################################
-# Checks for fast_mds function
-n_obs = 10^3
-x = data.frame(
-  x1 = rnorm(n_obs),
-  x2 = rnorm(n_obs),
-  x3 = rnorm(n_obs),
-  x4 = rnorm(n_obs),
-  x5 = rnorm(n_obs),
-  x6 = rnorm(n_obs)
-)
-
-results_fast_mds = fast_mds(
-  x = x,
-  number_coordinates = 2,
-  metric = "euclidean",
-  timeout = 1
-)
-
-
-
-head(results_fast_mds, 10)
-dim(M_align)
-length(list_mds)
-
-distance_x = daisy(
-  x = x,
-  metric = "euclidean"
-)
-
-
-mds_x = stats::cmdscale(
-  d = distance_x, 
-  k = 2
-)
-
-
-
-rotation_matrix = smacof::Procrustes(
-  X = mds_x,
-  Y = results_fast_mds
-)
-
-
-df_classical = as.data.frame(mds_x)
-df_classical$type = "classical"
-df_classical$label = row.names(x)
-
-
-df_fast = as.data.frame(rotation_matrix$Yhat)
-df_fast$type = 'divide_conquer'
-df_fast$label = row.names(x)
-
-df_all = rbind(
-  df_classical,
-  df_fast
-) %>% 
-  arrange(
-    as.numeric(label)
-  )
-
-# Plot
-df_all[1:20,] %>% 
-  ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
-  geom_text(aes(label=label),hjust=0, vjust=0)
-
-
-# Euclidean distance
-distance_classical_divide = diag(
-  rdist(
-    mds_classical,
-    procrustes_result$Yhat
-  )
-)
-
-# Plot the error
-ggplot(
-  data.frame(
-    error = distance_classical_divide
-  ), 
-  aes(error)
-) +
-  geom_density()
-
-summary(distance_classical_divide)
