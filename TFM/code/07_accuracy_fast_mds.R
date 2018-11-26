@@ -1,8 +1,9 @@
 source("tools/load_libraries.R")
-source("tools/compute_accuracy.R")
 source("tools/fast_MDS.R")
+source("tools/compute_accuracy.R")
 
 
+# 01 Very random example ----
 set.seed(12345)
 n_obs = 10^3
 x = data.frame(

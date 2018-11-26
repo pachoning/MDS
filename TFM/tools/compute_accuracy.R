@@ -57,8 +57,8 @@ compare_methods <- function(
   # Euclidean distance
   distance_between_coordinates = diag(
     rdist(
-      mds_classical,
-      procrustes_result$X.new
+      procrustes_result$X.new,
+      mds_new_approach
     )
   )
   

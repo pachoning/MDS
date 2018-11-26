@@ -26,13 +26,11 @@ is_possible_to_calculate_distance_matrix <- function(
     onTimeout = "silent"
   )
   
-  message(paste0("value for computation on distance matrix: ", is_able_to_resolve))
   
   is_distance_computed = is.null(is_able_to_resolve) == FALSE && 
     is.na(is_able_to_resolve) == FALSE &&
     is_able_to_resolve == TRUE
   
-  message(paste0("value for boolean: ", is_distance_computed))
   
   if(is_distance_computed == FALSE){
     distance_matrix = NULL
@@ -198,7 +196,6 @@ recursive_mds <- function(
       M_align <<- x[ind_position, ]
       row.names(M_align) = row.names(x)[ind_position]
       is_M_align_empty <<- FALSE
-      message(paste0("Dimension after creation: ", nrow(M_align)))
     }else{
       M_to_append = x[ind_position, ]
       row.names(M_to_append) = row.names(x)[ind_position]
@@ -206,8 +203,6 @@ recursive_mds <- function(
         M_align,
         M_to_append
       )
-      
-      message(paste0("Dimension after append: ", nrow(M_align)))
       
     }
     
@@ -292,8 +287,8 @@ fast_mds <- function(
     
     # Solving procruster problem
     procrustes_result =  MCMCpack::procrustes(
-      X = M_align_filter, #The matrix to be transformed
-      Xstar = d_mds_i_filter, # target matrix
+      X = d_mds_i_filter, #The matrix to be transformed
+      Xstar = M_align_filter, # target matrix
       translation = TRUE, 
       dilation = TRUE
     )
@@ -303,7 +298,6 @@ fast_mds <- function(
     translation = procrustes_result$tt
     ones_vector = rep(1, nrow(d_mds_i)) 
     translation_matrix = ones_vector %*% t(translation)
-    
     
     # Transforming the data for the k-th group  
     tranformation_di = dilation * d_mds_i %*% rotation_matrix + translation_matrix
