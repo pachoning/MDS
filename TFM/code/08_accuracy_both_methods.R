@@ -9,7 +9,7 @@ source("tools/compute_accuracy.R")
 load("data/Bike-Sharing-Dataset/df_split.RData")
 
 
-
+load("/Users/Cristian/Documents/MESIO/TFM/check_point_2018_11_26_19_09_00.Rproj")
 set.seed(12345)
 
 # 01 Random example ----
@@ -23,6 +23,8 @@ x = data.frame(
   x5 = rnorm(n_obs),
   x6 = rnorm(n_obs)
 )
+
+x <- as.data.frame(matrix(rnorm(5*n_obs),nrow=n_obs))
 
 
 # Divide and conquer MDS
@@ -49,6 +51,8 @@ results_compare_divide_conquer_random = compare_methods(
 head(mds_divide_conquer_random$mds, 8)
 head(results_compare_divide_conquer_random$mds_classical_transformed, 8)
 
+head(results_compare_divide_conquer_random$df_both_mds_labels)
+
 # Plot coordinates
 results_compare_divide_conquer_random$df_both_mds_labels[1:20, ] %>% 
   ggplot(aes(x = V1, y = V2, color = type, group = type)) + 
@@ -65,6 +69,40 @@ ggplot(
   geom_density()
 
 summary(results_compare_divide_conquer_random$distance_between_coordinates)
+
+
+df1 = results_compare_divide_conquer_random$df_both_mds_labels %>% 
+  filter(type == "classical") %>% 
+  select(V1) %>% 
+  pull()
+
+df1
+
+df2 = results_compare_divide_conquer_random$df_both_mds_labels %>% 
+  filter(type == "classical") %>% 
+  select(V2)
+
+df2
+
+
+df1n = results_compare_divide_conquer_random$df_both_mds_labels %>% 
+  filter(type == "new_approach") %>% 
+  select(V1) %>% 
+
+df1n 
+
+df2n = results_compare_divide_conquer_random$df_both_mds_labels %>% 
+  filter(type == "new_approach") %>% 
+  select(V2)
+
+df2n
+
+plot(df1[[1]], df1n[[1]])
+abline(a = 0, b = 1, col = 2, lwd = 2)
+
+plot(df2[[1]], df2n[[1]])
+abline(a = 0, b = 1, col = 2, lwd = 2)
+
 
 ################################################################################
 
