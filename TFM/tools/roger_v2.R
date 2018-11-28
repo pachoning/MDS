@@ -142,7 +142,7 @@ fast_roger_v2 <- function(
       }
     }
     
-    # row.names(Z) = row.names(x)
+    row.names(Z) = row.names(x)
     
   }else{
     message("Recursive!!!")
@@ -254,9 +254,9 @@ fast_roger_v2 <- function(
 
 
 
-x = BudgetFood %>% slice(1:100) %>% select(-sex, -town) 
+x = BudgetFood %>% slice(1:3000) %>% select(-sex, -town) 
 n = nrow(x)
-l = 15
+l = 100
 s = 2
 k = 3
 metric = "euclidean"
@@ -293,3 +293,8 @@ results_compare_divide_conquer_budget = compare_methods(
 head(fast_r, 8)
 head(results_compare_divide_conquer_budget$mds_classical_transformed, 8)
 
+
+
+
+tail(fast_r, 8)
+tail(results_compare_divide_conquer_budget$mds_classical_transformed, 8)
