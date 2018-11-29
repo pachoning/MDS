@@ -1,7 +1,3 @@
-source("tools/load_libraries.R")
-source("tools/compute_accuracy.R")
-library(Ecdat)
-
 fast_mds <- function(
   x,
   n,
@@ -251,49 +247,3 @@ fast_mds <- function(
   
   return(Z)
 }
-
-
-nrow(BudgetFood)
-x = BudgetFood %>% slice(1:200) %>% select(-sex, -town) 
-n = nrow(x)
-l = 10
-s = 2
-k = 3
-metric = "euclidean"
-
-n*k*s <= l^2
-
-fast_r <- fast_mds(
-  x = x,
-  n = n,
-  l = l,
-  s = s,
-  k = k,
-  metric = "euclidean"
-)
-
-nrow(fast_r)
-
-if(FALSE){
-  results_classical_mds_budget = classical_mds(
-    x = x,
-    number_coordinates = 2,
-    metric = metric
-  )
-}
-
-
-results_compare_fast_budget = compare_methods(
-  mds_new_approach = fast_r,
-  mds_classical = results_classical_mds_budget
-)
-
-
-head(fast_r, 8)
-head(results_compare_fast_budget$mds_classical_transformed, 8)
-
-
-
-
-tail(fast_r, 8)
-tail(results_compare_fast_budget$mds_classical_transformed, 8)
