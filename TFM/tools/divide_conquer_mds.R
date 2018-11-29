@@ -2,8 +2,7 @@ divide_conquer_mds <- function(
   x,
   groups,
   number_coordinates,
-  metric = "euclidean",
-  ...
+  metric = "euclidean"
 ){
   
   # List positions
@@ -110,10 +109,5 @@ divide_conquer_mds <- function(
   cum_mds = cum_mds[reording_permutation, ]
   
  
-  return(
-    list(
-      mds = cum_mds,
-      ls_positions = ls_positions
-    )
-  )
+  return(cum_mds)
 }

@@ -290,15 +290,17 @@ summary(results_compare_fast_bike$distance_between_coordinates)
 set.seed(12345)
 data(BudgetFood)
 nrow(BudgetFood)
-ind = sample(x = nrow(BudgetFood), size = 3000, replace = FALSE)
-x = BudgetFood %>% slice(ind) %>% select(-sex, -town) 
+# ind = sample(x = nrow(BudgetFood), size = 3000, replace = FALSE)
+x = BudgetFood %>% slice(1:100) %>% select(-sex, -town) 
 metric = "euclidean"
 
 
 # Divide and conquer MDS
+g = sample(x = 16, size = nrow(x), replace = TRUE)
+g = sort(g)
 mds_divide_conquer_budget = divide_conquer_mds(
   x = x,
-  groups =  sample(x = 5, size = nrow(x), replace = TRUE),
+  groups =  g,
   number_coordinates = 2,
   metric = metric
 )
