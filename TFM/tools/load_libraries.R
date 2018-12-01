@@ -36,6 +36,11 @@ if( require(MCMCpack) == FALSE ){
   library(MCMCpack)
 }
 
+if( require(pdist) == FALSE ){
+  install.packages('pdist')
+  library(pdist)
+}
+
 if( require(pracma) == FALSE ){
   install.packages('pracma')
   library(pracma)
@@ -44,6 +49,11 @@ if( require(pracma) == FALSE ){
 if( require(R.utils) == FALSE ){
   install.packages('R.utils')
   library(R.utils)
+}
+
+if( require(readr) == FALSE ){
+  install.packages('readr')
+  library(readr)
 }
 
 if( require(rlist) == FALSE ){
