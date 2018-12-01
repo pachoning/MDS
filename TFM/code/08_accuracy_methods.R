@@ -11,7 +11,7 @@ load("data/Bike-Sharing-Dataset/df_split.RData")
 
 # Accuracy
 data(BudgetFood)
-x = BudgetFood %>% slice(1:3000) %>% select(-sex, -town) 
+x = BudgetFood %>% select(-sex, -town) 
 
 x = as.data.frame(matrix(rnorm(5*3*10^3), ncol = 5))
 
@@ -24,11 +24,11 @@ x = as.data.frame(
 )
 dim(x)
 # Params for divide and conquer
-n_groups = 10
+n_groups = 20
 
 # Params for fast
-s = 4
-l = 100
+s = 2
+l = 1000
 k = 3
 
 metric = "euclidean"
