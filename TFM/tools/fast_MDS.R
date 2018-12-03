@@ -185,7 +185,12 @@ fast_mds <- function(
     
     
     # M_align: MDS over x_M_align
-    distance_matrix_M = distance_matrix = daisy(
+    # distance_matrix_M = distance_matrix = daisy(
+    #   x = x_M_align,
+    #   metric = metric
+    # )
+    
+    distance_matrix_M  = daisy(
       x = x_M_align,
       metric = metric
     )
