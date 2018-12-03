@@ -11,7 +11,7 @@ load("data/Bike-Sharing-Dataset/df_split.RData")
 
 # Accuracy
 data(BudgetFood)
-x = BudgetFood %>% select(-sex, -town) 
+x = BudgetFood[1:1000,] %>% select(-sex, -town) 
 
 x = as.data.frame(matrix(rnorm(5*3*10^3), ncol = 5))
 
