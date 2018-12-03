@@ -11,7 +11,7 @@ load("data/Bike-Sharing-Dataset/df_split.RData")
 
 # Accuracy
 data(BudgetFood)
-x = BudgetFood[1:1000,] %>% select(-sex, -town) 
+x = BudgetFood[1:3000,] %>% select(-sex, -town) 
 
 x = as.data.frame(matrix(rnorm(5*3*10^3), ncol = 5))
 
@@ -28,7 +28,7 @@ n_groups = 20
 
 # Params for fast
 s = 2
-l = 1000
+l = 100
 k = 3
 
 metric = "euclidean"
