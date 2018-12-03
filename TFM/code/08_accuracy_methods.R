@@ -10,28 +10,38 @@ load("data/Bike-Sharing-Dataset/df_split.RData")
 
 
 # Accuracy
-data(BudgetFood)
-x = BudgetFood[1:3000,] %>% select(-sex, -town) 
+if(FALSE){
+  data(BudgetFood)
+  x = BudgetFood %>% select(-sex, -town) 
+  head(x)
+}
 
-x = as.data.frame(matrix(rnorm(5*3*10^3), ncol = 5))
+if(FALSE){
+  x = as.data.frame(matrix(rnorm(5*3*10^3), ncol = 5))
+}
 
-x = as.data.frame(
-  build_matrix(
-    n = 3*10^3,
-    p = 5,
-    corr_coef = 0
+if(FALSE){
+  x = as.data.frame(
+    build_matrix(
+      n = 3*10^3,
+      p = 5,
+      corr_coef = 0
+    )
   )
-)
+}
+
+
 dim(x)
 # Params for divide and conquer
-n_groups = 20
+n_groups = 1500
 
 # Params for fast
 s = 2
-l = 100
+l = 10
 k = 3
-
 metric = "euclidean"
+
+
 # Classical
 if(FALSE){
   starting_time = proc.time()
@@ -138,7 +148,7 @@ results_compare_divide_conquer_fast = compare_methods(
   mds_classical = mds_fast
 )
 
-# Comparing coordinates for divide and classical
+# Comparing coordinates for divide and fast
 plot(mds_divide_conquer[,1], results_compare_divide_conquer_fast$mds_classical_transformed[,1])
 abline(a = 0, b = 1, col = 2, lwd = 2)
 

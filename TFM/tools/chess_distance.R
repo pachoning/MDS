@@ -48,7 +48,7 @@ calculate_distance <- function(
     mat1 <- data.frame(vect1)
     mat2 <- data.frame(vect2) 
   
-    dists <- pdist(mat1, mat2)
+    dists <- pdist::pdist(mat1, mat2)
     dists = as.matrix(dists)/max_dist
   
   
@@ -101,7 +101,7 @@ chess_distance <- function(
     for(j in 1:nrow(df)){
       # Take the chess board for game i and j
       dist_ij = 0
-      cheass_board_ij = df[c(i, j), ]
+      chess_boad_ij = df[c(i, j), ]
       
       # For each piece, compute the distance
       for(i_piece in 1:6){
@@ -110,8 +110,8 @@ chess_distance <- function(
         # For each colour, compute the distance
         for(i_colour in c("White", "Black")){
         
-          ind_i = which( cheass_board_ij[i,] == paste0(df_pieces_filter$piece,i_colour)  ) 
-          ind_j = which( cheass_board_ij[j,] == paste0(df_pieces_filter$piece,i_colour)  ) 
+          ind_i = which( chess_boad_ij[i,] == paste0(df_pieces_filter$piece,i_colour) | chess_boad_ij[i,] == paste0( tolower( df_pieces_filter$piece ), i_colour) ) 
+          ind_j = which( chess_boad_ij[j,] == paste0(df_pieces_filter$piece,i_colour) | chess_boad_ij[j,] == paste0( tolower( df_pieces_filter$piece ), i_colour)) 
         
           coordinates_i = compute_coordinates(ind_i)
           coordinates_j = compute_coordinates(ind_j)
@@ -132,16 +132,3 @@ chess_distance <- function(
   
   return(distance_matrix)
 }
-
-chess_board_example = readr::read_delim(
-  file = "data/chess_game/chess_board_example.csv",
-  delim = ","
-)
-
-if(FALSE){
-  View(chess_board_example)
-}
-      
-chess_distance(
-  chess_board_example
-)
