@@ -1,3 +1,4 @@
+source("tools/load_libraries.R")
 df_2000 = fread(
   file.path(
     "data/us-population-by-zip-code",
@@ -8,10 +9,10 @@ df_2000 = fread(
 )
 
 
-nrow(df_2000)
+dim(df_2000)
 tail(df_2000)
 df_2000$year = 2000
-dim(df_2000)
+
 
 
 df_2010 = read_delim(
@@ -22,6 +23,14 @@ df_2010 = read_delim(
   delim = ','
 )
 
+dim(df_2010)
 head(df_2010)
 df_2010$year = 2010
-dim(df_2010)
+
+
+df_pop = rbind(
+  df_2000,
+  df_2010
+)
+dim(df_pop)
+save(df_pop, file = "data/us-population-by-zip-code/df_pop.RData")
