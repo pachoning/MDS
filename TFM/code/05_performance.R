@@ -1,22 +1,18 @@
 # 01 Load libraries ----
 source("tools/load_libraries.R")
 source("tools/divide_conquer_mds.R")
-source("tools/split_sample.R")
+source("tools/fast_MDS.R")
 
 
 
 
 
 # 02 Load data set ----
-input_directory = file.path("data", "Bike-Sharing-Dataset")
-input_file = "df_input.RData"
 
 
-load(file.path(input_directory, input_file))
-dim(df_input)
-str(df_input)
+# 03 Params ----
 
-# 03 Performance algorithm ----
+# 04 Performance fast MDS algorithm ----
 first_number_groups = 20
 last_number_groups = 200
 number_coordinates = 2
@@ -26,8 +22,8 @@ total_number_groups = last_number_groups - first_number_groups + 1
 
 
 df_performance = data.frame(
-  number_groups = rep(NA, total_number_groups),
-  min_observations_per_group = rep(NA, total_number_groups),
+  n_obs = rep(NA, total_number_groups),
+  computed_time = rep(NA, total_number_groups),
   max_observations_per_group = rep(NA, total_number_groups),
   mean_observations_per_group = rep(NA, total_number_groups),
   
