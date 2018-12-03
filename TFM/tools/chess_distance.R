@@ -41,7 +41,7 @@ calculate_distance <- function(
       ( length(vect1) == 0 & length(vect2) != 0) || 
       ( length(vect1) != 0 & length(vect2) == 0)
     ){
-    dists <- matrix(1, nrow = number_pieces, ncol = number_pieces)
+    dists <- matrix(max_dist, nrow = number_pieces, ncol = number_pieces)
   } else if( length(vect1) == 0 & length(vect2) == 0 ){
     dists <- matrix(0, nrow = number_pieces, ncol = number_pieces)
   }else{
