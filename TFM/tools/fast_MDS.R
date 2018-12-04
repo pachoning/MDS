@@ -42,6 +42,7 @@ fast_mds <- function(
   
   # We can do MDS
   if(able_to_do_mds == TRUE){
+    message(paste0("Non-recursive!!"))
     for (i_group in 1:p) {
       
       matrix_filter = list_matrix[[i_group]]
@@ -90,7 +91,6 @@ fast_mds <- function(
       x = x_M_align,
       metric = metric
     )
-    
     
     M_align = stats::cmdscale(
       d = distance_matrix_M, 
@@ -162,13 +162,10 @@ fast_mds <- function(
         size = k * s, 
         replace = FALSE
       )
-      message(paste0("End of getting z_", i_group))
-      message(paste0("        Subsample is ", paste0( list_index[[i_group]], collapse = ',')))
       
       ind = which( row.names( list_zi[[i_group]] ) %in% list_index[[i_group]])
       submatrix = list_matrix[[i_group]][ind, ] 
-      
-      message(paste0("        while bulding submatrix, its rownames are "), paste0(row.names(submatrix), collapse = ","))
+    
       
       if(i_group == 1){
         x_M_align = submatrix 
@@ -178,35 +175,26 @@ fast_mds <- function(
           submatrix
         )
       }
-      message(paste0("        After iteration ", i_group, " x_M_align has ", nrow(x_M_align), " rows"))
     }
+    
     message(paste0("        At the end x_M_align has ", nrow(x_M_align), " rows"))
-    message(paste0("        At the end x_M_align has the following row names", paste0(row.names(x_M_align), collapse = ',' ) ))
     
-    
-    # M_align: MDS over x_M_align
-    # distance_matrix_M = distance_matrix = daisy(
-    #   x = x_M_align,
-    #   metric = metric
-    # )
-    
+   
     distance_matrix_M  = daisy(
       x = x_M_align,
       metric = metric
     )
-    
     
     M_align = stats::cmdscale(
       d = distance_matrix_M, 
       k = s
     )
     
-    message(paste0("M_align for iterative has ", nrow(M_align)," rows"))
-    message(paste0("x_M_align rows are ", paste0(row.names(x_M_align), collapse = ',' )))
+    
     # Global alignment
     for(i_group in 1:p){
       row_names = list_index[[i_group]]
-      message(paste0("selecting the following rows: ", paste0(row_names, collapse = ',')))
+      
       ind_M = which(row.names(x_M_align) %in% row_names)
       M_align_filter =  M_align[ind_M, ]
       
@@ -215,8 +203,6 @@ fast_mds <- function(
       di_filter = di[ind_mds, ]
       
       # Alignment
-      message(paste0("       di_filter has: ", nrow(di_filter)))
-      message(paste0("       M_align_filter has: ", nrow(M_align_filter)))
       procrustes_result =  MCMCpack::procrustes(
         X = di_filter, #The matrix to be transformed
         Xstar = M_align_filter, # target matrix
