@@ -1,6 +1,6 @@
 divide_conquer_mds <- function(
   x,
-  n_groups,
+  l,
   s,
   metric = "euclidean"
 ){
@@ -10,7 +10,8 @@ divide_conquer_mds <- function(
   list_eigenvalues = list()
   
   # Initial parameters
-  groups = sample(x = n_groups, size = nrow(x), replace = TRUE)
+  p = 2*nrow(x)/l
+  groups = sample(x = p, size = nrow(x), replace = TRUE)
   groups = sort(groups)
   unique_group = unique(groups)
   total_groups = length(unique_group)

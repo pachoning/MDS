@@ -1,23 +1,29 @@
 classical_mds <- function(
   x,
   metric,
-  number_coordinates
+  s
 ){
   
   # Classical MDS
-  dist_matrix = daisy(
+  distance_matrix = daisy(
     x = x,
     metric = metric
   )
   
-  
-  mds_classical = stats::cmdscale(
-    d = dist_matrix,
-    k = number_coordinates
+  cmd_eig = stats::cmdscale(
+    d = distance_matrix, 
+    k = s,
+    eig = TRUE
   )
   
   
-  return(mds_classical)
+  
+  return(
+    list(
+      points = cmd_eig$points,
+      eig = cmd_eig$eig 
+    )
+  )
   
 }
 

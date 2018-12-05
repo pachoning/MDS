@@ -1,5 +1,5 @@
 # ftp://ftp.auckland.ac.nz/pub/software/CRAN/doc/packages/micEcdat.pdf
-library(Ecdat)
+library(Ecdat) 
 source("tools/load_libraries.R")
 source("tools/divide_conquer_mds.R")
 source("tools/fast_MDS_eigen.R")
@@ -31,8 +31,6 @@ if(FALSE){
 
 
 dim(x)
-# Params for divide and conquer
-n_groups = 1500
 
 # Params for fast
 s = 2
@@ -43,15 +41,21 @@ threshold_variance_explained = 0.9
 
 # Classical
 if(FALSE){
+  rm(mds_classical_sol)
+  rm(mds_classical)
+  
   starting_time = proc.time()
-  rm(results_classical_mds)
-  results_classical_mds = classical_mds(
+  
+  mds_classical_sol = classical_mds(
     x = x,
-    number_coordinates = s,
+    s = s,
     metric = metric
   )
-  
   diff_time = proc.time() - starting_time 
+  
+  mds_classical = mds_classical_sol$points
+  
+  
   message(paste0("Elapsed time for classical: ", round(diff_time[3], 4), " seconds" ))
 }
 
@@ -59,15 +63,20 @@ if(FALSE){
 
 # Divide and conquer
 if(FALSE){
-  starting_time = proc.time()
+  2*nrow(x)/l
+  rm(mds_divide_conquer_sol)
   rm(mds_divide_conquer)
-  mds_divide_conquer = divide_conquer_mds(
+  
+  starting_time = proc.time()
+  mds_divide_conquer_sol = divide_conquer_mds(
     x = x,
-    groups =  sample(x = n_groups, size = nrow(x), replace = TRUE),
-    number_coordinates = s,
+    l = l,
+    s = s,
     metric = metric
   )
   diff_time = proc.time() - starting_time 
+  mds_divide_conquer = mds_divide_conquer_sol$points
+  
   message(paste0("Elapsed time for divide and conquer: ", round(diff_time[3], 4), " seconds" ))
 }
 
@@ -75,8 +84,12 @@ if(FALSE){
 
 # Fast
 if(FALSE){
-  starting_time = proc.time()
+  
+  rm(mds_fast_sol)
   rm(mds_fast)
+  
+  starting_time = proc.time()
+  
   mds_fast_sol = fast_eigen_mds(
     x = x,
     n = nrow(x),
@@ -86,14 +99,10 @@ if(FALSE){
     metric = metric,
     threshold_variance_explained = threshold_variance_explained
   )
-  mds_fast = mds_fast_sol$points
-  length(mds_fast_sol$eig)
-  str(mds_fast_sol$eig)
-  do.call(c, unlist(mds_fast_sol$eig, recursive=FALSE))
-  unlist(unlist(unlist(mds_fast_sol$eig, recursive=FALSE), recursive=FALSE), recursive = FALSE)
-  
-  
   diff_time = proc.time() - starting_time 
+  
+  mds_fast = mds_fast_sol$points
+
   message(paste0("Elapsed time for fast: ", round(diff_time[3], 4), " seconds" ))
 }
 
@@ -101,7 +110,7 @@ if(FALSE){
 # Align divide and classical
 results_compare_divide_conquer = compare_methods(
   mds_new_approach = mds_divide_conquer,
-  mds_classical = results_classical_mds
+  mds_classical = mds_classical
 )
 
 
@@ -127,7 +136,7 @@ abline(a = 0, b = 1, col = 2, lwd = 2)
 # Align fast and classical
 results_compare_fast = compare_methods(
   mds_new_approach = mds_fast,
-  mds_classical = results_classical_mds
+  mds_classical = mds_classical
 )
 
 
@@ -176,11 +185,8 @@ abline(a = 0, b = 1, col = 2, lwd = 2)
 
 
 
-row.names(mds_fast)
-plot(results_classical_mds)
-cov(results_classical_mds)
-
-plot(mds_fast[,1], results_classical_mds[,1])
-
-
-11+8+16+16
+plot(mds_fast[,1], mds_classical[,1])
+plot(mds_fast[,2], mds_classical[,2])
+plot(mds_fast[,3], mds_classical[,3])
+plot(mds_fast[,4], mds_classical[,4])
+plot(mds_fast[,5], mds_classical[,5])
