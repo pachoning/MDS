@@ -1,33 +1,4 @@
-classical_mds <- function(
-  x,
-  metric,
-  s
-){
-  
-  # Classical MDS
-  distance_matrix = daisy(
-    x = x,
-    metric = metric
-  )
-  
-  cmd_eig = stats::cmdscale(
-    d = distance_matrix, 
-    k = s,
-    eig = TRUE
-  )
-  
-  
-  
-  return(
-    list(
-      points = cmd_eig$points,
-      eig = cmd_eig$eig 
-    )
-  )
-  
-}
-
-compare_methods <- function(
+compare.methods <- function(
   mds_new_approach,
   mds_classical
 ){

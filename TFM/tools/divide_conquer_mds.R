@@ -1,8 +1,8 @@
-divide_conquer_mds <- function(
+divide_conquer.mds <- function(
   x,
   l,
   s,
-  metric = "euclidean"
+  metric
 ){
   
   # List positions

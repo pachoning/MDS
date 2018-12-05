@@ -1,11 +1,10 @@
-fast_eigen_mds <- function(
+fast.mds <- function(
   x,
   n,
   l,
   s,
   k,
-  metric,
-  threshold_variance_explained
+  metric
 ){
   # Parametres inicials
   list_matrix = list()
@@ -63,14 +62,6 @@ fast_eigen_mds <- function(
       #Storing the eigenvalues
       list_mds[[i_group]] = cmd_eig$points
       list_eigenvalues[[i_group]] = cmd_eig$eig
-
-      
-      # Getting the number of dimensions
-      # cum_sum_eigen = cumsum(cmd_eig$eig)
-      # variance_explained = cum_sum_eigen/sum(cmd_eig$eig)
-      # list_number_dimensions[[i_group]] = min(
-      #   which(variance_explained >= threshold_variance_explained)
-      # )
       
       # Subsample
       sample_size = sub_sample_size
@@ -162,28 +153,19 @@ fast_eigen_mds <- function(
     for(i_group in 1:p){
       
       # Apply the algorithm
-      cmd_eig = fast_eigen_mds(
+      cmd_eig = fast.mds(
         x = list_matrix[[i_group]],
         n = nrow(list_matrix[[i_group]]),
         l = l,
         s = s,
         k = k,
-        metric = metric,
-        threshold_variance_explained = threshold_variance_explained
+        metric = metric
       )
       
       # Storing MDS and eigenvalues
       list_zi[[i_group]] = cmd_eig$points
       list_eigenvalues[[i_group]] = cmd_eig$eig
-      
-      # Getting the number of dimensions
-      # cum_sum_eigen = cumsum(unlist(cmd_eig$eig))
-      # variance_explained = cum_sum_eigen/sum(unlist(cmd_eig$eig))
-      # list_number_dimensions[[i_group]] = min(
-      #   which(variance_explained >= threshold_variance_explained)
-      # )
-      
-      
+
 
       #Take a subsample
       list_index[[i_group]] = sample(

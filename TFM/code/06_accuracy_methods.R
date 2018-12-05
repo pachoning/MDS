@@ -3,6 +3,7 @@ library(Ecdat)
 source("tools/load_libraries.R")
 source("tools/divide_conquer_mds.R")
 source("tools/fast_MDS_eigen.R")
+source("tools/classical_mds.R")
 source("tools/compute_accuracy.R")
 source("tools/build_random_matrix.R")
 
@@ -37,7 +38,6 @@ s = 2
 l = 20
 k = 3
 metric = "euclidean"
-threshold_variance_explained = 0.9
 
 # Classical
 if(FALSE){
@@ -46,7 +46,7 @@ if(FALSE){
   
   starting_time = proc.time()
   
-  mds_classical_sol = classical_mds(
+  mds_classical_sol = classical.mds(
     x = x,
     s = s,
     metric = metric
@@ -68,7 +68,7 @@ if(FALSE){
   rm(mds_divide_conquer)
   
   starting_time = proc.time()
-  mds_divide_conquer_sol = divide_conquer_mds(
+  mds_divide_conquer_sol = divide_conquer.mds(
     x = x,
     l = l,
     s = s,
@@ -90,14 +90,13 @@ if(FALSE){
   
   starting_time = proc.time()
   
-  mds_fast_sol = fast_eigen_mds(
+  mds_fast_sol = fast.mds(
     x = x,
     n = nrow(x),
     l = l,
     s = s,
     k = k,
-    metric = metric,
-    threshold_variance_explained = threshold_variance_explained
+    metric = metric
   )
   diff_time = proc.time() - starting_time 
   
@@ -108,7 +107,7 @@ if(FALSE){
 
 
 # Align divide and classical
-results_compare_divide_conquer = compare_methods(
+results_compare_divide_conquer = compare.methods(
   mds_new_approach = mds_divide_conquer,
   mds_classical = mds_classical
 )
@@ -134,7 +133,7 @@ abline(a = 0, b = 1, col = 2, lwd = 2)
 
 
 # Align fast and classical
-results_compare_fast = compare_methods(
+results_compare_fast = compare.methods(
   mds_new_approach = mds_fast,
   mds_classical = mds_classical
 )
@@ -159,7 +158,7 @@ abline(a = 0, b = 1, col = 2, lwd = 2)
 
 
 # Comparing coordinates for fast and divide
-results_compare_divide_conquer_fast = compare_methods(
+results_compare_divide_conquer_fast = compare.methods(
   mds_new_approach = mds_divide_conquer,
   mds_classical = mds_fast
 )
@@ -190,3 +189,4 @@ plot(mds_fast[,2], mds_classical[,2])
 plot(mds_fast[,3], mds_classical[,3])
 plot(mds_fast[,4], mds_classical[,4])
 plot(mds_fast[,5], mds_classical[,5])
+
