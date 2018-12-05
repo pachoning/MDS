@@ -1,15 +1,17 @@
 divide_conquer_mds <- function(
   x,
-  groups,
-  number_coordinates,
+  n_groups,
+  s,
   metric = "euclidean"
 ){
   
   # List positions
   ls_positions = list()
-  
+  list_eigenvalues = list()
   
   # Initial parameters
+  groups = sample(x = n_groups, size = nrow(x), replace = TRUE)
+  groups = sort(groups)
   unique_group = unique(groups)
   total_groups = length(unique_group)
   
@@ -55,10 +57,14 @@ divide_conquer_mds <- function(
     
     # Applying MDS to the submatrix of data
     message("computing MDS")
-    mds_iteration =  stats::cmdscale(
-      d = distance_matrix,
-      k = number_coordinates
+    cmd_eig = stats::cmdscale(
+      d = distance_matrix, 
+      k = s,
+      eig = TRUE
     )
+    
+    mds_iteration =  cmd_eig$points
+    list_eigenvalues[[k]] = cmd_eig$eig
     
     row.names(mds_iteration) = row.names(submatrix_data)
     
@@ -108,6 +114,11 @@ divide_conquer_mds <- function(
   reording_permutation = match(1:nrow(x), rows_processed)
   cum_mds = cum_mds[reording_permutation, ]
   
- 
-  return(cum_mds)
+  
+  return(
+    list(
+      points = cum_mds,
+      eig = list_eigenvalues 
+    )
+  )
 }

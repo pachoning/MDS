@@ -1,16 +1,19 @@
-fast_mds <- function(
+fast_eigen_mds <- function(
   x,
   n,
   l,
   s,
   k,
-  metric
+  metric,
+  threshold_variance_explained
 ){
   # Parametres inicials
   list_matrix = list()
   list_index = list()
   list_mds = list()
   list_mds_align = list()
+  list_number_dimensions = list()
+  list_eigenvalues = list()
   
   sub_sample_size = k * s
   
@@ -29,9 +32,8 @@ fast_mds <- function(
     min_sample_size = min(table(observations_division))
   }
   
-  
-  
   # Partition into p submatrices
+  message(paste0("        p equals ", p))
   for(i_group in 1:p){
     ind = which(observations_division == i_group)
     list_matrix[[i_group]] = x[ind, ]
@@ -44,20 +46,31 @@ fast_mds <- function(
   if(able_to_do_mds == TRUE){
     message(paste0("Non-recursive!!"))
     for (i_group in 1:p) {
-      
       matrix_filter = list_matrix[[i_group]]
-    
+      
       # MDS for each submatrix
       distance_matrix = daisy(
         x = matrix_filter,
         metric = metric
       )
       
-      list_mds[[i_group]] = stats::cmdscale(
+      cmd_eig = stats::cmdscale(
         d = distance_matrix, 
-        k = s
+        k = s,
+        eig = TRUE
       )
       
+      #Storing the eigenvalues
+      list_mds[[i_group]] = cmd_eig$points
+      list_eigenvalues[[i_group]] = cmd_eig$eig
+
+      
+      # Getting the number of dimensions
+      # cum_sum_eigen = cumsum(cmd_eig$eig)
+      # variance_explained = cum_sum_eigen/sum(cmd_eig$eig)
+      # list_number_dimensions[[i_group]] = min(
+      #   which(variance_explained >= threshold_variance_explained)
+      # )
       
       # Subsample
       sample_size = sub_sample_size
@@ -144,18 +157,34 @@ fast_mds <- function(
     message("Recursive!!!")
     list_zi <- list()
     list_index <- list()
-    
+    list_number_dimensions = list()
+    list_eigenvalues = list()
     for(i_group in 1:p){
+      
       # Apply the algorithm
-      list_zi[[i_group]] = fast_mds(
+      cmd_eig = fast_eigen_mds(
         x = list_matrix[[i_group]],
         n = nrow(list_matrix[[i_group]]),
         l = l,
         s = s,
         k = k,
-        metric = metric 
+        metric = metric,
+        threshold_variance_explained = threshold_variance_explained
       )
       
+      # Storing MDS and eigenvalues
+      list_zi[[i_group]] = cmd_eig$points
+      list_eigenvalues[[i_group]] = cmd_eig$eig
+      
+      # Getting the number of dimensions
+      # cum_sum_eigen = cumsum(unlist(cmd_eig$eig))
+      # variance_explained = cum_sum_eigen/sum(unlist(cmd_eig$eig))
+      # list_number_dimensions[[i_group]] = min(
+      #   which(variance_explained >= threshold_variance_explained)
+      # )
+      
+      
+
       #Take a subsample
       list_index[[i_group]] = sample(
         x = row.names( list_zi[[i_group]] ), 
@@ -165,7 +194,7 @@ fast_mds <- function(
       
       ind = which( row.names( list_zi[[i_group]] ) %in% list_index[[i_group]])
       submatrix = list_matrix[[i_group]][ind, ] 
-    
+      
       
       if(i_group == 1){
         x_M_align = submatrix 
@@ -179,7 +208,7 @@ fast_mds <- function(
     
     message(paste0("        At the end x_M_align has ", nrow(x_M_align), " rows"))
     
-   
+    
     distance_matrix_M  = daisy(
       x = x_M_align,
       metric = metric
@@ -233,13 +262,13 @@ fast_mds <- function(
     }
     
     row.names(Z) = row.names(x)
-      
+    
   }
   
   return(
     list(
-      Z = Z,
-      eigenvalues = NA
+      points = Z,
+      eig = list_eigenvalues
     )
   )
 }

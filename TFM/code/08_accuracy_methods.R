@@ -2,17 +2,16 @@
 library(Ecdat)
 source("tools/load_libraries.R")
 source("tools/divide_conquer_mds.R")
-source("tools/fast_mds.R")
+source("tools/fast_MDS_eigen.R")
 source("tools/compute_accuracy.R")
 source("tools/build_random_matrix.R")
 
 load("data/Bike-Sharing-Dataset/df_split.RData")
 
 
-# Accuracy
 if(FALSE){
   data(BudgetFood)
-  x = BudgetFood %>% select(-sex, -town) 
+  x = BudgetFood %>% slice(1:3000) %>% select(-sex, -town) 
   head(x)
 }
 
@@ -37,10 +36,10 @@ n_groups = 1500
 
 # Params for fast
 s = 2
-l = 10
+l = 20
 k = 3
 metric = "euclidean"
-
+threshold_variance_explained = 0.9
 
 # Classical
 if(FALSE){
@@ -73,18 +72,26 @@ if(FALSE){
 }
 
 
+
 # Fast
 if(FALSE){
   starting_time = proc.time()
   rm(mds_fast)
-  mds_fast = fast_mds(
+  mds_fast_sol = fast_eigen_mds(
     x = x,
     n = nrow(x),
     l = l,
     s = s,
     k = k,
-    metric = metric
+    metric = metric,
+    threshold_variance_explained = threshold_variance_explained
   )
+  mds_fast = mds_fast_sol$points
+  length(mds_fast_sol$eig)
+  str(mds_fast_sol$eig)
+  do.call(c, unlist(mds_fast_sol$eig, recursive=FALSE))
+  unlist(unlist(unlist(mds_fast_sol$eig, recursive=FALSE), recursive=FALSE), recursive = FALSE)
+  
   
   diff_time = proc.time() - starting_time 
   message(paste0("Elapsed time for fast: ", round(diff_time[3], 4), " seconds" ))
@@ -174,3 +181,6 @@ plot(results_classical_mds)
 cov(results_classical_mds)
 
 plot(mds_fast[,1], results_classical_mds[,1])
+
+
+11+8+16+16
