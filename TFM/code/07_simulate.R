@@ -9,7 +9,7 @@ threshold_main_dimensions = 0.9
 
 
 df = expand.grid(
-  sample_size = list(1000, 1500, 3000, 10^5),
+  sample_size = list(1000, 1500, 3000, 10^5, 10^6, 10^7),
   data_dimension = list(4,10,100),
   main_dimensions_vector = list(NULL, 15, c(15,10), c(15, 15)),
   l = list(500),
@@ -31,6 +31,13 @@ list_results <- ls()
 for(i_row in 1:nrows_df){
   df_filter = df[i_row, ]
   
+  # Security control
+  if(
+    df_filter$sample_size[[1]] > 5000 & 
+    is.null(df_filter$sample_size_classical[[1]]) == TRUE
+  ) {
+      df_filter$sample_size_classical[[1]] = 3000
+  }
   
     message(
       paste0(
@@ -60,7 +67,13 @@ for(i_row in 1:nrows_df){
     
   
   df_summary_i = data.frame(
-    sample_size = list_results_i$sample_size,
+    sample_size_divide_conquer_fast = list_results_i$sample_size,
+    
+    sample_size_classical = ifelse(
+      is.null(list_results_i$sample_size_classical) == TRUE,
+      list_results_i$sample_size,
+      list_results_i$sample_size_classical
+    ),
     
     n_dimensions = list_results_i$data_dimension,
     
