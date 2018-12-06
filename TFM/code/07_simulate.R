@@ -66,7 +66,7 @@ for(i_row in 1:nrows_df){
     
     n_primary_dimensions = length(list_results_i$main_dimensions_vector),
     
-    n_secondayy_dimensions = list_results_i$data_dimension - length(list_results_i$main_dimensions_vector),
+    n_secondary_dimensions = list_results_i$data_dimension - length(list_results_i$main_dimensions_vector),
   
     
     exists_dominant_dimesion = exists_dominant_dimesion,
@@ -88,7 +88,7 @@ for(i_row in 1:nrows_df){
     
     elapsed_time_classical = list_results_i$classical_elapsed_time,
     
-    elapsed_time_classical_divide = list_results_i$divide_conquer_elapsed_time,
+    elapsed_time_divide_conquer = list_results_i$divide_conquer_elapsed_time,
     
     elapsed_time_fast = list_results_i$fast_elapsed_time
   )
@@ -111,15 +111,21 @@ for(i_row in 1:nrows_df){
 }
 
 
-View(df_summary)
-View(df)
+
+df_summary %>% 
+  arrange(
+    n_dimensions,
+    n_primary_dimensions,
+    sample_size,
+    exists_dominant_dimesion
+  ) %>% 
+  View
 
 char_time = gsub(
   pattern = "-|:| ",
   replacement = '_',
   x = Sys.time()
 )
-
 
 save.image(
   file = paste0("ws_",char_time, ".Rproj")
