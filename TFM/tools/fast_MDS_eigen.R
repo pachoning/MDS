@@ -32,7 +32,7 @@ fast.mds <- function(
   }
   
   # Partition into p submatrices
-  message(paste0("        p equals ", p))
+  # message(paste0("        p equals ", p))
   for(i_group in 1:p){
     ind = which(observations_division == i_group)
     list_matrix[[i_group]] = x[ind, ]
@@ -43,7 +43,7 @@ fast.mds <- function(
   
   # We can do MDS
   if(able_to_do_mds == TRUE){
-    message(paste0("Non-recursive!!"))
+    # message(paste0("Non-recursive!!"))
     for (i_group in 1:p) {
       matrix_filter = list_matrix[[i_group]]
       
@@ -145,7 +145,7 @@ fast.mds <- function(
     row.names(Z) = row.names(x)
     
   }else{
-    message("Recursive!!!")
+    # message("Recursive!!!")
     list_zi <- list()
     list_index <- list()
     list_number_dimensions = list()
@@ -188,7 +188,7 @@ fast.mds <- function(
       }
     }
     
-    message(paste0("        At the end x_M_align has ", nrow(x_M_align), " rows"))
+    # message(paste0("        At the end x_M_align has ", nrow(x_M_align), " rows"))
     
     
     distance_matrix_M  = daisy(

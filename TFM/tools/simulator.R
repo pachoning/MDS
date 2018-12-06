@@ -63,6 +63,7 @@ aggregator.mds <- function(
   
   starting_time = proc.time()
   if( method_wanted == 'divide_conquer' ){
+    message("Performing divide and conquer mds")
     result_mds = divide_conquer.mds(
       x = x,
       l = l,
@@ -70,6 +71,7 @@ aggregator.mds <- function(
       metric = metric
     )
   }else if( method_wanted == 'fast' ){
+    message("Performing fast mds")
     result_mds = fast.mds(
       x = x,
       n = nrow(x),
@@ -80,6 +82,7 @@ aggregator.mds <- function(
     )
     
   }else if( method_wanted == 'classical' ){
+    message("Performing classical mds")
     if(is.null(sample_size_classical) == TRUE){
       sample_size = nrow(x)
     }else{

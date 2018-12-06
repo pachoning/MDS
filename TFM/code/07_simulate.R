@@ -1,6 +1,6 @@
 source("tools/load_libraries.R")
 source("tools/classical_mds.R")
-source("tools/fast_mds_eigen.R")
+source("tools/fast_MDS_eigen.R")
 source("tools/divide_conquer_mds.R")
 source("tools/simulator.R")
 source("tools/n_dimensions.R")
@@ -9,8 +9,8 @@ threshold_main_dimensions = 0.9
 
 
 df = expand.grid(
-  sample_size = list(1000, 1500, 3000, 10^5, 10^6, 10^7),
-  data_dimension = list(4,10,100),
+  sample_size = list(1000, 1500, 3000, 10^4, 10^5, 10^6, 10^7),
+  data_dimension = list(4, 10, 100),
   main_dimensions_vector = list(NULL, 15, c(15,10), c(15, 15)),
   l = list(500),
   k = list(3),
@@ -33,7 +33,7 @@ for(i_row in 1:nrows_df){
   
   # Security control
   if(
-    df_filter$sample_size[[1]] > 5000 & 
+    df_filter$sample_size[[1]] >= 5000 & 
     is.null(df_filter$sample_size_classical[[1]]) == TRUE
   ) {
       df_filter$sample_size_classical[[1]] = 3000
@@ -123,13 +123,13 @@ for(i_row in 1:nrows_df){
   
 }
 
-
-
+df_summary %>% View
+df_summary %>% colnames()
 df_summary %>% 
   arrange(
     n_dimensions,
     n_primary_dimensions,
-    sample_size,
+    sample_size_divide_conquer_fast,
     exists_dominant_dimesion
   ) %>% 
   View

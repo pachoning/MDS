@@ -44,20 +44,20 @@ divide_conquer.mds <- function(
       )
       
     }
-    message(paste0("Iteration number ", k, " out of ", total_groups))
+    # message(paste0("Iteration number ", k, " out of ", total_groups))
     
     # Matrix to apply MDS
     submatrix_data = x[filter_rows_by_position, ]
     
     # Calculate distance
-    message("computing matrix distance")
+    # message("computing matrix distance")
     distance_matrix = cluster::daisy(
       x = submatrix_data,
       metric = metric
     )
     
     # Applying MDS to the submatrix of data
-    message("computing MDS")
+    # message("computing MDS")
     cmd_eig = stats::cmdscale(
       d = distance_matrix, 
       k = s,
@@ -86,7 +86,7 @@ divide_conquer.mds <- function(
       
       
       # Applying Procrustes transformation
-      message("computing Procrustes")
+      # message("computing Procrustes")
       procrustes_result =  MCMCpack::procrustes(
         X = mds_previous, #The matrix to be transformed
         Xstar = cum_mds_previous, # target matrix
