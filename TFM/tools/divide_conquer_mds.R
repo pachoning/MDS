@@ -10,7 +10,7 @@ divide_conquer.mds <- function(
   list_eigenvalues = list()
   
   # Initial parameters
-  p = 2*nrow(x)/l
+  p = ceiling(2*nrow(x)/l)
   groups = sample(x = p, size = nrow(x), replace = TRUE)
   groups = sort(groups)
   unique_group = unique(groups)
