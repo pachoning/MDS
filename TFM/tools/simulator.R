@@ -81,8 +81,8 @@ aggregator.mds <- function(
       metric = metric
     )
     
-  }else if( method_wanted == 'classic' ){
-    message("Performing classic mds")
+  }else if( method_wanted == 'classical' ){
+    message("Performing classical mds")
     if(is.null(sample_size_classic) == TRUE){
       sample_size = nrow(x)
     }else{
@@ -93,7 +93,7 @@ aggregator.mds <- function(
     rows_filter = sort(rows_filter)
     
     x_filter = x[rows_filter, ]
-    result_mds = classic.mds(
+    result_mds = classical.mds(
       x = x_filter,
       s = s,
       metric = metric
@@ -193,7 +193,7 @@ do.magic <- function(
   }
 
 
-  # Run the classic in case it is needed
+  # Run the classical in case it is needed
   classic_points = NULL
   classic_eig = NULL
   classic_elapsed_time = NULL
@@ -204,7 +204,7 @@ do.magic <- function(
       s = data_dimension, 
       k = k,
       metric = metric,
-      method_wanted = 'classic',
+      method_wanted = 'classical',
       sample_size_classic = sample_size_classic
     )
     
@@ -237,7 +237,7 @@ do.magic <- function(
     fast_elapsed_time = fast_elapsed_time,
     
     
-    # Output for classic
+    # Output for classical
     classic_points = classic_points,
     classic_eig = classic_eig,
     classic_elapsed_time = classic_elapsed_time
