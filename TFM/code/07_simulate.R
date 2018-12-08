@@ -9,7 +9,7 @@ threshold_main_dimensions = 0.9
 
 
 df = expand.grid(
-  sample_size = list(10^5),
+  sample_size = list(10^6),
   data_dimension = list(4, 10, 100),
   main_dimensions_vector = list(NULL, 15, c(15,10), c(15, 15)),
   l = list(500),
@@ -20,6 +20,7 @@ df = expand.grid(
   compute_classical_mds = list(TRUE),
   sample_size_classical = list(NULL)
 )
+
 
 if(FALSE){
   View(df)
@@ -123,17 +124,8 @@ for(i_row in 1:nrows_df){
   
 }
 
-df_summary %>% View
-df_summary %>% colnames()
-df_summary %>% 
-  arrange(
-    n_dimensions,
-    n_primary_dimensions,
-    sample_size_divide_conquer_fast,
-    exists_dominant_dimesion
-  ) %>% 
-  View
 
+Master's Thesis'
 char_time = gsub(
   pattern = "-|:| ",
   replacement = '_',
@@ -143,3 +135,20 @@ char_time = gsub(
 save.image(
   file = paste0("ws_",char_time, ".Rproj")
 )
+
+
+if(FALSE){
+  df_summary %>% View
+  df_summary %>% colnames()
+  df_summary %>% 
+    arrange(
+      n_dimensions,
+      n_primary_dimensions,
+      sample_size_divide_conquer_fast,
+      exists_dominant_dimesion
+    ) %>% 
+    View
+  
+  View(df)
+  View(df_summary)
+}
