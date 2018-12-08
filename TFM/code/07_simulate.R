@@ -24,6 +24,7 @@ df = expand.grid(
 
 if(FALSE){
   View(df)
+  df = df[9:10, ]
 }
 
 
@@ -125,7 +126,7 @@ for(i_row in 1:nrows_df){
 }
 
 
-Master's Thesis'
+
 char_time = gsub(
   pattern = "-|:| ",
   replacement = '_',
