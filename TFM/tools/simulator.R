@@ -181,13 +181,13 @@ do.magic <- function(
     # Unlist the eigenvalues
     fast_eig = fast_mds$eig
     
-    depth_list = determine.depth(fast_eig)
-    
-    if(depth_list > 1){
-      for(i in 1:(depth_list-1)){
-        fast_eig = unlist(fast_eig, recursive = FALSE)
-      }
-    }
+    # depth_list = determine.depth(fast_eig)
+    # 
+    # if(depth_list > 1){
+    #   for(i in 1:(depth_list-1)){
+    #     fast_eig = unlist(fast_eig, recursive = FALSE)
+    #   }
+    # }
     
     fast_elapsed_time = as.numeric(fast_mds$elapsed_time)
   }
@@ -197,7 +197,7 @@ do.magic <- function(
   classical_points = NULL
   classical_eig = NULL
   classical_elapsed_time = NULL
-  if( compute_classical_mds== TRUE ){
+  if( compute_classical_mds == TRUE ){
     classical_mds = aggregator.mds(
       x = x,
       l = l,
