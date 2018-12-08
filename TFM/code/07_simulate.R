@@ -1,5 +1,5 @@
 source("tools/load_libraries.R")
-source("tools/classical_mds.R")
+source("tools/classic_mds.R")
 source("tools/fast_MDS_eigen.R")
 source("tools/divide_conquer_mds.R")
 source("tools/simulator.R")
@@ -17,8 +17,8 @@ df = expand.grid(
   metric = list("euclidean"),
   compute_divide_conquer_mds = list(TRUE),
   compute_fast_mds = list(TRUE),
-  compute_classical_mds = list(TRUE),
-  sample_size_classical = list(NULL)
+  compute_classic_mds = list(TRUE),
+  sample_size_classic = list(NULL)
 )
 
 
@@ -36,9 +36,9 @@ for(i_row in 1:nrows_df){
   # Security control
   if(
     df_filter$sample_size[[1]] >= 5000 & 
-    is.null(df_filter$sample_size_classical[[1]]) == TRUE
+    is.null(df_filter$sample_size_classic[[1]]) == TRUE
   ) {
-      df_filter$sample_size_classical[[1]] = 3000
+      df_filter$sample_size_classic[[1]] = 3000
   }
   
     message(
@@ -56,8 +56,8 @@ for(i_row in 1:nrows_df){
       metric = df_filter$metric[[1]],
       compute_divide_conquer_mds = df_filter$compute_divide_conquer_mds[[1]],
       compute_fast_mds = df_filter$compute_fast_mds[[1]],
-      compute_classical_mds = df_filter$compute_classical_mds[[1]],
-      sample_size_classical = df_filter$sample_size_classical[[1]]
+      compute_classic_mds = df_filter$compute_classic_mds[[1]],
+      sample_size_classic = df_filter$sample_size_classic[[1]]
     )
     
     list_results_i$threshold = threshold_main_dimensions
@@ -71,10 +71,10 @@ for(i_row in 1:nrows_df){
   df_summary_i = data.frame(
     sample_size_divide_conquer_fast = list_results_i$sample_size,
     
-    sample_size_classical = ifelse(
-      is.null(list_results_i$sample_size_classical) == TRUE,
+    sample_size_classic = ifelse(
+      is.null(list_results_i$sample_size_classic) == TRUE,
       list_results_i$sample_size,
-      list_results_i$sample_size_classical
+      list_results_i$sample_size_classic
     ),
     
     n_dimensions = list_results_i$data_dimension,
@@ -86,8 +86,8 @@ for(i_row in 1:nrows_df){
     
     exists_dominant_dimesion = exists_dominant_dimesion,
     
-    n_dimensions_classical = n.dimensions(
-      list_eigenvectors = list_results_i$classical_eig,
+    n_dimensions_classic = n.dimensions(
+      list_eigenvectors = list_results_i$classic_eig,
       threshold_main_dimensions = threshold_main_dimensions
     ),
     
@@ -101,7 +101,7 @@ for(i_row in 1:nrows_df){
       threshold_main_dimensions = threshold_main_dimensions
     ),
     
-    elapsed_time_classical = list_results_i$classical_elapsed_time,
+    elapsed_time_classic = list_results_i$classic_elapsed_time,
     
     elapsed_time_divide_conquer = list_results_i$divide_conquer_elapsed_time,
     
@@ -153,3 +153,4 @@ if(FALSE){
   View(df)
   View(df_summary)
 }
+

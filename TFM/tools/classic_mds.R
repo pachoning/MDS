@@ -1,10 +1,10 @@
-classical.mds <- function(
+classic.mds <- function(
   x,
   s,
   metric
 ){
   
-  # Classical MDS
+  # Classic MDS
   distance_matrix = daisy(
     x = x,
     metric = metric
