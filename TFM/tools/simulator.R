@@ -58,7 +58,7 @@ aggregator.mds <- function(
   k,
   metric,
   method_wanted,
-  sample_size_classic
+  sample_size_classical
 ){
   
   starting_time = proc.time()
@@ -83,10 +83,10 @@ aggregator.mds <- function(
     
   }else if( method_wanted == 'classical' ){
     message("Performing classical mds")
-    if(is.null(sample_size_classic) == TRUE){
+    if(is.null(sample_size_classical) == TRUE){
       sample_size = nrow(x)
     }else{
-      sample_size = sample_size_classic
+      sample_size = sample_size_classical
     }
     
     rows_filter = 1:sample_size
@@ -126,8 +126,8 @@ do.magic <- function(
   metric,
   compute_divide_conquer_mds,
   compute_fast_mds,
-  compute_classic_mds,
-  sample_size_classic
+  compute_classical_mds,
+  sample_size_classical
 ){
 
   # Build the data 
@@ -152,7 +152,7 @@ do.magic <- function(
       k = k,
       metric = metric,
       method_wanted = 'divide_conquer',
-      sample_size_classic = sample_size_classic
+      sample_size_classical = sample_size_classical
     )
     
     divide_conquer_points = divide_conquer_mds$points
@@ -173,7 +173,7 @@ do.magic <- function(
       k = k,
       metric = metric,
       method_wanted = 'fast',
-      sample_size_classic = sample_size_classic
+      sample_size_classical = sample_size_classical
     )
     
     fast_points = fast_mds$points
@@ -194,23 +194,23 @@ do.magic <- function(
 
 
   # Run the classical in case it is needed
-  classic_points = NULL
-  classic_eig = NULL
-  classic_elapsed_time = NULL
-  if( compute_classic_mds == TRUE ){
-    classic_mds = aggregator.mds(
+  classical_points = NULL
+  classical_eig = NULL
+  classical_elapsed_time = NULL
+  if( compute_classical_mds == TRUE ){
+    classical_mds = aggregator.mds(
       x = x,
       l = l,
       s = data_dimension, 
       k = k,
       metric = metric,
       method_wanted = 'classical',
-      sample_size_classic = sample_size_classic
+      sample_size_classical = sample_size_classical
     )
     
-    classic_points = classic_mds$points
-    classic_eig = classic_mds$eig
-    classic_elapsed_time = as.numeric(classic_mds$elapsed_time)
+    classical_points = classical_mds$points
+    classical_eig = classical_mds$eig
+    classical_elapsed_time = as.numeric(classical_mds$elapsed_time)
   }
 
 
@@ -223,7 +223,7 @@ do.magic <- function(
     l = l,
     k = k,
     metric = metric,
-    sample_size_classic = sample_size_classic,
+    sample_size_classical = sample_size_classical,
     
     # Output for divide and conquer
     divide_conquer_points = divide_conquer_points,
@@ -238,9 +238,9 @@ do.magic <- function(
     
     
     # Output for classical
-    classic_points = classic_points,
-    classic_eig = classic_eig,
-    classic_elapsed_time = classic_elapsed_time
+    classical_points = classical_points,
+    classical_eig = classical_eig,
+    classical_elapsed_time = classical_elapsed_time
   )
   
   return(list_to_return)
