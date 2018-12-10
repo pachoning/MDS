@@ -9,7 +9,7 @@ threshold_main_dimensions = 0.9
 
 
 df = expand.grid(
-  sample_size = list(10^6),
+  sample_size = list(1000, 2000, 5000, 10000),
   data_dimension = list(4, 10, 100),
   main_dimensions_vector = list(NULL, 15, c(15,10), c(15, 15)),
   l = list(500),
