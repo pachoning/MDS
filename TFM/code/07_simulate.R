@@ -38,7 +38,7 @@ if(FALSE){
 
 # list_results <- list()
 nrows_df = nrow(df)
-for(i_row in 1:nrows_df){
+for(i_row in 14:nrows_df){
   df_filter = df[i_row, ]
     
   # Security control
@@ -123,7 +123,6 @@ for(i_row in 1:nrows_df){
       elapsed_time_fast = list_results_i$fast_elapsed_time
     )
     
-    initial_simulation_id = initial_simulation_id + 1
     
     # list_results[[i_row]] = list_results_i
     
