@@ -23,7 +23,7 @@ df = expand.grid(
   compute_divide_conquer_mds = list(TRUE),
   compute_fast_mds = list(TRUE),
   compute_classical_mds = list(TRUE),
-  max_sample_size_classical = 1000
+  max_sample_size_classical = 3000
 )
 
 df$scenario_id = initial_simulation_id:(initial_simulation_id + nrow(df)-1)
