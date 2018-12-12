@@ -57,8 +57,7 @@ aggregator.mds <- function(
   s, 
   k,
   metric,
-  method_wanted,
-  sample_size_classical
+  method_wanted
 ){
   
   starting_time = proc.time()
@@ -83,18 +82,8 @@ aggregator.mds <- function(
     
   }else if( method_wanted == 'classical' ){
     message("Performing classical mds")
-    if(is.null(sample_size_classical) == TRUE){
-      sample_size = nrow(x)
-    }else{
-      sample_size = sample_size_classical
-    }
-    
-    rows_filter = 1:sample_size
-    rows_filter = sort(rows_filter)
-    
-    x_filter = x[rows_filter, ]
     result_mds = classical.mds(
-      x = x_filter,
+      x = x,
       s = s,
       metric = metric
     )
@@ -113,6 +102,44 @@ aggregator.mds <- function(
   )
 }
 
+canonical.corr <- function(
+  x,
+  y
+  
+){
+  can_corr <- CCA::cc(x, y)
+  can_corr_result = min(can_corr$cor)
+  return(can_corr_result)
+}
+
+
+corr.groups.procrustes <- function(
+  x_to_be_transformed,
+  x_target
+){
+  
+  procrustes_analysis =  MCMCpack::procrustes(
+    X = x_to_be_transformed, #The matrix to be transformed
+    Xstar = x_target, # target matrix
+    translation = TRUE, 
+    dilation = TRUE
+  )
+  
+  return(
+    min(
+      diag(
+        cor(
+          x_target, 
+          procrustes_analysis$X.new
+        )
+      )
+    )
+  )
+}
+
+
+
+
 
 
 
@@ -127,7 +154,7 @@ do.magic <- function(
   compute_divide_conquer_mds,
   compute_fast_mds,
   compute_classical_mds,
-  sample_size_classical
+  max_sample_size_classical
 ){
 
   # Build the data 
@@ -139,10 +166,11 @@ do.magic <- function(
 
 
   # Run divide and conquer in case it is needed
-  divide_conquer_points = NULL
-  divide_conquer_eig = NULL
-  divide_conquer_elapsed_time = NULL
-
+  divide_conquer_points = NA
+  divide_conquer_eig = NA
+  divide_conquer_elapsed_time = NA
+  divide_conquer_canonical_corr = NA
+  divide_conquer_correlation_data = NA
 
   if( compute_divide_conquer_mds == TRUE ){
     divide_conquer_mds = aggregator.mds(
@@ -151,19 +179,33 @@ do.magic <- function(
       s = data_dimension, 
       k = k,
       metric = metric,
-      method_wanted = 'divide_conquer',
-      sample_size_classical = sample_size_classical
+      method_wanted = 'divide_conquer'
     )
     
     divide_conquer_points = divide_conquer_mds$points
     divide_conquer_eig = divide_conquer_mds$eig
     divide_conquer_elapsed_time = as.numeric(divide_conquer_mds$elapsed_time)
+    
+    # Canonical correlation between data and divide and conquer
+    divide_conquer_canonical_corr = canonical.corr(
+      x = x,
+      y = divide_conquer_points
+    )
+    
+    # Correlation between data and divide and conquer
+    divide_conquer_correlation_data = corr.groups.procrustes(
+      x_to_be_transformed = x,
+      x_target = divide_conquer_points
+    )
+    
   }
 
   # Run fast in case it is needed
-  fast_points = NULL
-  fast_eig = NULL
-  fast_elapsed_time = NULL
+  fast_points = NA
+  fast_eig = NA
+  fast_elapsed_time = NA
+  fast_canonical_corr = NA
+  fast_correlation_data = NA
   
   if( compute_fast_mds == TRUE ){
     fast_mds = aggregator.mds(
@@ -172,31 +214,36 @@ do.magic <- function(
       s = data_dimension, 
       k = k,
       metric = metric,
-      method_wanted = 'fast',
-      sample_size_classical = sample_size_classical
+      method_wanted = 'fast'
     )
     
     fast_points = fast_mds$points
     
     # Unlist the eigenvalues
     fast_eig = fast_mds$eig
-    
-    # depth_list = determine.depth(fast_eig)
-    # 
-    # if(depth_list > 1){
-    #   for(i in 1:(depth_list-1)){
-    #     fast_eig = unlist(fast_eig, recursive = FALSE)
-    #   }
-    # }
-    
     fast_elapsed_time = as.numeric(fast_mds$elapsed_time)
+    
+    # Canonical correlation between data and fast
+    fast_canonical_corr = canonical.corr(
+      x = x,
+      y = fast_points
+    )
+    
+    # Correlation between data and fast
+    fast_correlation_data = corr.groups.procrustes(
+      x_to_be_transformed = x,
+      x_target = fast_points
+    )
   }
 
 
   # Run the classical in case it is needed
-  classical_points = NULL
-  classical_eig = NULL
-  classical_elapsed_time = NULL
+  classical_points = NA
+  classical_eig = NA
+  classical_elapsed_time = NA
+  classical_canonical_corr = NA
+  classical_correlation_data = NA
+  
   if( compute_classical_mds == TRUE ){
     classical_mds = aggregator.mds(
       x = x,
@@ -204,14 +251,46 @@ do.magic <- function(
       s = data_dimension, 
       k = k,
       metric = metric,
-      method_wanted = 'classical',
-      sample_size_classical = sample_size_classical
+      method_wanted = 'classical'
     )
     
     classical_points = classical_mds$points
     classical_eig = classical_mds$eig
     classical_elapsed_time = as.numeric(classical_mds$elapsed_time)
+    
+    # Canonical correlation between data and classical MDS
+    classical_canonical_corr = canonical.corr(
+      x = x,
+      y = classical_points
+    )
+    
+    # Correlation between data and classical MDS
+    classical_correlation_data = corr.groups.procrustes(
+      x_to_be_transformed = x,
+      x_target = classical_points
+    )
   }
+  
+  # Correlations between divide and conquer and MDS classical
+  divide_conquer_corr_classical_mds = NA
+  if( compute_classical_mds == TRUE && compute_divide_conquer_mds ==TRUE ){
+    # Correlations between classical MDS and divide and conquer
+    divide_conquer_corr_classical_mds = corr.groups.procrustes(
+      x_to_be_transformed = classical_points,
+      x_target = divide_conquer_points
+    )
+  }
+  
+  # Correlations between classical MDS and fast
+  fast_corr_mds_classical = NA
+  if( compute_classical_mds == TRUE && compute_fast_mds ==TRUE ){
+    fast_corr_mds_classical = corr.groups.procrustes(
+      x_to_be_transformed = classical_points,
+      x_target = fast_points
+    )
+  }
+  
+  
 
 
   list_to_return = list(
@@ -223,24 +302,29 @@ do.magic <- function(
     l = l,
     k = k,
     metric = metric,
-    sample_size_classical = sample_size_classical,
     
     # Output for divide and conquer
     divide_conquer_points = divide_conquer_points,
     divide_conquer_eig = divide_conquer_eig,
     divide_conquer_elapsed_time = divide_conquer_elapsed_time,
-    
+    divide_conquer_canonical_corr = divide_conquer_canonical_corr,
+    divide_conquer_correlation_data = divide_conquer_correlation_data,
+    divide_conquer_corr_classical_mds = divide_conquer_corr_classical_mds,
     
     # Output for fast
     fast_points = fast_points,
     fast_eig = fast_eig,
     fast_elapsed_time = fast_elapsed_time,
-    
+    fast_canonical_corr = fast_canonical_corr,
+    fast_correlation_data = fast_correlation_data,
+    fast_corr_mds_classical = fast_corr_mds_classical,
     
     # Output for classical
     classical_points = classical_points,
     classical_eig = classical_eig,
-    classical_elapsed_time = classical_elapsed_time
+    classical_elapsed_time = classical_elapsed_time,
+    classical_canonical_corr = classical_canonical_corr,
+    classical_correlation_data = classical_correlation_data
   )
   
   return(list_to_return)

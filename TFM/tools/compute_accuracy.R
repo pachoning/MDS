@@ -1,6 +1,6 @@
 compare.methods <- function(
   mds_new_approach,
-  mds_classic
+  mds_classical
 ){
   
   # Obtaining Procrustes
@@ -23,11 +23,11 @@ compare.methods <- function(
   
   
   df_classical_mds_transformed$type = "classical"
-  df_classical_mds_transformed$label = row.names(x)
+  df_classical_mds_transformed$label = row.names(mds_classical)
   
   
   df_new_approach$type = "new_approach"
-  df_new_approach$label = row.names(x)
+  df_new_approach$label = row.names(mds_new_approach)
   
   
   # Concatenating both data frames

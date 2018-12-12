@@ -94,3 +94,9 @@ if( require(data.table) == FALSE ){
 }
 
 
+if( require(CCA) == FALSE ){
+  message("installing CCA library -----------------------------------")
+  install.packages('CCA')
+  library(CCA)
+}
+
