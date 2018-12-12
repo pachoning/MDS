@@ -8,7 +8,7 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-initial_simulation_id = floor(100*runif(1))
+initial_simulation_id = floor(1000000*runif(1))
 total_replicas = 75
 
 
