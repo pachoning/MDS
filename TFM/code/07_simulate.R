@@ -38,7 +38,7 @@ if(FALSE){
 
 # list_results <- list()
 nrows_df = nrow(df)
-for(i_row in 14:nrows_df){
+for(i_row in 1:nrows_df){
   df_filter = df[i_row, ]
     
   # Security control
