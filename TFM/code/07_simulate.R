@@ -9,14 +9,14 @@ source("tools/compute_accuracy.R")
 threshold_main_dimensions = 0.9
 
 initial_simulation_id = 800000
-total_replicas = 75
+total_replicas = 1
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(10^5),
-  data_dimension = list(4, 10, 100),
-  main_dimensions_vector = list(NULL, 15, c(15,10), c(15, 15)),
+  sample_size = list(1000),
+  data_dimension = list(4),
+  main_dimensions_vector = list(c(15, 15)),
   l = list(500),
   k = list(3),
   metric = list("euclidean"),
@@ -27,6 +27,7 @@ df = expand.grid(
 )
 
 df$scenario_id = initial_simulation_id:(initial_simulation_id + nrow(df)-1)
+
 
 if(FALSE){
   View(df)
@@ -240,3 +241,26 @@ if(FALSE){
 }
 
 
+if(FALSE){
+  x = list_results_i$x
+  dim(x)
+  
+  divide = list_results_i$divide_conquer_points
+  dim(divide)
+  
+  eigen = list_results_i$divide_conquer_eig
+  
+  plot(divide[, 1], x[, 1])
+  
+  
+  proc = compare.methods(
+    mds_new_approach = divide[, c(1:2, 4)],
+    mds_classical = x[, 1:3]
+  )
+  
+  plot(divide[, 1], proc$mds_classical_transformed[, 1])
+  plot(divide[, 2], proc$mds_classical_transformed[, 2])
+  plot(divide[, 3], proc$mds_classical_transformed[, 3])
+  plot(divide[, 4], proc$mds_classical_transformed[, 4])
+  
+}
