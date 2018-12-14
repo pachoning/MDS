@@ -8,13 +8,13 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-initial_simulation_id = floor(1000000*runif(1))
+initial_simulation_id = 800000
 total_replicas = 75
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(1000, 3000, 5000, 10000),
+  sample_size = list(10^5),
   data_dimension = list(4, 10, 100),
   main_dimensions_vector = list(NULL, 15, c(15,10), c(15, 15)),
   l = list(500),
@@ -38,23 +38,28 @@ if(FALSE){
 
 # list_results <- list()
 nrows_df = nrow(df)
-for(i_row in 1:nrows_df){
-  df_filter = df[i_row, ]
-    
-  # Security control
+for(i_replica in 1:total_replicas){
+  message("------------------------------------------------------------------------")
+  paste0(
+    message(
+      "------- Working on replica ", i_replica, " out of ", total_replicas, "-------"
+    )
+  )
   
-  if( df_filter$sample_size[[1]] > df_filter$max_sample_size_classical[[1]] ) {
+  for(i_row in 1:nrows_df){
+    df_filter = df[i_row, ]
+    
+    # Security control
+    
+    if( df_filter$sample_size[[1]] > df_filter$max_sample_size_classical[[1]] ) {
       df_filter$compute_classical_mds[[1]] = FALSE
     }
     
-  message(
-    paste0(
-      "------- Working on iteration ", i_row," out of ", nrows_df, " -------"
+    message(
+      paste0(
+        "---- Working on scenario ", i_row," out of ", nrows_df, " ----"
+      )
     )
-  )
-    
-  for(i_replica in 1:total_replicas){
-    paste0(message("Working on replica ", i_replica, " out of ", total_replicas))
     
     list_results_i = do.magic(
       sample_size = df_filter$sample_size[[1]],
@@ -68,26 +73,26 @@ for(i_row in 1:nrows_df){
       compute_classical_mds = df_filter$compute_classical_mds[[1]],
       max_sample_size_classical = df_filter$max_sample_size_classical[[1]]
     )
-      
+    
     list_results_i$threshold = threshold_main_dimensions
-      
+    
     exists_dominant_dimesion = FALSE
     if( length( df_filter$main_dimensions_vector[[1]] ) > 1){
       exists_dominant_dimesion = length( unique(df_filter$main_dimensions_vector[[1]]) ) > 1
     }
-      
+    
     
     df_summary_i = data.frame(
       scenario_id = df_filter$scenario_id,
       sample_size_divide_conquer_fast = list_results_i$sample_size,
       
-
+      
       n_dimensions = list_results_i$data_dimension,
       
       n_primary_dimensions = length(list_results_i$main_dimensions_vector),
       
       n_secondary_dimensions = list_results_i$data_dimension - length(list_results_i$main_dimensions_vector),
-    
+      
       
       exists_dominant_dimesion = exists_dominant_dimesion,
       
@@ -142,17 +147,6 @@ for(i_row in 1:nrows_df){
 }
 
 
-View(df_summary)
-View(df)
-char_time = gsub(
-  pattern = "-|:| ",
-  replacement = '_',
-  x = Sys.time()
-)
-
-save.image(
-  file = paste0("ws_",char_time, ".Rproj")
-)
 
 
 
@@ -218,6 +212,15 @@ if(FALSE){
 
 
 if(FALSE){
+  df_summary %>% 
+    group_by(
+      scenario_id
+    ) %>% 
+    summarise(
+      n()
+    ) %>% 
+    View
+  
   df_summary %>% View
   df_summary %>% colnames()
   df_summary %>% 
