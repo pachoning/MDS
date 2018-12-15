@@ -8,7 +8,7 @@ divide_conquer.mds <- function(
   # List positions
   ls_positions = list()
   list_eigenvalues = list()
-  
+  i_eigen = 1
   # Initial parameters
   p = ceiling(2*nrow(x)/l)
   groups = sample(x = p, size = nrow(x), replace = TRUE)
@@ -65,7 +65,18 @@ divide_conquer.mds <- function(
     )
     
     mds_iteration =  cmd_eig$points
-    list_eigenvalues[[k]] = cmd_eig$eig
+    if(p%%2 == 0){
+      if(k%%2 == 0){
+        list_eigenvalues[[i_eigen]] = cmd_eig$eig
+        i_eigen = i_eigen + 1
+      }
+    }else{
+      if(k %% 2 == 1){
+        list_eigenvalues[[i_eigen]] = cmd_eig$eig
+        i_eigen = i_eigen + 1
+      }
+    }
+    # list_eigenvalues[[k]] = cmd_eig$eig
     
     row.names(mds_iteration) = row.names(submatrix_data)
     

@@ -87,6 +87,14 @@ aggregator.mds <- function(
       s = s,
       metric = metric
     )
+  }else if( method_wanted == 'gower'){
+    message("Performing Gower mds")
+    result_mds = gower.interpolation.mds(
+      x = x,
+      l = l,
+      s = s,
+      metric = metric 
+    )
   }else{
     stop( "invalid value for method_wanted variable" )
   }

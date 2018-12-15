@@ -8,13 +8,14 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-initial_simulation_id = 800000
+initial_simulation_id = 1
+initial_simulation_id = 1
 total_replicas = 1
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(1000),
+  sample_size = list(1300),
   data_dimension = list(4),
   main_dimensions_vector = list(c(15, 15)),
   l = list(500),
@@ -41,8 +42,8 @@ if(FALSE){
 nrows_df = nrow(df)
 for(i_replica in 1:total_replicas){
   message("------------------------------------------------------------------------")
-  paste0(
-    message(
+  message(
+    paste0(
       "------- Working on replica ", i_replica, " out of ", total_replicas, "-------"
     )
   )
@@ -51,7 +52,6 @@ for(i_replica in 1:total_replicas){
     df_filter = df[i_row, ]
     
     # Security control
-    
     if( df_filter$sample_size[[1]] > df_filter$max_sample_size_classical[[1]] ) {
       df_filter$compute_classical_mds[[1]] = FALSE
     }
@@ -250,6 +250,14 @@ if(FALSE){
   
   eigen = list_results_i$divide_conquer_eig
   
+  eigen2 = list_results_i$fast_eig
+  length(eigen2)
+  sum_r = 0
+  for(i in 1:length(eigen2)){
+    sum_r = sum_r + length(eigen2[[i]])
+  }
+  length(eigen)
+  length(eigen[[1]]) + length(eigen[[2]]) + length(eigen[[3]])
   plot(divide[, 1], x[, 1])
   
   
