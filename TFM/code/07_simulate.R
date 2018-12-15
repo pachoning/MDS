@@ -129,11 +129,6 @@ for(i_replica in 1:total_replicas){
       elapsed_time_classical = list_results_i$classical_elapsed_time,
       eig_subsample_classical = NA,
       corr_matrix_classical = NA
-      
-      
-      
-     
-      
     )
     df_summary_i$value_primary_dimensions = list(list_results_i$main_dimensions_vector)
     
