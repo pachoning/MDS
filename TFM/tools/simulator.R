@@ -228,14 +228,16 @@ do.magic <- function(
   metric,
   compute_divide_conquer_mds,
   compute_fast_mds,
+  compute_gower_mds,
   compute_classical_mds,
   max_sample_size_classical,
   threshold_main_dimensions,
-  n_eigenvalues
+  n_eigenvalues,
+  n_cols_procrustes_noise
 ){
   # Dimensions to do procrustes
   if(n_primary_dimensions == 0){
-   n_dimensions_procrustes = 4 
+   n_dimensions_procrustes = n_cols_procrustes_noise 
   }else{
     n_dimensions_procrustes = n_primary_dimensions 
   }
@@ -320,6 +322,42 @@ do.magic <- function(
       x_target = fast_points[, 1:n_dimensions_procrustes]
     )
   }
+  
+  # Run Gower
+  gower_points = NA
+  gower_eig = NA
+  gower_eig_subsample = NA
+  gower_n_dimensions = NA
+  gower_elapsed_time = NA
+  gower_corr_matrix = NA
+  
+  if( compute_gower_mds == TRUE ){
+    gower_mds = aggregator.mds(
+      x = x,
+      l = l,
+      s = data_dimension, 
+      k = k,
+      metric = metric,
+      method_wanted = 'gower'
+    )
+    
+    gower_points = gower_mds$points
+    gower_eig = gower_mds$eig
+    gower_eig_subsample = get.mean.eigenvalues(
+      list_eigenvalues = gower_eig,
+      n_eigenvalues = n_eigenvalues
+    )
+    gower_n_dimensions = n.dimensions(
+      list_eigenvalues = gower_eig,
+      threshold_main_dimensions = threshold_main_dimensions
+    )
+    gower_elapsed_time = as.numeric(gower_mds$elapsed_time)
+    gower_corr_matrix = corr.groups.procrustes(
+      x_to_be_transformed = x[, 1:n_dimensions_procrustes],
+      x_target = gower_points[, 1:n_dimensions_procrustes]
+    )
+    
+  }
 
 
   # Run the classical in case it is needed
@@ -344,7 +382,7 @@ do.magic <- function(
     classical_eig = classical_mds$eig
     classical_eig_subsample = get.mean.eigenvalues(
       list_eigenvalues = classical_eig,
-      n_eigenvalues =n_eigenvalues
+      n_eigenvalues = n_eigenvalues
     )
     classical_n_dimensions = n.dimensions(
       list_eigenvalues = classical_eig,
@@ -381,6 +419,14 @@ do.magic <- function(
     fast_n_dimensions = fast_n_dimensions,
     fast_elapsed_time = fast_elapsed_time,
     fast_corr_matrix = fast_corr_matrix,
+    
+    # Output form gower
+    gower_points = gower_points,
+    gower_eig_subsample = gower_eig_subsample,
+    gower_n_dimensions = gower_n_dimensions,
+    gower_elapsed_time = gower_elapsed_time,
+    gower_corr_matrix = gower_corr_matrix,
+    
     
     # Output for classical
     classical_points = classical_points,

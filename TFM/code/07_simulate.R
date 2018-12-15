@@ -2,8 +2,8 @@ source("tools/load_libraries.R")
 source("tools/classical_mds.R")
 source("tools/fast_MDS_eigen.R")
 source("tools/divide_conquer_mds.R")
+source("tools/gower_interpolation_mds.R")
 source("tools/simulator.R")
-# source("tools/n_dimensions.R")
 source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
@@ -16,16 +16,18 @@ total_replicas = 1
 df = expand.grid(
   scenario_id = list(NULL),
   sample_size = list(1000),
-  data_dimension = list(10),
-  main_dimensions_vector = list(NULL, 15, c(15, 15), c(15,10)),
+  data_dimension = list(10, 100),
+  main_dimensions_vector = list(NULL, 15, c(15, 15), c(15,10), c(15,15,15,15)),
   l = list(500),
   k = list(3),
   metric = list("euclidean"),
   compute_divide_conquer_mds = list(TRUE),
   compute_fast_mds = list(TRUE),
+  compute_gower_mds = list(TRUE),
   compute_classical_mds = list(TRUE),
   max_sample_size_classical = 3000,
-  n_eigenvalues = 6
+  n_eigenvalues = 6,
+  n_cols_procrustes_noise = 5 # When there is noise, use 5 columns to do the procrustes
 )
 
 df$scenario_id = initial_scenario_id:(initial_scenario_id + nrow(df)-1)
@@ -39,8 +41,7 @@ if(FALSE){
 
 
 nrows_df = nrow(df)
-list_matrices_vectors <- list()
-i_list_pos = 1
+
 for(i_replica in 1:total_replicas){
   message("------------------------------------------------------------------------")
   
@@ -79,9 +80,11 @@ for(i_replica in 1:total_replicas){
       compute_divide_conquer_mds = df_filter$compute_divide_conquer_mds[[1]],
       compute_fast_mds = df_filter$compute_fast_mds[[1]],
       compute_classical_mds = df_filter$compute_classical_mds[[1]],
+      compute_gower_mds = df_filter$compute_gower_mds[[1]],
       max_sample_size_classical = df_filter$max_sample_size_classical[[1]],
       threshold_main_dimensions = threshold_main_dimensions,
-      n_eigenvalues = df_filter$n_eigenvalues[[1]]
+      n_eigenvalues = df_filter$n_eigenvalues[[1]],
+      n_cols_procrustes_noise =  df_filter$n_cols_procrustes_noise[[1]]
     )
     
     
@@ -89,22 +92,6 @@ for(i_replica in 1:total_replicas){
     if( length( df_filter$main_dimensions_vector[[1]] ) > 1){
       exists_dominant_dimesion = length( unique(df_filter$main_dimensions_vector[[1]]) ) > 1
     }
-    
-   list_matrices_vectors_i = list(
-     simulation_id = simulation_id,
-     scenario_id = df_filter$scenario_id,
-     
-     divide_conquer_eig_subsample = list_results_i$divide_conquer_eig_subsample,
-     divide_conquer_corr_matrix = list_results_i$divide_conquer_corr_matrix,
-     
-     fast_eig_subsample = list_results_i$fast_eig_subsample,
-     fast_corr_matrix = list_results_i$fast_corr_matrix,
-     
-     classical_eig_subsample = list_results_i$classical_eig_subsample,
-     classical_eig_subsample = list_results_i$classical_corr_matrix
-     
-   )
-    list_matrices_vectors[[i_list_pos]] = list_matrices_vectors_i
     
 
     df_summary_i = data.frame(
@@ -114,18 +101,53 @@ for(i_replica in 1:total_replicas){
       sample_size = list_results_i$sample_size,
       n_dimensions = list_results_i$data_dimension,
       n_primary_dimensions = n_primary_dimensions,
+      value_primary_dimensions = NA,
       n_secondary_dimensions = n_secondary_dimensions,
       
       exists_dominant_dimesion = exists_dominant_dimesion,
       
-      n_dimensions_classical = list_results_i$classical_n_dimensions,
+      # Output for divide and conquer
       n_dimensions_divide = list_results_i$divide_conquer_n_dimensions,
-      n_dimensions_fast = list_results_i$fast_n_dimensions,
-      
-      elapsed_time_classical = list_results_i$classical_elapsed_time,
       elapsed_time_divide_conquer = list_results_i$divide_conquer_elapsed_time,
-      elapsed_time_fast = list_results_i$fast_elapsed_time
+      eig_subsample_divide_conquer = NA,
+      corr_matrix_divide_conquer = NA,
+      
+      # Output for fast
+      n_dimensions_fast = list_results_i$fast_n_dimensions,
+      elapsed_time_fast = list_results_i$fast_elapsed_time,
+      eig_subsample_fast = NA,
+      corr_matrix_fast = NA,
+      
+      # Output form gower
+      gower_n_dimensions = list_results_i$gower_n_dimensions,
+      elapsed_time_gower = list_results_i$gower_elapsed_time,
+      eig_subsample_gower = NA,
+      corr_matrix_gower = NA,
+      
+      # Output for classical
+      n_dimensions_classical = list_results_i$classical_n_dimensions,
+      elapsed_time_classical = list_results_i$classical_elapsed_time,
+      eig_subsample_classical = NA,
+      corr_matrix_classical = NA
+      
+      
+      
+     
+      
     )
+    df_summary_i$value_primary_dimensions = list(list_results_i$main_dimensions_vector)
+    
+    df_summary_i$eig_subsample_divide_conquer = list(list_results_i$divide_conquer_eig_subsample)
+    df_summary_i$corr_matrix_divide_conquer = list(list_results_i$divide_conquer_corr_matrix)
+
+    df_summary_i$eig_subsample_fast = list(list_results_i$fast_eig_subsample)
+    df_summary_i$corr_matrix_fast = list(list_results_i$fast_corr_matrix)
+    
+    df_summary_i$eig_subsample_gower = list(list_results_i$gower_eig_subsample)
+    df_summary_i$corr_matrix_gower = list(list_results_i$gower_corr_matrix)
+
+    df_summary_i$eig_subsample_classical = list(list_results_i$classical_eig_subsample)
+    df_summary_i$corr_matrix_classical = list(list_results_i$classical_corr_matrix)
     
     
     if(i_row  == 1 && i_replica == 1){
@@ -138,7 +160,6 @@ for(i_replica in 1:total_replicas){
     }
     
     simulation_id = simulation_id + 1
-    i_list_pos = i_list_pos + 1 
   }
   
   save(df_summary, file = "df_summary.RData")  
@@ -146,9 +167,7 @@ for(i_replica in 1:total_replicas){
   
 }
 
-
-list_matrices_vectors
-
+View(df_summary)
 
 if(FALSE){
   # This is an example to show to Pedro
@@ -270,4 +289,9 @@ if(FALSE){
   plot(divide[, 3], proc$mds_classical_transformed[, 3])
   plot(divide[, 4], proc$mds_classical_transformed[, 4])
   
+}
+
+if(FALSE){
+  df_summary$fast_corr_matrix[[1]]
+  df_summary$fast_corr_matrix[[1]]
 }
