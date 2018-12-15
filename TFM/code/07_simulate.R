@@ -107,7 +107,7 @@ for(i_replica in 1:total_replicas){
       exists_dominant_dimesion = exists_dominant_dimesion,
       
       # Output for divide and conquer
-      n_dimensions_divide = list_results_i$divide_conquer_n_dimensions,
+      n_dimensions_divide_conquer = list_results_i$divide_conquer_n_dimensions,
       elapsed_time_divide_conquer = list_results_i$divide_conquer_elapsed_time,
       eig_subsample_divide_conquer = NA,
       corr_matrix_divide_conquer = NA,
