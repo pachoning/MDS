@@ -3,45 +3,47 @@ source("tools/classical_mds.R")
 source("tools/fast_MDS_eigen.R")
 source("tools/divide_conquer_mds.R")
 source("tools/simulator.R")
-source("tools/n_dimensions.R")
+# source("tools/n_dimensions.R")
 source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-initial_simulation_id = 1
-initial_simulation_id = 1
+simulation_id = 1
+initial_scenario_id = 1
 total_replicas = 1
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(1300),
-  data_dimension = list(4),
-  main_dimensions_vector = list(c(15, 15)),
+  sample_size = list(1000),
+  data_dimension = list(10),
+  main_dimensions_vector = list(NULL, 15, c(15, 15), c(15,10)),
   l = list(500),
   k = list(3),
   metric = list("euclidean"),
   compute_divide_conquer_mds = list(TRUE),
   compute_fast_mds = list(TRUE),
   compute_classical_mds = list(TRUE),
-  max_sample_size_classical = 3000
+  max_sample_size_classical = 3000,
+  n_eigenvalues = 6
 )
 
-df$scenario_id = initial_simulation_id:(initial_simulation_id + nrow(df)-1)
+df$scenario_id = initial_scenario_id:(initial_scenario_id + nrow(df)-1)
 
 
 if(FALSE){
   View(df)
-  df = df[1:4, ]
+  df = df[1, ]
   i_row = 2
 }
 
 
-
-# list_results <- list()
 nrows_df = nrow(df)
+list_matrices_vectors <- list()
+i_list_pos = 1
 for(i_replica in 1:total_replicas){
   message("------------------------------------------------------------------------")
+  
   message(
     paste0(
       "------- Working on replica ", i_replica, " out of ", total_replicas, "-------"
@@ -62,9 +64,14 @@ for(i_replica in 1:total_replicas){
       )
     )
     
+    n_primary_dimensions = length(df_filter$main_dimensions_vector[[1]])
+    n_secondary_dimensions = df_filter$data_dimension[[1]] - n_primary_dimensions
+    
     list_results_i = do.magic(
       sample_size = df_filter$sample_size[[1]],
       data_dimension = df_filter$data_dimension[[1]], 
+      n_primary_dimensions = n_primary_dimensions,
+      
       main_dimensions_vector = df_filter$main_dimensions_vector[[1]],
       l = df_filter$l[[1]],
       k = df_filter$k[[1]],
@@ -72,65 +79,54 @@ for(i_replica in 1:total_replicas){
       compute_divide_conquer_mds = df_filter$compute_divide_conquer_mds[[1]],
       compute_fast_mds = df_filter$compute_fast_mds[[1]],
       compute_classical_mds = df_filter$compute_classical_mds[[1]],
-      max_sample_size_classical = df_filter$max_sample_size_classical[[1]]
+      max_sample_size_classical = df_filter$max_sample_size_classical[[1]],
+      threshold_main_dimensions = threshold_main_dimensions,
+      n_eigenvalues = df_filter$n_eigenvalues[[1]]
     )
     
-    list_results_i$threshold = threshold_main_dimensions
     
     exists_dominant_dimesion = FALSE
     if( length( df_filter$main_dimensions_vector[[1]] ) > 1){
       exists_dominant_dimesion = length( unique(df_filter$main_dimensions_vector[[1]]) ) > 1
     }
     
+   list_matrices_vectors_i = list(
+     simulation_id = simulation_id,
+     scenario_id = df_filter$scenario_id,
+     
+     divide_conquer_eig_subsample = list_results_i$divide_conquer_eig_subsample,
+     divide_conquer_corr_matrix = list_results_i$divide_conquer_corr_matrix,
+     
+     fast_eig_subsample = list_results_i$fast_eig_subsample,
+     fast_corr_matrix = list_results_i$fast_corr_matrix,
+     
+     classical_eig_subsample = list_results_i$classical_eig_subsample,
+     classical_eig_subsample = list_results_i$classical_corr_matrix
+     
+   )
+    list_matrices_vectors[[i_list_pos]] = list_matrices_vectors_i
     
+
     df_summary_i = data.frame(
       scenario_id = df_filter$scenario_id,
-      sample_size_divide_conquer_fast = list_results_i$sample_size,
+      simulation_id = simulation_id,
       
-      
+      sample_size = list_results_i$sample_size,
       n_dimensions = list_results_i$data_dimension,
-      
-      n_primary_dimensions = length(list_results_i$main_dimensions_vector),
-      
-      n_secondary_dimensions = list_results_i$data_dimension - length(list_results_i$main_dimensions_vector),
-      
+      n_primary_dimensions = n_primary_dimensions,
+      n_secondary_dimensions = n_secondary_dimensions,
       
       exists_dominant_dimesion = exists_dominant_dimesion,
       
-      n_dimensions_classical = n.dimensions(
-        list_eigenvectors = list_results_i$classical_eig,
-        threshold_main_dimensions = threshold_main_dimensions
-      ),
-      
-      n_dimensions_divide = n.dimensions(
-        list_eigenvectors = list_results_i$divide_conquer_eig,
-        threshold_main_dimensions = threshold_main_dimensions
-      ),
-      
-      n_dimensions_fast = n.dimensions(
-        list_eigenvectors = list_results_i$fast_eig,
-        threshold_main_dimensions = threshold_main_dimensions
-      ),
-      
-      
-      classical_canonical_corr =list_results_i$classical_canonical_corr,
-      divide_conquer_canonical_corr = list_results_i$divide_conquer_canonical_corr,
-      fast_canonical_corr = list_results_i$fast_canonical_corr,
-      
-      classical_corr_data = list_results_i$classical_correlation_data,
-      divide_conquer_corr_data = list_results_i$divide_conquer_correlation_data,
-      fast_corr_data = list_results_i$fast_correlation_data,
-      divide_conquer_corr_classical_mds = list_results_i$divide_conquer_corr_classical_mds,
-      fast_corr_mds_classical = list_results_i$fast_corr_mds_classical,
-      
+      n_dimensions_classical = list_results_i$classical_n_dimensions,
+      n_dimensions_divide = list_results_i$divide_conquer_n_dimensions,
+      n_dimensions_fast = list_results_i$fast_n_dimensions,
       
       elapsed_time_classical = list_results_i$classical_elapsed_time,
       elapsed_time_divide_conquer = list_results_i$divide_conquer_elapsed_time,
       elapsed_time_fast = list_results_i$fast_elapsed_time
     )
     
-    
-    # list_results[[i_row]] = list_results_i
     
     if(i_row  == 1 && i_replica == 1){
       df_summary = df_summary_i
@@ -140,6 +136,9 @@ for(i_replica in 1:total_replicas){
         df_summary_i
       )
     }
+    
+    simulation_id = simulation_id + 1
+    i_list_pos = i_list_pos + 1 
   }
   
   save(df_summary, file = "df_summary.RData")  
@@ -148,7 +147,7 @@ for(i_replica in 1:total_replicas){
 }
 
 
-
+list_matrices_vectors
 
 
 if(FALSE){
@@ -228,7 +227,7 @@ if(FALSE){
     arrange(
       n_dimensions,
       n_primary_dimensions,
-      sample_size_divide_conquer_fast,
+      sample_size,
       exists_dominant_dimesion
     ) %>% 
     View
