@@ -1,0 +1,61 @@
+\begin{thebibliography}{10}
+
+\bibitem{Torgerson1952}
+Warren~S. Torgerson.
+\newblock Multidimensional scaling: I. theory and method.
+\newblock {\em Psychometrika}, 17(4):401--419, Dec 1952.
+
+\bibitem{Shepard1962}
+Roger~N. Shepard.
+\newblock The analysis of proximities: Multidimensional scaling with an unknown
+  distance function. ii.
+\newblock {\em Psychometrika}, 27(3):219--246, Sep 1962.
+
+\bibitem{Kruskal1964}
+J.~B. Kruskal.
+\newblock Nonmetric multidimensional scaling: A numerical method.
+\newblock {\em Psychometrika}, 29(2):115--129, Jun 1964.
+
+\bibitem{coombs}
+C.~H. Coombs.
+\newblock {\em A theory of data}.
+\newblock Wiley, New York, 1964.
+
+\bibitem{takane}
+Yoshio Takane, Forrest W.~Young, and Jan De~Leeuw.
+\newblock nonmetric common factor analysis: an alternating least squares method
+  with optimal scaling features.
+\newblock {\em Behaviormetrika}, 6:45--56, Jan 1979.
+
+\bibitem{de_leeuw}
+Jan De~Leeuw and Willem Heiser.
+\newblock Multidimensional scaling with restrictions on the configuration.
+\newblock {\em Multivariate Analysis}, 5, Jan 1980.
+
+\bibitem{Carroll1970}
+J.~Douglas Carroll and Jih-Jie Chang.
+\newblock Analysis of individual differences in multidimensional scaling via an
+  n-way generalization of "eckart-young" decomposition.
+\newblock {\em Psychometrika}, 35(3):283--319, Sep 1970.
+
+\bibitem{Modern_MDS}
+Ingwer Borg and Patrick Groenen.
+\newblock {\em Modern Multidimensional Scaling}.
+\newblock Springer-Verlag, New York, NY, 1997.
+
+\bibitem{pena_libro}
+Daniel Pe{\~n}a.
+\newblock {\em An{\'a}lisis de datos multivariantes}.
+\newblock McGraw Hill, Madrid, Spain, 2002.
+
+\bibitem{pub:39177}
+Patrick Groenen and Ingwer Borg.
+\newblock The past, present, and future of multidimensional scaling, Jan 2013.
+
+\bibitem{Rothkopf1957}
+Ernst~Z. Rothkopf.
+\newblock A measure of stimulus similarity and errors in some paired-associate
+  learning tasks.
+\newblock {\em Journal of Experimental Psychology}, 53(2):94, 1957.
+
+\end{thebibliography}
