@@ -112,6 +112,34 @@ ggplot(
     y = 'y'
   )
 
+
+
+rotation_matrix = matrix(
+  c(cos(180), sin(180), -sin(180), cos(180)), 
+  byrow = TRUE,
+  nrow = 2
+)
+  
+mds_europe_rotated =   mds_europe %*% rotation_matrix
+ggplot(
+  as.data.frame(mds_europe_rotated), 
+  aes(
+    V1, 
+    -V2, 
+    label = rownames(mds_europe_rotated)
+  )
+) +
+  geom_point() + 
+  geom_text_repel() + 
+  xlab('x') + 
+  ylab('y') +
+  labs(
+    x = 'x',
+    y = 'y'
+  )
+
+
+
 # Divide and conquer algorithm
 fit2 <- mds_europe
 

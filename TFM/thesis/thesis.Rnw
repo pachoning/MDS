@@ -1,7 +1,6 @@
 \documentclass[11pt]{report}
 %\documentclass{fmetfm}
 %\documentclass{fmetfm}
-
 \usepackage{amsbsy}
 \usepackage{url}
 \usepackage{amssymb}
@@ -12,6 +11,7 @@
 \usepackage{appendix}
 \usepackage{indentfirst}
 \usepackage{graphicx}
+\usepackage{subfig}
 \usepackage[a4paper]{geometry}
 %\usepackage{graphicx}
 \usepackage[english]{babel}
@@ -29,22 +29,17 @@
 %%%   PORTADA  %%%
 
 \begin{titlepage}
-	\centering
-	{\scshape\LARGE Columbidae University \par}
-	\vspace{1cm}
-	{\scshape\Large Final year project\par}
-	\vspace{1.5cm}
-	{\huge\bfseries Pigeons love doves\par}
-	\vspace{2cm}
-	{\Large\itshape John Birdwatch\par}
-	\vfill
-	supervised by\par
-	Dr. Mark \textsc{Brown}
-
-	\vfill
-
-% Bottom of the page
-	{\large \today\par}
+  \begin{center}
+	  \textsf{\scshape\LARGE Universitat Politècnica de Catalunya\\[0.5em]
+	          Facultat de Matemàtiques i Estadística}\vskip 8em
+	  {\LARGE Master thesis \par} \vskip 8em
+	  {\bfseries \huge Todavía por definir} \vskip 1.5em 
+	  {\LARGE \lineskip .5em Cristian Pachón García \par} 
+    \vskip 12em {\large Advisor: Pedro Delicado Useros \hskip 0.3em}
+    \vfill {\large Dept. d'Estadística i Investigació Operativa }
+  \end{center}
+  \par
+  \vskip 3.5em 
 \end{titlepage}
 
 \thispagestyle{empty}
@@ -134,9 +129,8 @@ options(width = 80)
 Multidimensional Scaling (MDS) is a method that represents measurements of 
 similarity (or dissimilarity) among pairs of objects as distances between points
 of a low-dimensional multidimensional space. The data, for example, may be 
-correlations among intelligence test, and the MDS representation is a plane that
-shows the tests as points that are closer together the more positively the tests
-are correlated. The graphical display of the correlations provided by MDS 
+correlations among intelligence tests and the MDS representation is a plane that
+shows the tests as points. The graphical display of the correlations provided by MDS 
 enables the data analyst to literally "look" at the data and to explore the 
 structure visually. This often shows regularities that remain hidden when
 studying arrays of numbers. Another application of MDS is to use some of its
@@ -151,22 +145,21 @@ obtain a set of orthogonal variables $y_1,...,y_p$, which are called
 \textit{principal coordinates}, where $p<n$, such that the Euclidean distances of
 the elements with respect of these variables are equal to the matrix \textbf{D}. 
 Therefore, the aim is to obtain a matrix \textbf{X} $n \times p$ that could be 
-interpreted as the matrix of p variables for the n observations , where the 
+interpreted as the matrix of $p$ variables for the $n$ observations , where the 
 Euclidean distance between the elements could be approximated by \textbf{D}.
 
 \indent This approach arises two questions: is it (always) possible to find these
 variables? How are they obtained? In general, it is not possible to find a set
-of p variables that reproduces \textit{exactly} the initial distance. However, it
+of $p$ variables that reproduces \textit{exactly} the initial distance. However, it
 is possible to find a set of variables which distance is approximately the initial
 distance matrix \textbf{D}.
 
 
 \indent As a classic example, consider the distances between European cities as
 in the table \ref{european_distances}. One would like to get a representation in
-a 2-dimensional space such that the distances were almost the same as in table
-\ref{european_distances}. MDS is able to build an embedding into a 2-dimensional 
-space. The representation of these corrdinates are displayed in figure 
-\ref{europ_cities}.
+a 2-dimensional space such that the distances would be almost the same as in the 
+table \ref{european_distances}. The representation of these corrdinates are 
+displayed in figure \ref{europ_cities}.
 
 <<Code_european_distances, echo=FALSE, results=tex>>=
 library(xtable)
@@ -179,24 +172,19 @@ print(
 )
 @
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
     \includegraphics[scale = 0.5]{./images/europ_cities.png}
     \caption{MDS on the Eurepean cities.}
     \label{europ_cities}
 \end{figure}
 
-\indent Quetelet made an effort trying to quantify some experiments made in the
-social sciences, but it can be considered that MDS was born in the 50th century 
-when experimental pschycologists wanted to discover similarities between 
-applied to different people.
-
 \indent MDS methods can be divided into two groups: \textit{Metric MDS} and
 \textit{Non-metric MDS}. Metric MDS, also known as principal coordinates, use
 the differences between similarities. However, Non-metric MDS states that if $a$
 is more similar to $b$ than $c$, then $a$ is closer to $b$ than $c$, but the
 differences between the similarities $ab$ and $ac$ do not have any 
-interpretation.
+interpretation. This thesis is focused on the Metric MDS.
 
 \section{A historical Account}
 The first decade was pioneered by the seminal work of Torgerson (1952), he 
@@ -343,7 +331,8 @@ $$\mathbf{D} = diag(\mathbf{Q}) \mathbf{1}' + \mathbf{1}diag(\mathbf{Q})' - 2\ma
 \indent The problem we are dealing with goes in the opposite direction. We want to rebuid
 $\mathbf{\widetilde{X}}$ from a square distance matrix \textbf{D}, with elements
 $d_{ij}^2$. The first step is to obtain \textbf{Q} and afterwards, to get 
-$\mathbf{\widetilde{X}}$.
+$\mathbf{\widetilde{X}}$. \textit{Daniel Peña} develops in his book\cite{pena_libro} the theory
+needed to get the solution. Here, we summarise it.
 
 \indent The first step is to find out a way to obtain the matrix \textbf{Q} given
 \textbf{D}. We can assume without loss of generality that the mean of the variables
@@ -453,8 +442,113 @@ variables could be a valid solution.
 
 
 \section{Building principal coordinates}
+In general, the distance matrix is not compatible with an euclidean metric but
+usually the similarity matrix obtained from it has $p$ postive eigenvalues  
+and greater than the other ones. If the rest $n-p$ not null eigenvalues 
+are much less than the other ones, it is possible to obtain an (approximated)
+representation using the $p$ eigenvectors associated with the first $p$
+eigenvalues of the similarity matrix. 
+
+\indent Let's supose that we have a square distance matrix \textbf{D}. The
+process to obtain the \textit{principal coordinates} is:
+
+\begin{enumerate}
+\item Build the matrix $\mathbf{Q = - \frac{1}{2} PDP}$ of cross-products.
+\item Obtain the eigenvalues of \textbf{Q}. Take the $r$ greatest eigenvalues. 
+Since $\mathbf{P1=0}$, where \textbf{1} is a vector of ones, $range(\mathbf{Q})=n-1$,
+being the vector \textbf{1} an eigenvector with eigenvalue 0.
+\item Obtain the coordinates of the individuals in the variables $\mathbf{v_i}\sqrt{\lambda_i}$,
+where $\lambda_i$ is an eigenvalue of \textbf{Q} and $\mathbf{v_i}$ is the
+associated unitary eigenvector. This implies that \textbf{Q} is apporximated by:
+
+$$\mathbf{Q} \approx (\mathbf{V_r \Lambda}^{1/2})(\mathbf{\Lambda_r}^{1/2} \mathbf{V_r'})$$
+
+\item Take as coordinates of the points the following variables:
+$$\mathbf{Y_r} = \mathbf{V_r}\mathbf{\Lambda_r}^{1/2}$$
+\end{enumerate}
+
+\indent The method can also be applied if the initial information is not a distance matrix
+but a similarity matrix. A \textit{similarity function} between two element $i$
+and $j$ $s_ij$ is defined as:
+
+\begin{itemize}
+\item $s_ii = 1$
+\item $0 \leq s_{ij} \leq 1$
+\item $s_{ij} = s_{ji}$
+\end{itemize}
+
+If the initial information is \textbf{Q}, a similariy matrix, then $q_{ii} = 1$,
+$q_{ij} = q_{ji}$ and $0 \leq q_{ij} \leq 1$. The assiciated distance matrix 
+(by \ref{dfromq}):
+
+$$d_{ij}^2 = q_{ii} + q_{jj} - 2q_{qij} = 2(1-q_{ij})$$
+
+and it is easy to see that $\sqrt{2(1-q_{ij})}$ is a distance and it verifies
+the triangle inequality.
+
 
 \section{Procrustes transformation}
+As we have mentioned, the MDS solution is not unique. Since rotation, translation,
+reflections and dilations are distance-preserving functions, one can found two
+different MDS configurations for the same set of data. How is it possible to
+align both solutions? One example of it can be found in figure \ref{twosol}.
+
+\begin{figure}[ht]
+    \centering
+    \subfloat[]{{\includegraphics[width=8cm]{./images/europ_cities.png} }}%
+    \qquad
+    \subfloat[]{{\includegraphics[width=8cm]{./images/europ_cities_rot.png} }}%
+    \caption{Two different solutions of MDS}%
+    \label{twosol}%
+\end{figure}
+
+
+\indent The Procrustes problem is concern with fitting a configuration (testee)
+to another (target) as closly as possible. In the simple case, both 
+configurations have the same dimensionality and the same number of points, which
+can be brought into 1-1 correspondence by substantive considerations. Under
+orthogonal transformations, the testee can be rotated and reflected arbitrarily
+in an effort to fit it to the target. In addition to such rigid motions, one 
+may also allow for dilations and for shifts.
+
+\indent \textit{Ingwer Borg} and \textit{Patrik Groenen} detail all the steps 
+needed to obtain the solution\cite{BorgGroenen2005}. This is out of the scope of 
+this thesis. However, sicen it has been a repeatdly used tool, we briefly 
+summarise it. 
+
+\indent Let \textbf{A}, and \textbf{B} be two different MDS configurations for
+the same set of data. Without loss of generality, let's suposo that the target 
+is \textbf{A} and the testee is \textbf{B}. One wants to obtain $s$, \textbf{T}
+and $t$ such that:
+
+$$A = s \mathbf{B} \mathbf{T} + \mathbf{1t}'$$
+
+where \textbf{T} is an orthogonal matrix. As mentioned before, \textit{Ingwer Borg} 
+and \textit{Patrik Groenen} develop all the theory\cite{BorgGroenen2005} that 
+allows to get these parameters.
+
+\section{Multidimensional Scaling with \textsf{R}}
+
+All the algorithms have been coded in \textsf{R}, since it has a widely statistics
+pckages already implemented. We have used two packages for developing our MDS
+approaches:
+
+\begin{itemize}
+\item Package: \textsf{stats}. From this one we have used the fucntion 
+\textsf{cmdscale} to do the MDS. The output of this function is:
+\begin{itemize}
+\item The new coordinates for the individuals.
+\item All the eigenvalues found.
+\end{itemize}
+\item Package: \textsf{MCMCpack}. From this one we have used the fucntion 
+\textsf{cmdscale} to do the Procrustes transformation. The output of 
+this function is:
+\begin{itemize}
+\item The dilation coeficient $s$.
+\item The orthogonal matrix \textbf{T}.
+\item The translation vector \textbf{t}.
+\end{itemize}
+\end{itemize}
 
 \chapter{Divde and Conquer Multidimensional Scaling}
 
@@ -469,7 +563,6 @@ variables could be a valid solution.
 
 \chapter{Conclusions}
 
-\nocite{*}
 \bibliographystyle{unsrt}
 \bibliography{bibliography.bib}
 

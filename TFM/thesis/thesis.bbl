@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{1}
 
 \bibitem{Torgerson1952}
 Warren~S. Torgerson.
@@ -38,24 +38,14 @@ J.~Douglas Carroll and Jih-Jie Chang.
   n-way generalization of "eckart-young" decomposition.
 \newblock {\em Psychometrika}, 35(3):283--319, Sep 1970.
 
-\bibitem{Modern_MDS}
-Ingwer Borg and Patrick Groenen.
-\newblock {\em Modern Multidimensional Scaling}.
-\newblock Springer-Verlag, New York, NY, 1997.
-
 \bibitem{pena_libro}
 Daniel Pe{\~n}a.
 \newblock {\em An{\'a}lisis de datos multivariantes}.
 \newblock McGraw Hill, Madrid, Spain, 2002.
 
-\bibitem{pub:39177}
-Patrick Groenen and Ingwer Borg.
-\newblock The past, present, and future of multidimensional scaling, Jan 2013.
-
-\bibitem{Rothkopf1957}
-Ernst~Z. Rothkopf.
-\newblock A measure of stimulus similarity and errors in some paired-associate
-  learning tasks.
-\newblock {\em Journal of Experimental Psychology}, 53(2):94, 1957.
+\bibitem{BorgGroenen2005}
+I.~Borg and P.J.F. Groenen.
+\newblock {\em {Modern Multidimensional Scaling: Theory and Applications}}.
+\newblock Springer, 2005.
 
 \end{thebibliography}
