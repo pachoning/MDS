@@ -61,7 +61,7 @@ fast.mds <- function(
       
       #Storing the eigenvalues
       list_mds[[i_group]] = cmd_eig$points
-      list_eigenvalues[[i_group]] = cmd_eig$eig
+      list_eigenvalues[[i_group]] = cmd_eig$eig/nrow(list_mds[[i_group]])
       
       # Subsample
       sample_size = sub_sample_size
@@ -164,7 +164,7 @@ fast.mds <- function(
       
       # Storing MDS and eigenvalues
       list_zi[[i_group]] = cmd_eig$points
-      list_eigenvalues[[i_group]] = cmd_eig$eig
+      list_eigenvalues[[i_group]] = cmd_eig$eig/nrow(list_zi[[i_group]])
 
 
       #Take a subsample

@@ -64,18 +64,19 @@ divide_conquer.mds <- function(
       eig = TRUE
     )
     
-    mds_iteration =  cmd_eig$points
+    mds_iteration = cmd_eig$points
     if(p%%2 == 0){
       if(k%%2 == 0){
-        list_eigenvalues[[i_eigen]] = cmd_eig$eig
+        list_eigenvalues[[i_eigen]] = cmd_eig$eig/nrow(submatrix_data)
         i_eigen = i_eigen + 1
       }
     }else{
       if(k %% 2 == 1){
-        list_eigenvalues[[i_eigen]] = cmd_eig$eig
+        list_eigenvalues[[i_eigen]] = cmd_eig$eig/nrow(submatrix_data)
         i_eigen = i_eigen + 1
       }
     }
+    
     # list_eigenvalues[[k]] = cmd_eig$eig
     
     row.names(mds_iteration) = row.names(submatrix_data)

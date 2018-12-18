@@ -192,24 +192,58 @@ canonical.corr <- function(
 
 corr.groups.procrustes <- function(
   x_to_be_transformed,
-  x_target
+  x_target,
+  want_to_divide = FALSE,
+  n_max_procrustes = 5000
 ){
   
-  if(is.matrix(x_to_be_transformed) == FALSE) x_to_be_transformed = as.matrix(x_to_be_transformed)
-  if(is.matrix(x_target) == FALSE) x_target = as.matrix(x_target)
+  # if(is.matrix(x_to_be_transformed) == FALSE) x_to_be_transformed = as.matrix(x_to_be_transformed)
+  # if(is.matrix(x_target) == FALSE) x_target = as.matrix(x_target)
   
-  procrustes_analysis =  MCMCpack::procrustes(
-    X = x_to_be_transformed, #The matrix to be transformed
-    Xstar = x_target, # target matrix
-    translation = TRUE, 
-    dilation = TRUE
-  )
+  if(want_to_divide == TRUE){
+    message("Ei! We are dividing!")
+    p = ceiling(nrow(x_target)/n_max_procrustes)
+    if(p<1) p = 1
+    groups = sample(x = p, size = nrow(x_to_be_transformed), replace = TRUE)
+    groups = sort(groups)
+    for(i_group in 1:p){
+      ind = which(groups == i_group)
+      x_to_be_transformed_filter = x_to_be_transformed[ind, ,drop = FALSE]
+      x_target_filter = x_target[ind, , drop = FALSE]
+      
+      procrustes_analysis =  MCMCpack::procrustes(
+        X = x_to_be_transformed_filter, #The matrix to be transformed
+        Xstar = x_target_filter, # target matrix
+        translation = TRUE, 
+        dilation = TRUE
+      )
+      
+      if(i_group == 1){
+        X.new = procrustes_analysis$X.new
+      }else{
+        X.new = rbind(
+          X.new,
+          procrustes_analysis$X.new
+        )
+      }
+    }
+   
+  }else{
+    procrustes_analysis =  MCMCpack::procrustes(
+      X = x_to_be_transformed, #The matrix to be transformed
+      Xstar = x_target, # target matrix
+      translation = TRUE, 
+      dilation = TRUE
+    )
+    
+    X.new = procrustes_analysis$X.new
+  }
   
   return(
     diag(
       cor(
         x_target, 
-        procrustes_analysis$X.new
+        X.new
       )
     )
   )
@@ -233,7 +267,9 @@ do.magic <- function(
   max_sample_size_classical,
   threshold_main_dimensions,
   n_eigenvalues,
-  n_cols_procrustes_noise
+  n_cols_procrustes_noise,
+  split_procrustes,
+  n_max_procrustes
 ){
   # Dimensions to do procrustes
   if(n_primary_dimensions == 0){
@@ -281,8 +317,10 @@ do.magic <- function(
     )
     divide_conquer_elapsed_time = as.numeric(divide_conquer_mds$elapsed_time)
     divide_conquer_corr_matrix = corr.groups.procrustes(
-      x_to_be_transformed = x[, 1:n_dimensions_procrustes],
-      x_target = divide_conquer_points[, 1:n_dimensions_procrustes]
+      x_to_be_transformed = x[, 1:n_dimensions_procrustes, drop = FALSE],
+      x_target = divide_conquer_points[, 1:n_dimensions_procrustes, drop = FALSE],
+      want_to_divide = split_procrustes,
+      n_max_procrustes = n_max_procrustes
     )
     
   }
@@ -318,8 +356,10 @@ do.magic <- function(
     )
     fast_elapsed_time = as.numeric(fast_mds$elapsed_time)
     fast_corr_matrix = corr.groups.procrustes(
-      x_to_be_transformed = x[, 1:n_dimensions_procrustes],
-      x_target = fast_points[, 1:n_dimensions_procrustes]
+      x_to_be_transformed = x[, 1:n_dimensions_procrustes, drop = FALSE],
+      x_target = fast_points[, 1:n_dimensions_procrustes, drop = FALSE],
+      want_to_divide = split_procrustes,
+      n_max_procrustes = n_max_procrustes
     )
   }
   
@@ -353,8 +393,10 @@ do.magic <- function(
     )
     gower_elapsed_time = as.numeric(gower_mds$elapsed_time)
     gower_corr_matrix = corr.groups.procrustes(
-      x_to_be_transformed = x[, 1:n_dimensions_procrustes],
-      x_target = gower_points[, 1:n_dimensions_procrustes]
+      x_to_be_transformed = x[, 1:n_dimensions_procrustes, drop = FALSE],
+      x_target = gower_points[, 1:n_dimensions_procrustes, drop = FALSE],
+      want_to_divide = split_procrustes,
+      n_max_procrustes = n_max_procrustes
     )
     
   }
@@ -390,8 +432,10 @@ do.magic <- function(
     )
     classical_elapsed_time = as.numeric(classical_mds$elapsed_time)
     classical_corr_matrix = corr.groups.procrustes(
-      x_to_be_transformed = x[, 1:n_dimensions_procrustes],
-      x_target = classical_points[, 1:n_dimensions_procrustes]
+      x_to_be_transformed = x[, 1:n_dimensions_procrustes, drop = FALSE],
+      x_target = classical_points[, 1:n_dimensions_procrustes, drop = FALSE],
+      want_to_divide = split_procrustes,
+      n_max_procrustes = n_max_procrustes
     )
     
   }

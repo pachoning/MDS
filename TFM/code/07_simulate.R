@@ -8,16 +8,16 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-simulation_id = 1
-initial_scenario_id = 1
-total_replicas = 75
+simulation_id = 20030
+initial_scenario_id = 20000
+total_replicas = 1
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(1000, 3000, 5000, 10^4),
-  data_dimension = list(10, 100),
-  main_dimensions_vector = list(NULL, 15, c(15, 15), c(15,10), c(15,15,15,15)),
+  sample_size = list(10^3),
+  data_dimension = list(10),
+  main_dimensions_vector = list(c(15, 15), c(15,10)),
   l = list(500),
   k = list(3),
   metric = list("euclidean"),
@@ -27,7 +27,9 @@ df = expand.grid(
   compute_classical_mds = list(TRUE),
   max_sample_size_classical = 3000,
   n_eigenvalues = 6,
-  n_cols_procrustes_noise = 5 # When there is noise, use 5 columns to do the procrustes
+  n_cols_procrustes_noise = 5, # When there is noise, use 5 columns to do the procrustes
+  split_procrustes = list(TRUE), # This is because when the matrix is too big and procrustes is perform to get the correlation matrix, it explodes. With that, procrustes is calcualted in a for
+  n_max_procrustes = list(5000)
 )
 
 df$scenario_id = initial_scenario_id:(initial_scenario_id + nrow(df)-1)
@@ -84,8 +86,11 @@ for(i_replica in 1:total_replicas){
       max_sample_size_classical = df_filter$max_sample_size_classical[[1]],
       threshold_main_dimensions = threshold_main_dimensions,
       n_eigenvalues = df_filter$n_eigenvalues[[1]],
-      n_cols_procrustes_noise =  df_filter$n_cols_procrustes_noise[[1]]
+      n_cols_procrustes_noise =  df_filter$n_cols_procrustes_noise[[1]],
+      split_procrustes = df_filter$split_procrustes[[1]],
+      n_max_procrustes = df_filter$n_max_procrustes[[1]]
     )
+    
     
     
     exists_dominant_dimesion = FALSE
@@ -162,131 +167,6 @@ for(i_replica in 1:total_replicas){
   
 }
 
-View(df_summary)
-
 if(FALSE){
-  # This is an example to show to Pedro
-  # Align divide and classical
-  x = list_results_i$x
-  mds_divide_conquer = list_results_i$divide_conquer_points
-  mds_classical = list_results_i$classical_points
-  
-  results_compare_divide_conquer = compare.methods(
-    mds_new_approach = mds_divide_conquer,
-    mds_classical = mds_classical
-  )
-  
-  # The plot that we always see
-  plot(mds_divide_conquer[,1], results_compare_divide_conquer$mds_classical_transformed[,1])
-  abline(a = 0, b = 1, col = 2, lwd = 2)
-  
-  plot(mds_divide_conquer[,2], results_compare_divide_conquer$mds_classical_transformed[,2])
-  abline(a = 0, b = 1, col = 2, lwd = 2)
-  
-  
-  plot(mds_divide_conquer[,3], results_compare_divide_conquer$mds_classical_transformed[,3])
-  abline(a = 0, b = 1, col = 2, lwd = 2)
-  
-  plot(mds_divide_conquer[,4], results_compare_divide_conquer$mds_classical_transformed[,4])
-  abline(a = 0, b = 1, col = 2, lwd = 2)
-  
-  plot(mds_divide_conquer[,10], results_compare_divide_conquer$mds_classical_transformed[,10])
-  abline(a = 0, b = 1, col = 2, lwd = 2)
-  
-  
-  # Canonical correlation between data and divide and conquer
-  cc_results = cc(x, mds_divide_conquer)
-  cc_results$cor
-  
-  # Correlation between data and divide and conquer
-  cor(x, mds_divide_conquer)
-  
-  # Correlation between rotated data and divide and conquer
-  results_compare_divide_conquer_x = compare.methods(
-    mds_new_approach = mds_divide_conquer,
-    mds_classical = x
-  )
-  
-  cor(results_compare_divide_conquer_x$mds_classical_transformed, mds_divide_conquer)
-  
-  # Correlation between classical MDS and divide and conquer
-  cor(mds_classical, mds_divide_conquer)
-  
-  
-  # Correlation between rotated classical MDS and divide and conquer
-  cor(results_compare_divide_conquer$mds_classical_transformed, mds_divide_conquer)
-  
-  # So, I will select the following informtion:
-  ## Canonical correlation
-  ## Correlation between rotated data and new approaches
-  ## Correlation between rotated classical MDS and new approaches
-  
-}
-
-
-
-if(FALSE){
-  df_summary %>% 
-    group_by(
-      scenario_id
-    ) %>% 
-    summarise(
-      n()
-    ) %>% 
-    View
-  
-  df_summary %>% View
-  df_summary %>% colnames()
-  df_summary %>% 
-    arrange(
-      n_dimensions,
-      n_primary_dimensions,
-      sample_size,
-      exists_dominant_dimesion
-    ) %>% 
-    View
-  
-  View(df)
   View(df_summary)
-  
-  length(list_results)
-  list_results[[1]]$x
-}
-
-
-if(FALSE){
-  x = list_results_i$x
-  dim(x)
-  
-  divide = list_results_i$divide_conquer_points
-  dim(divide)
-  
-  eigen = list_results_i$divide_conquer_eig
-  
-  eigen2 = list_results_i$fast_eig
-  length(eigen2)
-  sum_r = 0
-  for(i in 1:length(eigen2)){
-    sum_r = sum_r + length(eigen2[[i]])
-  }
-  length(eigen)
-  length(eigen[[1]]) + length(eigen[[2]]) + length(eigen[[3]])
-  plot(divide[, 1], x[, 1])
-  
-  
-  proc = compare.methods(
-    mds_new_approach = divide[, c(1:2, 4)],
-    mds_classical = x[, 1:3]
-  )
-  
-  plot(divide[, 1], proc$mds_classical_transformed[, 1])
-  plot(divide[, 2], proc$mds_classical_transformed[, 2])
-  plot(divide[, 3], proc$mds_classical_transformed[, 3])
-  plot(divide[, 4], proc$mds_classical_transformed[, 4])
-  
-}
-
-if(FALSE){
-  df_summary$fast_corr_matrix[[1]]
-  df_summary$fast_corr_matrix[[1]]
 }

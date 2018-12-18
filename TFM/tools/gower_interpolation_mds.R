@@ -7,6 +7,7 @@ gower.interpolation.mds <- function(
 
   nrow_x = nrow(x)
   p = ceiling(2*nrow_x/l)
+  if(p<1) p = 1
   
   if( p>1 ){
     # Do MDS with the first group and then use the Gower interpolation formula
@@ -35,7 +36,7 @@ gower.interpolation.mds <- function(
     )
     
     M = cmd_eig$points
-    eigen = cmd_eig$eig
+    eigen = cmd_eig$eig/nrow(M)
     cum_mds = M
     
     # Calculations needed to do Gower interpolation
@@ -89,7 +90,7 @@ gower.interpolation.mds <- function(
     )
     
     cum_mds = cmd_eig$points
-    eigen = cmd_eig$eig
+    eigen = cmd_eig$eig/nrow_x
   }
   
   return(

@@ -16,6 +16,8 @@ classical.mds <- function(
     eig = TRUE
   )
   
+  cmd_eig$eig = cmd_eig$eig/nrow(x)
+  
   
   
   return(

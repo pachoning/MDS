@@ -1,59 +1,28 @@
 source("tools/load_libraries.R")
-load("ws_gr_2018_12_10_19_09_59.Rproj")
+load("data/simulations/small_size/df_summary.RData")
+load("data/simulations/small_size/df.RData")
 
 
-View(df_summary_all)
 
-df_summary_all %>% 
-  arrange(
-    sample_size_divide_conquer_fast,
-    n_dimensions,
-    n_primary_dimensions
+View(df_summary[10,])
+# Time metrics
+df_summary %>% 
+  group_by(
+    sample_size
   ) %>% 
-  View
-
+  summarise(
+    elapsed_time_divide_conquer = mean(elapsed_time_divide_conquer),
+    elapsed_time_fast = mean(elapsed_time_fast),
+    elapsed_time_gower = mean(elapsed_time_gower),
+    elapsed_time_classical = mean(elapsed_time_classical)
+  )
+View(df_summary)
 
 # Dimesionality
-df_summary_all %>% 
-  arrange(
-    sample_size_divide_conquer_fast,
-    n_dimensions,
-    n_primary_dimensions
-  ) %>% 
-  select(
-    sample_size_divide_conquer_fast,
-    sample_size_classical,
-    n_dimensions,
-    n_primary_dimensions,
-    n_secondary_dimensions,
-    n_dimensions_classical,
-    n_dimensions_divide,
-    n_dimensions_fast
-  ) %>% 
-  View
-
-# Timing
-df_timing_classical = df_summary_all %>% 
-  mutate(
-    sample_size = sample_size_classical
-  ) %>% 
-  group_by(
-    sample_size
-  ) %>% 
-  summarise(
-    elapsed_time_classical_mean = mean(elapsed_time_classical)
-  )
-  
-df_timing_new_approaches = df_summary_all %>% 
-  mutate(
-    sample_size = sample_size_divide_conquer_fast
-  ) %>% 
-  group_by(
-    sample_size
-  ) %>% 
-  summarise(
-    elapsed_time_divide_conquer_mean = mean(elapsed_time_divide_conquer),
-    elapsed_time_fast_mean = mean(elapsed_time_fast)
-  )
-
+df1 = df_summary[9,]
+View(df1)
+x = matrix(rnorm(1000*10), ncol = 10) %*% diag(c(15, rep(1, 9)))
+var(x[,1])
+sqrt(df1$eig_subsample_divide_conquer[[1]][1]/df1$eig_subsample_divide_conquer[[1]][6])
+sqrt(df1$eig_subsample_classical[[1]][1]/df1$eig_subsample_classical[[1]][6])
 
