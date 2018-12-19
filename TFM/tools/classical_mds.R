@@ -16,14 +16,14 @@ classical.mds <- function(
     eig = TRUE
   )
   
-  cmd_eig$eig = cmd_eig$eig/nrow(x)
+  eigenvalues_classical =  cmd_eig$eig/nrow(x)
   
   
   
   return(
     list(
       points = cmd_eig$points,
-      eig = cmd_eig$eig 
+      eig = eigenvalues_classical
     )
   )
   

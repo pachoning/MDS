@@ -56,7 +56,7 @@ n.dimensions <- function(
     
     above_threshold = rapply(
       list_eigenvalues, 
-      function(x, th = threshold_main_dimensions) min(which(cumsum(x)/sum(x) > th)), 
+      function(x, th = threshold_main_dimensions) min(which(cumsum(abs(x))/sum(abs(x)) > th)), 
       how = "unlist"
     )
     
@@ -162,7 +162,7 @@ aggregator.mds <- function(
       x = x,
       l = l,
       s = s,
-      metric = metric 
+      metric = metric
     )
   }else{
     stop( "invalid value for method_wanted variable" )
@@ -194,21 +194,17 @@ corr.groups.procrustes <- function(
   x_to_be_transformed,
   x_target,
   want_to_divide = FALSE,
-  n_max_procrustes = 5000
+  n_max_procrustes
 ){
   
-  # if(is.matrix(x_to_be_transformed) == FALSE) x_to_be_transformed = as.matrix(x_to_be_transformed)
-  # if(is.matrix(x_target) == FALSE) x_target = as.matrix(x_target)
-  
   if(want_to_divide == TRUE){
-    message("Ei! We are dividing!")
     p = ceiling(nrow(x_target)/n_max_procrustes)
     if(p<1) p = 1
     groups = sample(x = p, size = nrow(x_to_be_transformed), replace = TRUE)
     groups = sort(groups)
     for(i_group in 1:p){
       ind = which(groups == i_group)
-      x_to_be_transformed_filter = x_to_be_transformed[ind, ,drop = FALSE]
+      x_to_be_transformed_filter = x_to_be_transformed[ind, , drop = FALSE]
       x_target_filter = x_target[ind, , drop = FALSE]
       
       procrustes_analysis =  MCMCpack::procrustes(
@@ -217,16 +213,41 @@ corr.groups.procrustes <- function(
         translation = TRUE, 
         dilation = TRUE
       )
+
       
       if(i_group == 1){
-        X.new = procrustes_analysis$X.new
+        # X.new = procrustes_analysis$X.new
+        rotation_matrix = procrustes_analysis$R
+        dilation = procrustes_analysis$s
+        translation = procrustes_analysis$tt
+      }else{
+        rotation_matrix = rotation_matrix + procrustes_analysis$R
+        dilation = dilation + procrustes_analysis$s
+        translation = translation + procrustes_analysis$tt
+      }
+    }
+    
+    rotation_matrix = rotation_matrix/p
+    dilation = dilation/p
+    translation = translation/p
+    
+    for(i_group in 1:p){
+      ind = which(groups == i_group)
+      ones_vector = rep(1, length(ind))
+      translation_matrix = ones_vector %*% t(translation)
+      x_to_be_transformed_filter = x_to_be_transformed[ind, , drop = FALSE]
+      x_procrustes = dilation * x_to_be_transformed_filter %*% rotation_matrix + translation_matrix
+      if( i_group == 1){
+        X.new = x_procrustes
       }else{
         X.new = rbind(
           X.new,
-          procrustes_analysis$X.new
+          x_procrustes
         )
+          
       }
     }
+    
    
   }else{
     procrustes_analysis =  MCMCpack::procrustes(
@@ -309,7 +330,7 @@ do.magic <- function(
     divide_conquer_eig = divide_conquer_mds$eig
     divide_conquer_eig_subsample = get.mean.eigenvalues(
       list_eigenvalues = divide_conquer_eig,
-      n_eigenvalues =n_eigenvalues
+      n_eigenvalues = n_eigenvalues
     )
     divide_conquer_n_dimensions = n.dimensions(
       list_eigenvalues = divide_conquer_eig,
@@ -345,11 +366,15 @@ do.magic <- function(
     )
     
     fast_points = fast_mds$points
-    fast_eig = fast_mds$eig
+    fast_eig = rapply(
+      fast_mds$eig,
+      function(x) x/length(x)  
+    )
     fast_eig_subsample = get.mean.eigenvalues(
       list_eigenvalues = fast_eig,
-      n_eigenvalues =n_eigenvalues
+      n_eigenvalues = n_eigenvalues
     )
+    
     fast_n_dimensions = n.dimensions(
       list_eigenvalues = fast_eig,
       threshold_main_dimensions = threshold_main_dimensions
