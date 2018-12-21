@@ -1,3 +1,4 @@
+# Esta tiene que hacer 18
 source("tools/load_libraries.R")
 source("tools/classical_mds.R")
 source("tools/fast_MDS_eigen.R")
@@ -8,9 +9,9 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-simulation_id = 2120
-initial_scenario_id = 1
-total_replicas = 1
+simulation_id = 30000
+initial_scenario_id = 30000
+total_replicas = 25
 
 
 df = expand.grid(
@@ -53,7 +54,8 @@ for(i_replica in 1:total_replicas){
     )
   )
   
-  for(i_row in 1:nrows_df){
+  i_row_ini = 1
+  for(i_row in i_row_ini:nrows_df){
     df_filter = df[i_row, ]
     
     # Security control
@@ -160,11 +162,9 @@ for(i_replica in 1:total_replicas){
     }
     
     simulation_id = simulation_id + 1
+    save(df_summary, file = "df_summary.RData")  
+    save(df, file = "df.RData")
   }
-  
-  save(df_summary, file = "df_summary.RData")  
-  save(df, file = "df.RData")
-  
 }
 
 if(FALSE){
