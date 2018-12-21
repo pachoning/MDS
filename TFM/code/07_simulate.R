@@ -8,9 +8,9 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-simulation_id = 1
+simulation_id = 2120
 initial_scenario_id = 1
-total_replicas = 75
+total_replicas = 1
 
 
 df = expand.grid(
@@ -37,7 +37,7 @@ df$scenario_id = initial_scenario_id:(initial_scenario_id + nrow(df)-1)
 
 if(FALSE){
   View(df)
-  df = df[1, ]
+  df = df[c(9,10, 11, 17, 18, 19), ]
   i_row = 2
 }
 
@@ -169,4 +169,13 @@ for(i_replica in 1:total_replicas){
 
 if(FALSE){
   View(df_summary)
+  
+  df_summary %>% 
+    group_by(
+      scenario_id
+    ) %>% 
+    summarise(
+      n()
+    ) %>% 
+    View
 }

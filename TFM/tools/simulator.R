@@ -211,24 +211,24 @@ corr.groups.procrustes <- function(
         X = x_to_be_transformed_filter, #The matrix to be transformed
         Xstar = x_target_filter, # target matrix
         translation = TRUE, 
-        dilation = TRUE
+        dilation = FALSE
       )
 
       
       if(i_group == 1){
         # X.new = procrustes_analysis$X.new
         rotation_matrix = procrustes_analysis$R
-        dilation = procrustes_analysis$s
+        # dilation = procrustes_analysis$s
         translation = procrustes_analysis$tt
       }else{
         rotation_matrix = rotation_matrix + procrustes_analysis$R
-        dilation = dilation + procrustes_analysis$s
+        # dilation = dilation + procrustes_analysis$s
         translation = translation + procrustes_analysis$tt
       }
     }
     
     rotation_matrix = rotation_matrix/p
-    dilation = dilation/p
+    # dilation = dilation/p
     translation = translation/p
     
     for(i_group in 1:p){
@@ -236,7 +236,8 @@ corr.groups.procrustes <- function(
       ones_vector = rep(1, length(ind))
       translation_matrix = ones_vector %*% t(translation)
       x_to_be_transformed_filter = x_to_be_transformed[ind, , drop = FALSE]
-      x_procrustes = dilation * x_to_be_transformed_filter %*% rotation_matrix + translation_matrix
+      # x_procrustes = dilation * x_to_be_transformed_filter %*% rotation_matrix + translation_matrix
+      x_procrustes = x_to_be_transformed_filter %*% rotation_matrix + translation_matrix
       if( i_group == 1){
         X.new = x_procrustes
       }else{
@@ -254,7 +255,7 @@ corr.groups.procrustes <- function(
       X = x_to_be_transformed, #The matrix to be transformed
       Xstar = x_target, # target matrix
       translation = TRUE, 
-      dilation = TRUE
+      dilation = FALSE
     )
     
     X.new = procrustes_analysis$X.new
