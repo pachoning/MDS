@@ -1,4 +1,5 @@
-# This one will do 18 replicas
+# This one will do 19 replicas
+# i-0253d596f0dd7ccaf
 source("tools/load_libraries.R")
 source("tools/classical_mds.R")
 source("tools/fast_MDS_eigen.R")
@@ -9,9 +10,9 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-simulation_id = 40000
-initial_scenario_id = 40000
-total_replicas = 18
+simulation_id = 30020
+initial_scenario_id = 30010
+total_replicas = 19
 
 
 df = expand.grid(
@@ -160,7 +161,7 @@ for(i_replica in 1:total_replicas){
     df_summary_i$corr_matrix_classical = list(list_results_i$classical_corr_matrix)
     
     
-    if(i_row  == 1 && i_replica == 1){
+    if( exists("df_summary") == FALSE ){
       df_summary = df_summary_i
     }else{
       df_summary = rbind(
