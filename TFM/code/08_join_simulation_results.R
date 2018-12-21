@@ -1,15 +1,16 @@
+source("tools/load_libraries.R")
 # Join all the information
 this_directory = rstudioapi::getActiveDocumentContext()$path
 main_directory = dirname(dirname(this_directory))
 
 data_directory = file.path(
   main_directory,
-  "data",
+  "data"
 )
 
 simulations_directory = file.path(
-  main_directory,
-  "simulations",
+  data_directory,
+  "simulations"
 )
   
 output_directory = file.path(
@@ -17,11 +18,11 @@ output_directory = file.path(
   "results"
 )
 
-input_list_directories = list.files(data_directory)
+input_list_directories = list.files(simulations_directory)
 for(i_directory in input_list_directories){
   message(paste0("Working on directory: ", i_directory))
   current_directory = file.path(
-    data_directory,
+    simulations_directory,
     i_directory
   )
   
@@ -40,11 +41,11 @@ for(i_directory in input_list_directories){
       
     )
     
-    if(exists("df_append_all") == FALSE){
-      df_append_all = df_summary
+    if(exists("df_simulations") == FALSE){
+      df_simulations = df_summary
     }else{
-      df_append_all = rbind(
-        df_append_all,
+      df_simulations = rbind(
+        df_simulations,
         df_summary
       )
     }
@@ -54,9 +55,9 @@ for(i_directory in input_list_directories){
 }
 
 
-View(df_append_all)
+View(df_simulations)
 
-df_append_all %>% 
+df_simulations %>% 
   group_by(
     sample_size
   ) %>% 
@@ -65,9 +66,9 @@ df_append_all %>%
   ) 
 
 save(
-  df_append_all,
+  df_simulations,
   file = file.path(
     output_directory,
-    "df_append_all.RData"
+    "df_simulations.RData"
   )
 )
