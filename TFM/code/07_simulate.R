@@ -1,4 +1,4 @@
-# Esta tiene que hacer 18
+# This one will do 18 replicas
 source("tools/load_libraries.R")
 source("tools/classical_mds.R")
 source("tools/fast_MDS_eigen.R")
@@ -11,7 +11,7 @@ threshold_main_dimensions = 0.9
 
 simulation_id = 30000
 initial_scenario_id = 30000
-total_replicas = 25
+total_replicas = 18
 
 
 df = expand.grid(
