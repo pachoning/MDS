@@ -9,14 +9,14 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-simulation_id = 30000
-initial_scenario_id = 30000
+simulation_id = 40000
+initial_scenario_id = 40000
 total_replicas = 18
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(10^3, 3*10^3, 5*10^3, 10^4),
+  sample_size = list(10^6),
   data_dimension = list(10,100),
   main_dimensions_vector = list(NULL, 15, c(15,15), c(15,10), c(15,15,15,15)),
   l = list(500),
