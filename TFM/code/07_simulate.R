@@ -44,7 +44,8 @@ if(FALSE){
 
 
 nrows_df = nrow(df)
-
+want_to_start_anywhere = FALSE
+i_where_to_continue = 1
 for(i_replica in 1:total_replicas){
   message("------------------------------------------------------------------------")
   
@@ -54,8 +55,15 @@ for(i_replica in 1:total_replicas){
     )
   )
   
-  i_row_ini = 1
+  if(want_to_start_anywhere == TRUE){
+    i_row_ini = i_where_to_continue
+  }else{
+    i_row_ini = 1
+  }
+  
+  
   for(i_row in i_row_ini:nrows_df){
+    want_to_start_anywhere = FALSE
     df_filter = df[i_row, ]
     
     # Security control
