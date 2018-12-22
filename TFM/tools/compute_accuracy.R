@@ -8,7 +8,7 @@ compare.methods <- function(
     X = mds_classical,
     Xstar = mds_new_approach, #target matrix
     translation = TRUE, 
-    dilation = TRUE
+    dilation = FALSE
   )
   
   

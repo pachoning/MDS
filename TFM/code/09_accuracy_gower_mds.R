@@ -3,7 +3,7 @@ source("tools/compute_accuracy.R")
 source("tools/gower_interpolation_mds.R")
 
 
-x = matrix(rnorm(5*1000), ncol = 5) %*%diag(c(15,1,1,1,1))
+x = matrix(rnorm(5*1412), ncol = 5) %*%diag(c(15,1,1,1,1))
 row.names(x) = 1:nrow(x)
 s = 5
 # Gower MDS
@@ -40,9 +40,10 @@ plot(gower_mds$points[,3], res$mds_classical_transformed[,3])
 plot(gower_mds$points[,4], res$mds_classical_transformed[,4])
 plot(gower_mds$points[,5], res$mds_classical_transformed[,5])
 
+gower.interpolation.mds
 
 
 
 
-
-
+dim(gower_mds$points)
+sqrt((gower_mds$eig)[1:4])

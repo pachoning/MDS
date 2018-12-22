@@ -10,11 +10,11 @@ if( require(cluster) == FALSE ){
 #   library(coenocliner)
 # }
 
-# if( require(fields) == FALSE ){
-#   message("installing fields library -----------------------------------")
-#   install.packages('fields')
-#   library(fields)
-# }
+if( require(fields) == FALSE ){
+  message("installing fields library -----------------------------------")
+  install.packages('fields')
+  library(fields)
+}
 
 
 if( require(ggplot2) == FALSE ){

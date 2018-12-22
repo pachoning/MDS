@@ -4,9 +4,9 @@ gower.interpolation.mds <- function(
   s,
   metric
 ){
-  
+
   nrow_x = nrow(x)
-  p = ceiling(nrow_x/l)
+  p = ceiling(2*nrow_x/l)
   if(p<1) p = 1
   
   if( p>1 ){
@@ -20,7 +20,7 @@ gower.interpolation.mds <- function(
     
     # Do MDS with the first group
     submatrix_data = x[ind_1, ]
-    
+  
     distance_matrix = cluster::daisy(
       x = submatrix_data,
       metric = metric
@@ -54,21 +54,17 @@ gower.interpolation.mds <- function(
     for(i_group in 2:p){
       # Filtering the data
       ind_i_group = which(sample_distribution == i_group)
-      submatrix_data = x[ind_i_group, ]
+      submatrix_data = x[c(ind_1, ind_i_group), ]
       
       
       # A matrix
-      # distance_matrix = cluster::daisy(
-      #   x = submatrix_data,
-      #   metric = metric
-      # )
-      
-      distance_matrix_filter = pdist::pdist(
-        X = submatrix_data,
-        Y = x[ind_1, ]
+      distance_matrix = cluster::daisy(
+        x = submatrix_data,
+        metric = metric
       )
       
-      distance_matrix_filter = as.matrix(distance_matrix_filter)
+      distance_matrix = as.matrix(distance_matrix)
+      distance_matrix_filter = distance_matrix[-ind_1, ind_1]
       A = distance_matrix_filter^2
       ones_vector = rep(1, length(ind_i_group))
       MDS_i_group = 1/(2*n_1)*(ones_vector %*%t(g_vector) - A) %*% M %*% S_inv
