@@ -58,11 +58,6 @@ gower.interpolation.mds <- function(
       
       
       # A matrix
-      # distance_matrix = cluster::daisy(
-      #   x = submatrix_data,
-      #   metric = metric
-      # )
-      
       distance_matrix_filter = pdist::pdist(
         X = submatrix_data,
         Y = x[ind_1, ]
