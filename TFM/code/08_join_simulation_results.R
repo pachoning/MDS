@@ -55,15 +55,16 @@ for(i_directory in input_list_directories){
 }
 
 
-View(df_simulations)
 
 df_simulations %>% 
   group_by(
+    scenario_id,
     sample_size
   ) %>% 
   summarise(
     n()
-  ) 
+  ) %>% 
+  View
 
 save(
   df_simulations,
@@ -72,3 +73,46 @@ save(
     "df_simulations.RData"
   )
 )
+
+df_simulations %>% 
+  filter(
+    sample_size == 10^6
+  ) %>% 
+  dplyr::select(
+    simulation_id,
+    scenario_id,
+    sample_size,
+    n_dimensions,
+    n_primary_dimensions,
+    value_primary_dimensions,
+    n_secondary_dimensions,
+    elapsed_time_fast,
+    elapsed_time_gower,
+    corr_matrix_fast,
+    corr_matrix_gower,
+    eig_subsample_fast,
+    eig_subsample_gower
+  ) %>% 
+  View
+
+colnames(df_simulations)
+
+df_simulations %>% 
+  group_by(
+    simulation_id
+  ) %>% 
+  summarise(
+    n_rep = n()
+  ) %>% 
+  filter(
+    n_rep > 1
+  ) %>% 
+  View
+
+
+  
+df_simulations %>% 
+  filter(
+    simulation_id == 80000
+  ) %>% 
+  View
