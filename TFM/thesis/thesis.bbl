@@ -1,51 +1,26 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{}
 
-\bibitem{Torgerson1952}
-Warren~S. Torgerson.
-\newblock Multidimensional scaling: I. theory and method.
-\newblock {\em Psychometrika}, 17(4):401--419, Dec 1952.
+\bibitem[\protect\citeauthoryear{Borg and Groenen}{Borg and
+  Groenen}{2005}]{BorgGroenen2005}
+Borg, I. and P.~Groenen (2005).
+\newblock {\em Modern Multidimensional Scaling: Theory and Applications}.
+\newblock Springer.
 
-\bibitem{Shepard1962}
-Roger~N. Shepard.
-\newblock The analysis of proximities: Multidimensional scaling with an unknown
-  distance function. ii.
-\newblock {\em Psychometrika}, 27(3):219--246, Sep 1962.
+\bibitem[\protect\citeauthoryear{Handl}{Handl}{1996}]{gowerformula}
+Handl, A. (1996, October).
+\newblock {Biplots : J. C. Gower and D. J. Hand (1996) London: Chapman \& Hall,
+  ISBN 0-412-71630-5, [pound sign] 32.00, pp. 277}.
+\newblock {\em Computational Statistics \& Data Analysis\/}~{\em 22\/}(6),
+  655--651.
 
-\bibitem{Kruskal1964}
-J.~B. Kruskal.
-\newblock Nonmetric multidimensional scaling: A numerical method.
-\newblock {\em Psychometrika}, 29(2):115--129, Jun 1964.
-
-\bibitem{coombs}
-C.~H. Coombs.
-\newblock {\em A theory of data}.
-\newblock Wiley, New York, 1964.
-
-\bibitem{takane}
-Yoshio Takane, Forrest W.~Young, and Jan De~Leeuw.
-\newblock nonmetric common factor analysis: an alternating least squares method
-  with optimal scaling features.
-\newblock {\em Behaviormetrika}, 6:45--56, Jan 1979.
-
-\bibitem{de_leeuw}
-Jan De~Leeuw and Willem Heiser.
-\newblock Multidimensional scaling with restrictions on the configuration.
-\newblock {\em Multivariate Analysis}, 5, Jan 1980.
-
-\bibitem{Carroll1970}
-J.~Douglas Carroll and Jih-Jie Chang.
-\newblock Analysis of individual differences in multidimensional scaling via an
-  n-way generalization of "eckart-young" decomposition.
-\newblock {\em Psychometrika}, 35(3):283--319, Sep 1970.
-
-\bibitem{pena_libro}
-Daniel Pe{\~n}a.
+\bibitem[\protect\citeauthoryear{Pe{\~n}a}{Pe{\~n}a}{2002}]{pena_libro}
+Pe{\~n}a, D. (2002).
 \newblock {\em An{\'a}lisis de datos multivariantes}.
-\newblock McGraw Hill, Madrid, Spain, 2002.
+\newblock Madrid, Spain: McGraw Hill.
 
-\bibitem{BorgGroenen2005}
-I.~Borg and P.J.F. Groenen.
-\newblock {\em {Modern Multidimensional Scaling: Theory and Applications}}.
-\newblock Springer, 2005.
+\bibitem[\protect\citeauthoryear{Tynia, Jinze, Leonard, and Wei}{Tynia
+  et~al.}{2006}]{Yang06afast}
+Tynia, Y., L.~Jinze, M.~Leonard, and W.~Wei (2006).
+\newblock A fast approximation to multidimensional scaling.
 
 \end{thebibliography}
