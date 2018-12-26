@@ -161,8 +161,7 @@ aggregator.mds <- function(
     result_mds = gower.interpolation.mds(
       x = x,
       l = l,
-      s = s,
-      metric = metric
+      s = s
     )
   }else{
     stop( "invalid value for method_wanted variable" )

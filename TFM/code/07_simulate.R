@@ -12,12 +12,12 @@ threshold_main_dimensions = 0.9
 
 simulation_id = 30020
 initial_scenario_id = 30010
-total_replicas = 19
+total_replicas = 1
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(10^6),
+  sample_size = list(10^3),
   data_dimension = list(10,100),
   main_dimensions_vector = list(NULL, 15, c(15,15), c(15,10), c(15,15,15,15)),
   l = list(500),

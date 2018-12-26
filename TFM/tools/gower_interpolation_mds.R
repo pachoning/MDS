@@ -1,8 +1,7 @@
 gower.interpolation.mds <- function(
   x,
   l,
-  s,
-  metric
+  s
 ){
   
   nrow_x = nrow(x)
@@ -23,7 +22,7 @@ gower.interpolation.mds <- function(
     
     distance_matrix = cluster::daisy(
       x = submatrix_data,
-      metric = metric
+      metric = "euclidean"
     )
     
     distance_matrix = as.matrix(distance_matrix)
@@ -76,7 +75,7 @@ gower.interpolation.mds <- function(
     # It is possible to num MDS without need of doing Gower interpolation
     distance_matrix = cluster::daisy(
       x = x,
-      metric = metric
+      metric = "euclidean"
     )
     
     distance_matrix = as.matrix(distance_matrix)

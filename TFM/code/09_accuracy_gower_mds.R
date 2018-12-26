@@ -10,8 +10,7 @@ s = 5
 gower_mds = gower.interpolation.mds(
   x = x,
   l = 500,
-  s = s,
-  metric = "euclidean"
+  s = s
 )
 
 
@@ -40,7 +39,7 @@ plot(gower_mds$points[,3], res$mds_classical_transformed[,3])
 plot(gower_mds$points[,4], res$mds_classical_transformed[,4])
 plot(gower_mds$points[,5], res$mds_classical_transformed[,5])
 
-gower.interpolation.mds
+
 
 
 
