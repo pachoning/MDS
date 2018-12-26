@@ -8,10 +8,19 @@
 \contentsline {chapter}{\numberline {2}Algorithms for Multidimensional Scaling with Big Data}{8}{chapter.2}
 \contentsline {section}{\numberline {2.1}Why is it needed?}{8}{section.2.1}
 \contentsline {section}{\numberline {2.2}Divde and Conquer Multidimensional Scaling}{9}{section.2.2}
-\contentsline {section}{\numberline {2.3}Fast Multidimensional Scaling}{10}{section.2.3}
-\contentsline {section}{\numberline {2.4}Multidimensional Scaling based on Gower interpolation}{10}{section.2.4}
-\contentsline {chapter}{\numberline {3}Simulation study}{11}{chapter.3}
-\contentsline {chapter}{\numberline {4}Conclusions}{12}{chapter.4}
-\contentsline {chapter}{Bibliography}{13}{chapter*.7}
-\contentsline {chapter}{\numberline {A}Code}{14}{appendix.A}
-\contentsline {chapter}{\numberline {B}Problems encountered during the development}{15}{appendix.B}
+\contentsline {subsection}{\numberline {2.2.1}Algorithm}{9}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}Some indicators about the goodness of fit}{10}{subsection.2.2.2}
+\contentsline {section}{\numberline {2.3}Fast Multidimensional Scaling}{11}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Algorithm}{11}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Some indicators about the goodness of fit}{12}{subsection.2.3.2}
+\contentsline {section}{\numberline {2.4}Multidimensional Scaling based on Gower interpolation}{12}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Algorithm}{13}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}Some indicators about the goodness of fit}{13}{subsection.2.4.2}
+\contentsline {section}{\numberline {2.5}Comparison of the algorithms}{14}{section.2.5}
+\contentsline {section}{\numberline {2.6}Output of the algorithms}{15}{section.2.6}
+\contentsline {chapter}{\numberline {3}Simulation study}{16}{chapter.3}
+\contentsline {section}{\numberline {3.1}Design of the simulation}{16}{section.3.1}
+\contentsline {chapter}{\numberline {4}Conclusions}{21}{chapter.4}
+\contentsline {chapter}{Bibliography}{22}{chapter*.13}
+\contentsline {chapter}{\numberline {A}Code}{23}{appendix.A}
+\contentsline {chapter}{\numberline {B}Problems encountered during the development}{24}{appendix.B}

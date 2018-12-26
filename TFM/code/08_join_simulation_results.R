@@ -73,6 +73,8 @@ df_simulations = df_simulations %>%
     scenario_id
   )
 
+View(df_simulations)
+
 nrow(df_simulations)
 df_simulations %>% 
   group_by(
@@ -80,7 +82,7 @@ df_simulations %>%
     sample_size,
     n_dimensions,
     n_primary_dimensions,
-    seconda 
+    exists_dominant_dimesion
   ) %>% 
   summarise(
     total = n()

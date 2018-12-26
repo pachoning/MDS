@@ -25,12 +25,15 @@
 \usepackage[nottoc]{tocbibind}
 \usepackage{algorithm2e}
 \SetKwComment{Comment}{$\triangleright$\ }{}
+\usepackage{longtable}
+%\usepackage{lipsum} % just for dummy text- not needed for a longtable
 %\usepackage{multirow}
 \usetikzlibrary{shapes,arrows}
 \DeclareMathOperator{\Tr}{Trace}
 \DeclareMathOperator{\diag}{diag}
 \DeclareMathOperator{\range}{range}
 \DeclareMathOperator{\cummds}{cum-mds}
+\DeclareMathOperator{\eigen}{eigen}
 \begin{document}
 %%%   PORTADA  %%%
 
@@ -176,7 +179,7 @@ Athens & 0 & 3313 & 2963 & 3175 & 3339 & $\dotsi$ \\
   $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\ddots$ \\
    \hline
 \end{tabular}
-\caption{Distances between European cities (just 5 of them are shown)} 
+\caption{Distances between European cities (just 5 of them are shown).} 
 \label{european_distances}
 \end{table}
 
@@ -525,7 +528,7 @@ as a function of the sample size. As we can see, the time grows
 exponentially. Apart of the time issue, there is another one related to the
 memory needed to compute the distance matrix. Figure (\ref{memory_distance}) 
 points out that it is required at least 400MB to store the distance 
-matrix when the dataset is close to 10.000 observations.
+matrix when the dataset is close to 10000 observations.
 
 \indent In order to solve these problems, we have developed three algorithms:
 
@@ -534,10 +537,10 @@ matrix when the dataset is close to 10.000 observations.
 \item \textit{Divide and Conquer MDS:} Before this thesis, 
 \textit{Pedro Delicado} had done some work about  MDS with big
 datasets and he had already created a first approach, which is this one. The 
-algorithm is based on the idea of dividng and conquering. Given a big data set, 
-it is divided into $p$ small ones, then MDS is perform over all the partitions
-and finally the $p$ solutions are stitched so that all the points lie on the 
-same system of coordinates.
+algorithm is based on the idea of dividng and conquering. Given a big dataset, 
+it is divided into $p$ partitions. After that, MDS is performed over all the 
+partitions and, finally, the $p$ solutions are stitched so that all the points 
+lie on the same coordinate system.
 
 \item \textit{Fast MDS:} during the phase of gathering information, we found an 
 article that solved the problem of scalability \cite{Yang06afast}. The 
@@ -549,11 +552,12 @@ to an existing MDS configuration \cite{gowerformula}.
 
 \end{itemize}
 
-In the next sections we are going to provide a description of the algorithms. 
+In the next sections we provide a description of the algorithms. 
 If further details about the implementation are needed, the code is provided in 
 \autoref{chap:code}.
 
 \section{Divde and Conquer Multidimensional Scaling}
+\subsection{Algorithm}
 
 \begin{itemize}
 
@@ -562,17 +566,17 @@ $\mathbf{X_1},\dots, \mathbf{X_p}$. The number of partitions, $p$, is also
 the number of steps needed to compute the algorithm.
 
 \item Calculate the MDS for the first partition: \textbf{MDS(1)}. This solution
-will be used as a guide to align the MDS for the remaining partitions. We will 
+will be used as a guide to align the MDS for the remaining partitions. We 
 use a new variable, \textbf{cum-mds}, that will be growing as long as new 
-partitions are used. Before adding a new MDS, it will be aligned and, after 
+partitions are used. Before adding a new MDS, it is aligned and, after 
 that, added. 
 
 \item Define \textbf{cum-mds} equal to \textbf{MDS(1)} and start iterating 
 until the last partition is reached.
 
 \item Given a step $k$, $1 < k \leq p$, partitions $k$ and \textit{k-1} are 
-joint, i.e, $\mathbf{X_k} \cup \mathbf{X_{k_1}}$. MDS is calculated on 
-this union, obtaining $\mathbf{MDS_{k, k-1}}$. In order to append the
+joint, i.e, $\mathbf{X_k} \cup \mathbf{X_{k-1}}$. MDS is calculated on 
+this union, obtaining $\mathbf{MDS_{k, k-1}}$. In order to add the
 rows of the \textit{k-th} partition to \textbf{cum-mds}, the following steps 
 are performed:
 
@@ -588,35 +592,693 @@ so that
 \boldsymbol{\cummds} \Bigr|_{k-1} = s \mathbf{MDS_{k, k-1}} \Bigr|_{k-1} \mathbf{T} + \mathbf{1t}'.
 \]
 \item Take the rows of the partition $k$ from $\mathbf{MDS_{k, k-1}}: \mathbf{MDS_{k, k-1}} \Bigr|_{k}$.
-\item Use the previous Procrustes parameters to append the rows of 
-$\mathbf{MDS_{k, k-1}} \Bigr|_{k}$ with \textbf{cum-mds}:
+\item Use the previous Procrustes parameters to add the rows of 
+$\mathbf{MDS_{k, k-1}} \Bigr|_{k}$ to \textbf{cum-mds}:
 \[
-\boldsymbol{\cummds} \Bigr|_{k} := s \mathbf{\mathbf{MDS_{k, k-1}}} \Bigr|_{k} \mathbf{T} + \mathbf{1t}'.
+\boldsymbol{\cummds}_k := s \mathbf{\mathbf{MDS_{k, k-1}}} \Bigr|_{k} \mathbf{T} + \mathbf{1t}'.
 \]
 \item Add the previous dataset to \textbf{cum-mds}, i.e:
 \[
-\boldsymbol{\cummds} = \boldsymbol{\cummds} \bigcup \boldsymbol{{\cummds}} \Bigr|_{k}
+\boldsymbol{\cummds} = \boldsymbol{\cummds} \cup \boldsymbol{{\cummds}}_k
 \]
 
 \end{itemize}
 \end{itemize}
 
 As we have seen, the algorithm depends on $p$, the number of partitions. How 
-many of them are needed? To answer this question, Let $l \times l$ be the largest 
+many of them are needed? To answer this question, let $l \times l$ be the largest 
 matrix that allows to run MDS eficiently. If $n$ is the number of rows 
 of \textbf{X}, then $p$ is $\frac{2n}{l}$. 
 
+\subsection{Some indicators about the goodness of fit}
+\label{chap:ind_div}
+This section does not pretend to prove that the algorithm is working, this is 
+done in \autoref{chap:sim}, where deeper analysis is done. What we want 
+to do here is to show some visual results so that the reader can have some 
+indicators about the goodness of fit of the algorithm. 
+
+\indent We have generated a matrix \textbf{X} with 3 independent \textit{Normal} 
+distributions ($\mu = 0$ and $\sigma = 1$) and 1000 rows. Afterwards, 
+we have run the algorithm. We have requiered the algorithm to return 3 columns. 
+So, a new matrix with 3 columns and 1000 rows ($\mathbf{MDS_{Div}}$) 
+has been obtained. Both matrices should be ``equal" with an exception of either
+a rotation, translation or reflection, but not a dilation. We have not
+allowed dilations to see that the distance is conserved.
+
+\indent To align the matrices we have performed a Procrustes transformation, but 
+setting the the dilation parameter (\textit{s}) equal to 1. 
+After that, we have compared the three columns (we refer to the columns as 
+\textit{dimensions}). Figure (\ref{divide_example}) shows the dimension
+$i$ of \textbf{X} against the dimension $i$ of $\mathbf{MDS_{Div}}$, 
+$i \in \{1,2,3\}$. 
+
+\indent As we can see, the algorithm is able to caputure the dimensions of the 
+original matrix. We do not show cross-dimensions (i.e dimesion $i$ of \textbf{X}
+against dimesion $j$ of $\mathbf{MDS_{Div}}$ $ i \neq j$), but Table 
+(\ref{corr_mds}) contains the correlation matrix. The results 
+show that dimension  $i$ of  $\mathbf{MDS_{Div}}$ caputures dimension 
+$i$ of \textbf{X} and just dimension $i$. So, it seems that the algorithm, for 
+this particular case, has a high goodness of fit.
+
+
+\begin{figure}[ht]
+    \centering
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/first_div.png} }}%
+    \qquad
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/second_div.png} }}%
+    \qquad
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/third_div.png} }}
+    \caption{Dimesion 1,2 and 3 of \textbf{X} against dimensions 1,2 and 3 of  $\mathbf{MDS_{Div}}$. \newline
+            In red, the line $x=y$.}%
+    \label{divide_example}%
+\end{figure}
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & 1 & 2 & 3 \\ 
+  \hline
+1 & 1 & 0.02 & -0.04 \\ 
+  2 & 0.02 & 1 & 0.02 \\ 
+  3 & -0.04 & 0.02 & 1 \\ 
+   \hline
+\end{tabular}
+\caption{Correlation of \textbf{X} and $\mathbf{MDS_{Div}}$.} 
+\label{corr_mds}
+\end{table}
+
+
+
 \section{Fast Multidimensional Scaling}
+During the process of gathering information about work previously done around
+MDS with big datasets, we found that \citeN{Yang06afast} already did an 
+algorithm, they named it \textit{Fast Multidimensional Scaling}. 
 
 
+\subsection{Algorithm}
 
+\begin{itemize}
+
+\item Divide \textbf{X} into $\mathbf{X_1},\dots, \mathbf{X_p}$.
+
+\item Compute MDS for each $\mathbf{X_i}$: 
+$\mathbf{MDS_1}, \dots, \mathbf{MDS_p}$. These individuals MDS solutions are 
+stitched together by sampling $s$ points (rows) from each submatrix 
+$\mathbf{X_i}$ and putting them into an alignment matrix 
+$\mathbf{M_{align}}$ of size $sp \times sp$. In principle, $s$ should be at 
+least 1 + the estimated dimensionality of the dataset. In practice, they 
+oversample by a factor of 2 or more. 
+
+\item MDS is run on $\mathbf{M_{align}}$. After this, it is obtained
+$\mathbf{mMDS}$. Given a sampled point, there are two solutions of MDS: 
+one from $\mathbf{X_i}$ and another one from $\mathbf{M_{align}}$.
+
+\item The next step is to compute the Procrustes transformation to  line  
+these two sets of solutions up in a common coordinate system:
+
+\[
+\mathbf{mMDS_i} = s_i \mathbf{dMDS_i} \mathbf{T_i} + \mathbf{1t_i}'
+\]
+where:
+
+\begin{itemize}
+
+\item $\mathbf{dMDS_i}$ is $\mathbf{MDS_i}$ but taking into account just
+the subset of the sample points that belongs to partition $i$.
+
+\item $\mathbf{mMDS_i}$ is $\mathbf{mMDS}$ but taking into account just
+the subset of the sample points that belongs to partition $i$
+\end{itemize}
+
+\item After doing the previous part, we obtain a set of $p$ Procrustes 
+parameters $(s_i, \mathbf{T_i},  \mathbf{t_i})$. So, the next step is to 
+apply this set of parameters to each $\mathbf{MDS_i}$, i.e, 
+
+\[
+\mathbf{MDS_i}^a := s_i \mathbf{MDS_i} \mathbf{T_i} + \mathbf{1t_i'}.
+\]
+
+\item The last step is to join $\mathbf{MDS_1}^a, \dots,  \mathbf{MDS_p}^a$ 
+all together, i.e, 
+\[
+\mathbf{MDS_X}:= \mathbf{MDS_1}^a \cup \cdots \cup \mathbf{MDS_p}^a.
+\]
+
+\end{itemize}
+
+\indent They apply this process recursively until the size of $\mathbf{X_i}$ is
+optimal to run MDS on. They find the stop condition as follows. Let 
+$l \times l$ be the largest matrix that allow MDS to be executed efficiently. 
+There are two issues that impact the performance of the algorithm: the size of 
+each submatrix after subdivision and the number of submatrices, $p$, that are 
+stitched together at each step. Ideally, the size of each submatrix after 
+division should be as large as possible without exceeding $l$. By the same
+token, the size of $\mathbf{M_{align}}$ should be bounded by $l$. The number of 
+submatrices to be stitched together, $p$, should be the largest number such 
+that $sp \leq l$.
+
+\subsection{Some indicators about the goodness of fit}
+As we have done in \autoref{chap:ind_div}, we present some visual results of
+this algorithm. The data used is the same as in \autoref{chap:ind_div}. We
+call $\mathbf{MDS_{Fast}}$ the result that provides the previous algorithm.
+
+\indent Figure (\ref{fast_example}) shows that, for this particular case,
+the algorithm captures quite well the dimesions of the original data, 
+providing a high goodness of fit. In addition, dimesion $i$ of 
+$\mathbf{MDS_{Fast}}$ fits perfectly the same dimesions $i$ of \textbf{X} and 
+just this one, as we can see in Table (\ref{corr_fast}).
+
+
+\begin{figure}[ht]
+    \centering
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/first_fast.png} }}%
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/second_fast.png} }}%
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/third_fast.png} }}
+    \caption{Dimesion 1,2 and 3 of \textbf{X} against dimensions 1,2 and 3 of  $\mathbf{MDS_{Fast}}$. \newline
+            In red, the line $x=y$.}%
+    \label{fast_example}%
+\end{figure}
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & 1 & 2 & 3 \\ 
+  \hline
+  1 & 1 & 0.02 & 0 \\ 
+  2 & 0.02 & 1 & 0.02 \\ 
+  3 & 0 & 0.02 & 1 \\ 
+   \hline
+\end{tabular}
+\caption{Correlation of \textbf{X} and $\mathbf{MDS_{Fast}}$.} 
+\label{corr_fast}
+\end{table}
 
 \section{Multidimensional Scaling based on Gower interpolation}
+
+Gower interpolation formula \cite{gowerformula} allows to add a new set of 
+points to a given MDS configuration. Given a matrix \textbf{X} $n \times p$, 
+a MDS configuration for this matrix of dimension $n \times c$ and a matrix 
+$\mathbf{X_{new}}$ $m \times p$, one wants to add these new $m$ 
+rows to the existing MDS configuration. So, after adding this new rows, 
+the MDS configuration will have $m+n$ rows and $c$ columns. 
+We briefly summarise how to do so.
+
+\begin{itemize}
+
+\item Obtain $\mathbf{J} = \mathbf{I_n} - \frac{1}{n}\mathbf{1}\mathbf{1}'$,
+where $\mathbf{I_n}$ is the identity matrix $n \times n$.
+
+\item Given the distance matrix \textbf{D} of the rows of \textbf{X},
+calculate $\mathbf{\Delta} = (\delta_{ij}^2)$.
+
+\item Calculate $\mathbf{G} = - \frac{1}{2} \mathbf{J} \mathbf{\Delta} \mathbf{J}'$
+
+\item Let \textbf{g} be the diagonal of \textbf{G}, i.e, 
+$\mathbf{g} = \diag({\mathbf{G}})$.
+
+\item Let \textbf{A} be the square distance matrix between the rows of 
+\textbf{X} and the rows of $\mathbf{X_{new}}$. \textbf{A} has dimensions 
+$m \times n$. Let $\mathbf{A}^2$ be the matrix of the square elements 
+of \textbf{A}, i.e, $\mathbf{A}^2 = (a_{ij}^2)$.
+
+\item Let \textbf{M} and \textbf{S} be the MDS for \textbf{X} and the 
+variance-covariance matrix of the $c$ columns of \textbf{M}.
+
+\item The MDS for the new $m$ observations is given by
+
+\begin{equation} \label{gower_f}
+\frac{1}{2n} (\mathbf{1}\mathbf{g} - \mathbf{A}^2) \mathbf{M}\mathbf{S}^{-1}.
+\end{equation}
+
+\end{itemize}
+
+The resulting MDS for the $m$ observations of $\mathbf{X_{new}}$ is in the same
+coordinate system as \textbf{M}. So, here it is not needed to do any 
+Procrustes transformation.
+
+\subsection{Algorithm}
+
+\begin{itemize}
+\item Divide \textbf{X} into $p$ partitions $\mathbf{X_1},\dots, \mathbf{X_p}$.
+
+\item Calculate \textbf{J}, $\mathbf{\Delta}$, \textbf{G}, \textbf{g},
+\textbf{A}, \textbf{M} and \textbf{S} according to the above formulas.
+
+\item Obtain MDS for the first partition $\mathbf{X_1}$. 
+
+\item Given a partition $1 < k \leq p$, do the following steps to get the 
+related MDS:
+
+\begin{itemize}
+
+\item Calculate the distance matrix between the rows of $\mathbf{X_1}$ and
+$\mathbf{X_k}$ and calculate the square of each element of this matrix. Let
+$\mathbf{A}^2$ be this matrix (same as above).
+
+\item Use Gower interpolation formula (\ref{gower_f}) to obtain MDS for 
+partition $k$. 
+
+\item Accumulate this solution.
+
+
+\end{itemize}
+
+\end{itemize}
+
+
+As in the previous two algorithms, there is a key parameter to choose: $p$,
+the number of partitions. For this algorithm, $p$ is set in the following way.
+Let $l \times l$ be the largest distance matrix that a computer can calculate 
+efficently. The value of $p$ is set as $n/p$.
+
+
+\subsection{Some indicators about the goodness of fit}
+We repeat the same as in \autoref{chap:ind_div}. Figure (\ref{gower_example}) 
+and Table (\ref{corr_gower}) shows that the algorithm, for this particular case, 
+captures quite well the dimesions of the original data, providing a high 
+goodness of fit.
+
+\begin{figure}[ht]
+    \centering
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/first_gower.png} }}%
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/second_gower.png} }}%
+    \subfloat[]{{\includegraphics[width=4cm, height=4cm]{./images/third_gower.png} }}
+    \caption{Dimesion 1,2 and 3 of \textbf{X} against dimensions 1,2 and 3 of  $\mathbf{MDS_{Gower}}$. \newline
+            In red, the line $x=y$.}%
+    \label{gower_example}%
+\end{figure}
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & 1 & 2 & 3 \\ 
+  \hline
+  1 & 1 & 0 & -0.04 \\ 
+  2 & 0 & 1 & -0.0 \\ 
+  3 & -0.04 & -0.03 & 1 \\ 
+   \hline
+\end{tabular}
+\caption{Correlation of \textbf{X} and $\mathbf{MDS_{Gower}}$.} 
+\label{corr_gower}
+\end{table}
+
+
+\section{Comparison of the algorithms}
+\indent The three previous algorithms share the same goal: obtaining a MDS 
+configuration for a given big dataset. However, there are some differences 
+between the approaches that impact the performance of the algorithms. 
+The main differences between them are:
+
+\begin{itemize}
+\item \textit{Divide and Conquer} uses a guide (the first subset, $\mathbf{X_1}$)
+to align the solutions as well as it uses the whole partition $\mathbf{X_i}$ to
+find the Procrustes parameters. However, \textit{Fast} does not use a guide an 
+it uses a set of subsamples to find the Procrustes parameters.
+
+\item \textit{Fast} is based on recursive programming. It divides until 
+a manageable dimensionality is found. However, \textit{Divide and Conquer} 
+estimates such a dimensionality.
+
+\item \textit{MDS based on Gower interpolation} does not need any Procrustes
+transformation. 
+
+\end{itemize}
+
+The fact that we found three algorithms to compute MDS arises some questions 
+that need to be answered:
+
+\begin{itemize}
+\item Are these algorithms able to capture the data dimensionaly as good as 
+calssical MDS does?
+\item Which is the fastest method?
+\item Can they deal with big datasets in a reasonable amount of time?
+\item How are they performing when dealing with big data sets?
+\end{itemize}
+
+All these questions and are answered in \autoref{chap:sim}.
+
+\section{Output of the algorithms}
+The three algorithms have the same type of output. It consists on a list of 
+two parameters. 
+
+\indent The first parameter is the MDS calculated by the algorithm. It is a 
+matrix of $n$ rows and $c$ columns, where $n$ is the number of rows of the 
+input data and $c$ is the number of dimensions the user has required.
+
+\indent The second paramenter is a list of eigenvalues. When performing MDS
+a distance matrix is calculated and a singular value decomposition is performed
+over this distance matrix. Each eigenvalue is divided by the number of 
+observations taken into account to obtain the distance matrix. We refer to 
+this as the \textit{normalized eigenvalues}. The previous list is 
+returned.
 
 
 
 \chapter{Simulation study}
-%Decir que siempre he usado la misma maquina
+
+\section{Design of the simulation}
+
+\label{chap:sim}
+Given the three algorithms, we would like to know how they are 
+performing. There are two issues to study:
+
+\begin{itemize}
+\item Goodness of fit of the algorithms: are they able to capture data
+dimensionality?
+\item Performance in terms of time: are they `` fast" enough? Which one is 
+the fastest?
+\end{itemize}
+
+To test the algorithm under different conditions, a simulation study has been
+carried out. The scenarios are obtained as a combination of:
+
+\begin{itemize}
+\item \textit{Sample size}: we use different sample sizes, combining small
+data sets and big ones. A total of six sample sizes are used, which are:
+$10^3, 3\cdot 10^3, 5\cdot10^3, 10^4, 10^5, 10^6$.
+
+\item \textit{Data dimensionls}: we generate a matrix with two different number 
+of columns: 10, 100.
+
+\item \textit{Main dimensions}: given the data matrix \textbf{X} $n \times k$,
+it is postmultiplied by a diagonal matrix that contains $k$ values, 
+$\lambda_1, \dots, \lambda_k$. The first values are much higher than the rest.
+The idea of this is to see if the algorithms are able to capture the main
+dimensions of the original dataset, i.e, the columns  with the highest variance. 
+We set 5 combinations for this variable, which are:
+
+\begin{itemize}
+\item All the columns with the same values of $\lambda$: 
+$\lambda_1 = \cdots = \lambda_k = 1$.
+
+\item One main dimension with $\lambda_1 = 15$ and 
+$\lambda_2 = \cdots = \lambda_k = 1$.
+
+\item  Two main dimensions of the same value $\lambda$: 
+$\lambda_1  = \lambda_2 = 15$, $\lambda_3 = \cdots \lambda_k = 1$.
+
+\item  Two main dimensions of different values $\lambda$: 
+$\lambda_1  = 15$, $\lambda_2 =10$, $\lambda_3 = \cdots \lambda_k = 1$.
+
+\item  Four main dimensions of the same value $\lambda$: 
+$\lambda_1  = \lambda_2 = \lambda_3 = \lambda_4 = 15$, $\lambda_5 = \cdots \lambda_k = 1$.
+
+
+\end{itemize}
+
+\item As distribution, it is a Normal one with $\mu = 0$ and 
+$\sigma = 1$. With this distribution, we generate a matrix of $n$ observations
+and $k$ columns, being the $k$ columns independent. After generating the 
+dataset \textbf{X}, it is postmultiplied by the diagonal matrix that contains
+de values of $\lambda$'s.
+
+
+\end{itemize}
+
+There is a total of 60 scenarios to simulate. Given a scenario, it is 
+replicated 100 times. For every simulation, it is generated a dataset 
+(according to the scenario), and all the algorithms are run using this dataset.
+So, a total of 6000 simulations are carried out.
+
+\indent Table (\ref{scenearios_sim}) shows the 
+configuration of each scenario. Given a scenario, \textit{scenario\_id} 
+identifes it. We refer to a scenario by its \textit{scenario\_id}. 
+
+\begin{longtable}{|r|r|r|r|l|} 
+%\centering
+%\begin{tabular}{rrrrl}
+\hline
+& scenario\_id & sample\_size & n\_dimensions & value\_primary\_dimensions \\ 
+\hline
+1 & 1 & 1000 & 10 & NULL \\ 
+\hline
+2 & 2 & 1000 & 100 & NULL \\ 
+\hline
+3 & 3 & 1000 & 10 & 15 \\ 
+\hline
+4 & 4 & 1000 & 100 & 15 \\ 
+\hline
+5 & 5 & 1000 & 10 & c(15, 15) \\ 
+\hline
+6 & 6 & 1000 & 100 & c(15, 15) \\ 
+\hline
+7 & 7 & 1000 & 10 & c(15, 10) \\ 
+\hline
+8 & 8 & 1000 & 100 & c(15, 10) \\ 
+\hline
+9 & 9 & 1000 & 10 & c(15, 15, 15, 15) \\ 
+\hline
+10 & 10 & 1000 & 100 & c(15, 15, 15, 15) \\ 
+\hline
+\hline
+11 & 2000 & 3000 & 10 & NULL \\ 
+\hline
+12 & 2001 & 3000 & 100 & NULL \\ 
+\hline
+13 & 2002 & 3000 & 10 & 15 \\ 
+\hline
+14 & 2003 & 3000 & 100 & 15 \\ 
+\hline
+15 & 2004 & 3000 & 10 & c(15, 15) \\ 
+\hline
+16 & 2005 & 3000 & 100 & c(15, 15) \\ 
+\hline
+17 & 2006 & 3000 & 10 & c(15, 10) \\ 
+\hline
+18 & 2007 & 3000 & 100 & c(15, 10) \\ 
+\hline
+19 & 2008 & 3000 & 10 & c(15, 15, 15, 15) \\ 
+\hline
+20 & 2009 & 3000 & 100 & c(15, 15, 15, 15) \\ 
+\hline
+\hline
+21 & 4000 & 5000 & 10 & NULL \\ 
+\hline
+22 & 4001 & 5000 & 100 & NULL \\ 
+\hline
+23 & 4002 & 5000 & 10 & 15 \\ 
+\hline
+24 & 4003 & 5000 & 100 & 15 \\ 
+\hline
+25 & 4004 & 5000 & 10 & c(15, 15) \\ 
+\hline
+26 & 4005 & 5000 & 100 & c(15, 15) \\ 
+\hline
+27 & 4006 & 5000 & 10 & c(15, 10) \\ 
+\hline
+28 & 4007 & 5000 & 100 & c(15, 10) \\ 
+\hline
+29 & 4008 & 5000 & 10 & c(15, 15, 15, 15) \\
+\hline
+30 & 4009 & 5000 & 100 & c(15, 15, 15, 15) \\ 
+\hline
+\hline
+31 & 6000 & 10000 & 10 & NULL \\ 
+\hline
+32 & 6001 & 10000 & 100 & NULL \\ 
+\hline
+33 & 6002 & 10000 & 10 & 15 \\ 
+\hline
+34 & 6003 & 10000 & 100 & 15 \\ 
+\hline
+35 & 6004 & 10000 & 10 & c(15, 15) \\ 
+\hline
+36 & 6005 & 10000 & 100 & c(15, 15) \\ 
+\hline
+37 & 6006 & 10000 & 10 & c(15, 10) \\ 
+\hline
+38 & 6007 & 10000 & 100 & c(15, 10) \\ 
+\hline
+39 & 6008 & 10000 & 10 & c(15, 15, 15, 15) \\ 
+\hline
+40 & 6009 & 10000 & 100 & c(15, 15, 15, 15) \\ 
+\hline
+\hline
+41 & 20000 & 100000 & 10 & NULL \\ 
+\hline
+42 & 20001 & 100000 & 100 & NULL \\ 
+\hline
+43 & 20002 & 100000 & 10 & 15 \\
+\hline
+44 & 20003 & 100000 & 100 & 15 \\ 
+\hline
+45 & 20004 & 100000 & 10 & c(15, 15) \\ 
+\hline
+46 & 20005 & 100000 & 100 & c(15, 15) \\ 
+\hline
+47 & 20006 & 100000 & 10 & c(15, 10) \\ 
+\hline
+48 & 20007 & 100000 & 100 & c(15, 10) \\ 
+\hline
+49 & 20008 & 100000 & 10 & c(15, 15, 15, 15) \\ 
+\hline
+50 & 20009 & 100000 & 100 & c(15, 15, 15, 15) \\ 
+\hline
+\hline
+51 & 30000 & 1000000 & 10 & NULL \\ 
+\hline
+52 & 30001 & 1000000 & 100 & NULL \\ 
+\hline
+53 & 30002 & 1000000 & 10 & 15 \\ 
+\hline
+54 & 30003 & 1000000 & 100 & 15 \\ 
+\hline
+55 & 30004 & 1000000 & 10 & c(15, 15) \\ 
+\hline
+56 & 30005 & 1000000 & 100 & c(15, 15) \\ 
+\hline
+57 & 30006 & 1000000 & 10 & c(15, 10) \\ 
+\hline
+58 & 30007 & 1000000 & 100 & c(15, 10) \\ 
+\hline
+59 & 30008 & 1000000 & 10 & c(15, 15, 15, 15) \\ 
+\hline
+60 & 30009 & 1000000 & 100 & c(15, 15, 15, 15) \\ 
+\hline
+\caption{Scenarios simulated} 
+\label{scenearios_sim}
+\end{longtable}
+%\end{table}
+
+\indent Note that scenarios 1, 2, 2000, 2001, 4000, 4001, 6000, 6001, 20000,
+20001, 30000, 30001 are pure noise. We refer to them as \textit{noisy 
+scenarios}.
+
+\indent In order to test the goodness of fit and to check the time of the 
+algorithms, some metrics are calculated.
+
+\begin{itemize}
+\item Goodness of fit:
+\begin{itemize}
+
+
+\item We get the correlation between the main dimensions of the data and the
+main dimensions after applying the algorithms. We get just the diagonal, i.e,
+the correlation between dimension $i$ of the data and the dimension $i$ of the
+algorithm. 
+
+\item We get the \textit{normalized eigenvalues}.
+\end{itemize}
+
+\item Time: Given an algorithm, the elapsed time to get the corresponding MDS
+configuration is stored.
+
+\end{itemize}
+
+\indent We do it in this way because we want to check some hypothesis. We 
+expect the three algorithms to behave ``correcty". By it, we mean that the
+behavior should be the same as if classical MDS were run. Therefore, we 
+expect that the correlation between the main dimensions of the data and the
+main dimensions of the MDS of each algorithm to be close to 1.
+
+\indent In addition, the variance of the original data should be captured. 
+So, given the highest \textit{normalized eigenvalues}, we expect that 
+its square root is approximately 15 or 10 when the scenarios are not the 
+\textit{noisy scenrarios}. 
+
+\indent For the time of the algorithms, we have done some tests and it seems 
+that \textit{MDS based on Gower interpolation} seems to be the fastest.
+So, it will be tested.
+
+
+\indent Given a scenario, the steps that we have performed to calculate  and to
+store all the data needed is:
+
+\begin{enumerate}
+
+\item Generate the data according to the scenario. 
+
+\item Run \textit{divide and conquer} algorithm and get the time and the 
+\textit{normalized eigenvalues}.
+
+\item Align $\mathbf{MDS_{Div}}$ and \textbf{X} using Procrustes.
+
+\item Get the correlation between the main dimensions of $\mathbf{MDS_{Div}}$ 
+and \textbf{X}.
+
+\item Run \textit{fast} algorithm and get the time and the 
+\textit{normalized eigenvalues}.
+
+\item Align $\mathbf{MDS_{Fast}}$ and \textbf{X} using Procrustes.
+
+\item Get the correlation between the main dimensions of $\mathbf{MDS_{Fast}}$ 
+and \textbf{X}.
+
+\item Run \textit{MDS based on Gower interpolation} algorithm and get the 
+time and the \textit{normalized eigenvalues}.
+
+\item Align $\mathbf{MDS_{Gower}}$ and \textbf{X} using Procrustes.
+
+\item Get the correlation between the main dimensions of $\mathbf{MDS_{Gower}}$ 
+and \textbf{X}.
+
+\end{enumerate}
+
+
+\indent There are some important details related to the previous process that 
+we have taken into account to make the simulator process faster. When runnig 
+the algorithms, we ask for as many columns as the original data has, i.e $k$.
+
+\indent For the \textit{normalized eigenvalues}, we just get 6 eigenvalues 
+instead of the full list of eigenvalues (orherwise we would get $n$ 
+eigenvalues). 
+
+\indent For Procruster we dot not allow dilations, otherwise we would not
+know if the distance is preserved. In addition, we do not use all the columns 
+to do the alignment, we select the main dimensions. If there is not any
+main dimension, i.e it is one of the \textit{noisy scenarios},we just select 5 
+columns. 
+
+\indent To avoid memory problems with the alignment when $n$ is greater or 
+equal to $10^5$, Procrustes is done in the following way:
+
+\begin{enumerate}
+
+\item Create $p$ partitions of \textbf{X} and the result of a given MDS 
+algorithm ($\mathbf{MDS_{alg}}$). Both set of partitios contains exctaly the
+same observations.
+
+
+\item For each partition get the Procrustes parameters without dilations.
+
+\item Accumulate the paramenters iteration after iteration. So, at the end, 
+we obtain $\mathbf{R} = \sum_{i = 1}^p \mathbf{R_i}$ and 
+$\mathbf{t} = \sum_{i = 1}^p \mathbf{t_i}$.
+
+\item $\mathbf{R} = \mathbf{R}/p$ and $\mathbf{t} = \mathbf{t}/p$.
+
+\item Apply these parameters to $\mathbf{MDS_{alg}}$ so that 
+\textbf{X} and $\mathbf{MDS_{alg}}$ are in the same coordinate system and
+they can be compared.
+
+
+\end{enumerate}
+
+\indent The algorithms have as input values a set of variables. The input matrix 
+is already explained, but there is another parameter that has been used during 
+the description of the algorithms: $l$. The meaning of $l$ is a little bit 
+different in each algorithm, but for simplicity we set this value
+equals to 500.
+
+\indent Finally, there is an extra ``parameter" to take into account: the 
+machine used to do the simulations. Since a total of 6000 simulations are
+performed and some of them include big datasets, we use 
+\textit{Amazon Web Services} (AWS) to carry out the simulations. 
+10 servers of he same type are used: \textit{c5n.4xlarge}. It 
+has 16 cores and 42 GB of memory RAM. This kind of server is designed for 
+applications like batch and log processing, distributed and or 
+real-time analytics. 
+
+
+\section{Correlation coeficients}
+
+
 
 \chapter{Conclusions}
 
@@ -638,15 +1300,16 @@ of \textbf{X}, then $p$ is $\frac{2n}{l}$.
 \end{document}
 
 
-% Notacion:
-%%% Matrices: mayusculas y negritas
-%%% Vectores: minusculas y negritas
-%%% constantes: minusculas y normal
+
 
 % To do:
 %%% Mencionar a Roger
-
-
+%%% En las conclusiones poner cuando es mejor usar una tecnica u otra. Por
+%%% ejemplo, me imagino que Divide puede ir muy bien cuando las poblaciones son
+%%% muy distintas, porque usa matrices grandes para alinear. Sin embargo, fast 
+%%% solo usa submuestras
+%%% En terminos de tiempo, que usarias: el de gower
+%%% He usado enumerate en los algoritmos cuando los he descrito
 
 
 %\subsection{Algorithm}
