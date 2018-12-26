@@ -1,41 +1,19 @@
 # ftp://ftp.auckland.ac.nz/pub/software/CRAN/doc/packages/micEcdat.pdf
-library(Ecdat) 
 source("tools/load_libraries.R")
 source("tools/divide_conquer_mds.R")
 source("tools/fast_MDS_eigen.R")
 source("tools/classical_mds.R")
+source("tools/gower_interpolation_mds.R")
 source("tools/compute_accuracy.R")
 source("tools/build_random_matrix.R")
 
-load("data/Bike-Sharing-Dataset/df_split.RData")
-
-
-if(FALSE){
-  data(BudgetFood)
-  x = BudgetFood %>% slice(1:3000) %>% select(-sex, -town) 
-  head(x)
-}
-
-if(FALSE){
-  x = as.data.frame(matrix(rnorm(5*3*10^3), ncol = 5))
-}
-
-if(FALSE){
-  x = as.data.frame(
-    build_matrix(
-      n = 3*10^3,
-      p = 5,
-      corr_coef = 0
-    )
-  )
-}
-
-
+x = matrix(rnorm(3*1*10^3), ncol = 3)
+row.names(x) = 1:nrow(x)
 dim(x)
 
 # Params for fast
-s = 2
-l = 20
+s = 3
+l = 500
 k = 3
 metric = "euclidean"
 
@@ -105,15 +83,55 @@ if(FALSE){
   message(paste0("Elapsed time for fast: ", round(diff_time[3], 4), " seconds" ))
 }
 
+# Gower interpolation
+if(FALSE){
+  
+  rm(mds_gower_sol)
+  rm(mds_gower)
+  
+  starting_time = proc.time()
+  
+  mds_gower_sol = gower.interpolation.mds(
+    x = x,
+    l = l,
+    s = s,
+    metric = "euclidean"
+  )
+  diff_time = proc.time() - starting_time 
+  
+  mds_gower = mds_gower_sol$points
+  
+  message(paste0("Elapsed time for fast: ", round(diff_time[3], 4), " seconds" ))
+}
 
 # Align divide and classical
 results_compare_divide_conquer = compare.methods(
   mds_new_approach = mds_divide_conquer,
-  mds_classical = mds_classical
+  mds_classical = x
+)
+
+# Comparing coordinates for divide and classical
+ggplot(
+  data.frame(
+    x = mds_divide_conquer[,3],
+    y = results_compare_divide_conquer$mds_classical_transformed[,3]
+  ), 
+  aes(x=x, y=y)
+) +
+  geom_point(shape = 1)  +
+  geom_abline(aes(intercept = 0, slope = 1, colour = "B")) + 
+  guides(fill=FALSE, color=FALSE) + 
+  labs(
+    x ="Third dimension of x", 
+    y = "Third dimension of Div. and Conquer"
+  )
+
+
+xtable::xtable(
+  cor(results_compare_divide_conquer$mds_classical_transformed, mds_divide_conquer)
 )
 
 
-# Comparing coordinates for divide and classical
 plot(mds_divide_conquer[,1], results_compare_divide_conquer$mds_classical_transformed[,1])
 abline(a = 0, b = 1, col = 2, lwd = 2)
 
@@ -135,11 +153,31 @@ abline(a = 0, b = 1, col = 2, lwd = 2)
 # Align fast and classical
 results_compare_fast = compare.methods(
   mds_new_approach = mds_fast,
-  mds_classical = mds_classical
+  mds_classical = x
 )
 
 
 # Comparing coordinates for fast and classical
+ggplot(
+  data.frame(
+    x = mds_fast[,2],
+    y = results_compare_fast$mds_classical_transformed[,2]
+  ), 
+  aes(x=x, y=y)
+) +
+  geom_point(shape = 1)  +
+  geom_abline(aes(intercept = 0, slope = 1, colour = "B")) + 
+  guides(fill=FALSE, color=FALSE) + 
+  labs(
+    x ="Third dimension of x", 
+    y = "Third dimension of Fast"
+  )
+
+xtable::xtable(
+  cor(results_compare_fast$mds_classical_transformed, mds_fast)
+)
+
+
 plot(mds_fast[,1], results_compare_fast$mds_classical_transformed[,1])
 abline(a = 0, b = 1, col = 2, lwd = 2)
 
@@ -155,6 +193,36 @@ abline(a = 0, b = 1, col = 2, lwd = 2)
 
 plot(mds_fast[,5], results_compare_fast$mds_classical_transformed[,5])
 abline(a = 0, b = 1, col = 2, lwd = 2)
+
+
+# Align gower and classical
+results_compare_gower = compare.methods(
+  mds_new_approach = mds_gower,
+  mds_classical = x
+)
+
+# Comparing coordinates for divide and classical
+ggplot(
+  data.frame(
+    x = mds_gower[,3],
+    y = results_compare_gower$mds_classical_transformed[,3]
+  ), 
+  aes(x=x, y=y)
+) +
+  geom_point(shape = 1)  +
+  geom_abline(aes(intercept = 0, slope = 1, colour = "B")) + 
+  guides(fill=FALSE, color=FALSE) + 
+  labs(
+    x ="Third dimension of x", 
+    y = "Third dimension of Gower"
+  )
+
+
+xtable::xtable(
+  cor(results_compare_gower$mds_classical_transformed, mds_gower)
+)
+
+
 
 
 # Comparing coordinates for fast and divide

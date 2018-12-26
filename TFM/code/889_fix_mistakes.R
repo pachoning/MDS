@@ -7,7 +7,7 @@ correct_ids = function(
   return(col_value%%mod + 30000)
 }
 
-is_30000_fixed = FALSE
+is_30000_fixed = TRUE
 
 directory = file.path(
   "data",
@@ -25,6 +25,7 @@ for(i_file in list_summary){
   is_df_30000 = grepl(pattern = "30000", x = i_file)
   if(is_df_30000 == TRUE & is_30000_fixed == FALSE){
     df_summary = df_summary[37:nrow(df_summary), ]
+    row.names(df_summary) = 1:nrow(df_summary)
   }
   
   df_summary$scenario_id = correct_ids(
@@ -56,4 +57,6 @@ for(i_file in list_scenarios){
   
   rm(df)
 }
+
+
 

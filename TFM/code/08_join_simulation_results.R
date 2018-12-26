@@ -1,4 +1,5 @@
 source("tools/load_libraries.R")
+library(sampling)
 # Join all the information
 this_directory = rstudioapi::getActiveDocumentContext()$path
 main_directory = dirname(dirname(this_directory))
@@ -56,13 +57,33 @@ for(i_directory in input_list_directories){
 
 
 
+  
+set.seed(12345)
+sss = sampling::strata(
+  data = df_simulations,
+  stratanames = "scenario_id",
+  size = rep(100, length(unique(df_simulations$scenario_id))),
+  method = 'srswor'
+)
+  
+df_simulations = df_simulations[sss$ID_unit,]
+  
+df_simulations = df_simulations %>% 
+  arrange(
+    scenario_id
+  )
+
+nrow(df_simulations)
 df_simulations %>% 
   group_by(
     scenario_id,
-    sample_size
+    sample_size,
+    n_dimensions,
+    n_primary_dimensions,
+    seconda 
   ) %>% 
   summarise(
-    n()
+    total = n()
   ) %>% 
   View
 
@@ -74,45 +95,28 @@ save(
   )
 )
 
-df_simulations %>% 
-  filter(
-    sample_size == 10^6
-  ) %>% 
-  dplyr::select(
-    simulation_id,
-    scenario_id,
-    sample_size,
-    n_dimensions,
-    n_primary_dimensions,
-    value_primary_dimensions,
-    n_secondary_dimensions,
-    elapsed_time_fast,
-    elapsed_time_gower,
-    corr_matrix_fast,
-    corr_matrix_gower,
-    eig_subsample_fast,
-    eig_subsample_gower
-  ) %>% 
-  View
 
-colnames(df_simulations)
+if(FALSE){
+  df_simulations %>% 
+    filter(
+      sample_size == 10^6 &
+        scenario_id == 30000 
+    ) %>% 
+    dplyr::select(
+      simulation_id,
+      scenario_id,
+      sample_size,
+      n_dimensions,
+      n_primary_dimensions,
+      value_primary_dimensions,
+      n_secondary_dimensions,
+      elapsed_time_fast,
+      elapsed_time_gower,
+      corr_matrix_fast,
+      corr_matrix_gower,
+      eig_subsample_fast,
+      eig_subsample_gower
+    ) %>% 
+    View
+}
 
-df_simulations %>% 
-  group_by(
-    simulation_id
-  ) %>% 
-  summarise(
-    n_rep = n()
-  ) %>% 
-  filter(
-    n_rep > 1
-  ) %>% 
-  View
-
-
-  
-df_simulations %>% 
-  filter(
-    simulation_id == 80000
-  ) %>% 
-  View
