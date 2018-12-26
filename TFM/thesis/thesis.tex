@@ -554,7 +554,7 @@ In the next sections we provide a description of the algorithms.
 If further details about the implementation are needed, the code is provided in 
 \autoref{chap:code}.
 
-\section{Divde and Conquer Multidimensional Scaling}
+\section{Divde and Conquer MDS}
 \subsection{Algorithm}
 
 \begin{itemize}
@@ -636,7 +636,7 @@ against dimesion $j$ of $\mathbf{MDS_{Div}}$ $ i \neq j$), but Table
 (\ref{corr_mds}) contains the correlation matrix. The results 
 show that dimension  $i$ of  $\mathbf{MDS_{Div}}$ caputures dimension 
 $i$ of \textbf{X} and just dimension $i$. So, it seems that the algorithm, for 
-this particular case, has a high goodness of fit.
+this particular case, has high goodness of fit.
 
 
 \begin{figure}[ht]
@@ -669,7 +669,7 @@ this particular case, has a high goodness of fit.
 
 
 
-\section{Fast Multidimensional Scaling}
+\section{Fast MDS}
 During the process of gathering information about work previously done around
 MDS with big datasets, we found that \citeN{Yang06afast} already did an 
 algorithm, they named it \textit{Fast Multidimensional Scaling}. 
@@ -744,7 +744,7 @@ call $\mathbf{MDS_{Fast}}$ the result that provides the previous algorithm.
 
 \indent Figure (\ref{fast_example}) shows that, for this particular case,
 the algorithm captures quite well the dimesions of the original data, 
-providing a high goodness of fit. In addition, dimesion $i$ of 
+providing high goodness of fit. In addition, dimesion $i$ of 
 $\mathbf{MDS_{Fast}}$ fits perfectly the same dimesions $i$ of \textbf{X} and 
 just this one, as we can see in Table (\ref{corr_fast}).
 
@@ -775,7 +775,7 @@ just this one, as we can see in Table (\ref{corr_fast}).
 \label{corr_fast}
 \end{table}
 
-\section{Multidimensional Scaling based on Gower interpolation}
+\section{MDS based on Gower interpolation}
 
 Gower interpolation formula \cite{gowerformula} allows to add a new set of 
 points to a given MDS configuration. Given a matrix \textbf{X} $n \times p$, 
@@ -857,7 +857,7 @@ efficently. The value of $p$ is set as $n/p$.
 \subsection{Some indicators about the goodness of fit}
 We repeat the same as in \autoref{chap:ind_div}. Figure (\ref{gower_example}) 
 and Table (\ref{corr_gower}) shows that the algorithm, for this particular case, 
-captures quite well the dimesions of the original data, providing a high 
+captures quite well the dimesions of the original data, providing high 
 goodness of fit.
 
 \begin{figure}[ht]
@@ -1006,7 +1006,7 @@ So, a total of 6000 simulations are carried out.
 
 \indent Table (\ref{scenearios_sim}) shows the 
 configuration of each scenario. Given a scenario, \textit{scenario\_id} 
-identifes it. We refer a scenario by its \textit{scenario\_id}. 
+identifes it. We refer to a scenario by its \textit{scenario\_id}. 
 
 \begin{longtable}{|r|r|r|r|l|} 
 %\centering
@@ -1145,7 +1145,7 @@ identifes it. We refer a scenario by its \textit{scenario\_id}.
 %\end{table}
 
 \indent Note that scenarios 1, 2, 2000, 2001, 4000, 4001, 6000, 6001, 20000,
-20001, 30000, 30001 are pure noise. We refer ot them as \textit{noisy 
+20001, 30000, 30001 are pure noise. We refer to them as \textit{noisy 
 scenarios}.
 
 \indent In order to test the goodness of fit and to check the time of the 
@@ -1230,7 +1230,7 @@ eigenvalues).
 \indent For Procruster we dot not allow dilations, otherwise we would not
 know if the distance is preserved. In addition, we do not use all the columns 
 to do the alignment, we select the main dimensions. If there is not any
-main dimension, i.e it is one of the \textit{noisy scenarios},we just select 5 
+main dimension, i.e it is one of the \textit{noisy scenarios},we just select 4 
 columns. 
 
 \indent To avoid memory problems with the alignment when $n$ is greater or 
@@ -1264,6 +1264,12 @@ the description of the algorithms: $l$. The meaning of $l$ is a little bit
 different in each algorithm, but for simplicity we set this value
 equals to 500.
 
+\indent \textit{Fas MDS} has an extra parameter: the amplification parameter.
+It is used the value that they used to test this algorithm, i.e, a value of
+3. So, for each partition, it is taken 30 (when the orginial matrix
+has 10 columns) or 300 (when the orginial matrix has 10 columns) points for
+every partition to buid $\mathbf{M_{align}}$.
+
 \indent Finally, there is an extra ``parameter" to take into account: the 
 machine used to do the simulations. Since a total of 6000 simulations are
 performed and some of them include big datasets, we use 
@@ -1274,9 +1280,105 @@ applications like batch and log processing, distributed and or
 real-time analytics. 
 
 
+\section{Correlation coeficients}
+In this section we provide some results for the correlation coeficients based
+on the simulations. Given a scenario and its dataset \textbf{X} 
+$n \times k$, the correlation matrix between the main dimensions of \textbf{X} 
+and the main dimensions of $\mathbf{MDS_{alg}}$ is computed. We are interested
+in the diagonal of the correlation matrix, expecting that the values are close
+to 1.
+
+\indent The length of the diagonal can be:
+
+\begin{itemize}
+\item 1, when  $\lambda_1 = 15$ and $\lambda_2 = \cdots = \lambda_k = 1$.
+
+\item 2, when$\lambda_1  = \lambda_2 = 15$, $\lambda_3 = \cdots \lambda_k = 1$
+or $\lambda_1  = 15$, $\lambda_2 =10$, $\lambda_3 = \cdots \lambda_k = 1$.
+
+\item 4, when $\lambda_1  = \lambda_2 = \lambda_3 = \lambda_4 = 15$, 
+$\lambda_5 = \cdots \lambda_k = 1$.
+
+\item 0, when $\lambda_1 = \cdots = \lambda_k = 1$, i.e, 
+\textit{noisy scenrarios}.
+
+\end{itemize}
+
+
+\subsection{Divide and Conquer MDS}
+Figure (\ref{divide_correlation_1000}) shows some boxplots of the correlation 
+coeficients between the main dimensions of the data \textbf{X} and the 
+main dimensions of $\mathbf{MDS_{Div}}$. As we can see, all the values are 
+close to 1, showing high goodness of the algorithm. 
+
+
+\begin{figure}[ht]
+\centering
+    \includegraphics{./images/divide_correlation_1000.png}
+    \caption{Correlation for $n = 1000$.}
+    \label{divide_correlation_1000}
+\end{figure}
+
+\indent Note that before calculating the correlation matrix, Procrustes 
+transformation is performed (dilations are not allowed). 
+
+\indent Figure (\ref{divide_correlation_1000}) just shows the correlation
+coeficients for $n = 1000$. The remaining figures are in 
+\autoref{div_conquer_corr}. All of them have the same shape no matter what
+scenario it is: there is always high correlation between the data 
+and the MDS.
+
+\begin{figure}[ht]
+\centering
+    \includegraphics{./images/divide_correlation_noise.png}
+    \caption{Correlation for \textit{noisy scenarios}.}
+    \label{divide_correlation_noise}
+\end{figure}
+
+\indent Figure (\ref{divide_correlation_noise}) shows the boxplot for the 
+\textit{noisy scenarios}. It has been taken 4 dimesions to do the alignment, 
+instead of all the dimensions (10 or 100). Because of this, we expect a random 
+distribution between them within [0,1] interval. If we had taken all the 
+dimensions, we would be seeing higher correlation values. 
+
+\indent The correlation is so high that it is not needed any hypothesis test
+to test if the value is 1 or not. 
+
+
+\subsection{Fast MDS}
+We do the same for this algorithm. Figure (\ref{fast_correlation_1000}) shows 
+the boxplot of the correlation coeficients between the data and the MDS 
+of this algorithm. Again, there is high correlation between them. 
+Figure (\ref{fast_correlation_noise}) shows the boxplot fot the 
+\textit{noisy scenarios}.
+
+The remaining plots are in \autoref{fast_corr}.
+
+
+\begin{figure}[ht]
+\centering
+    \includegraphics{./images/fast_correlation_1000.png}
+    \caption{Correlation for $n = 1000$.}
+    \label{fast_correlation_1000}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+    \includegraphics{./images/fast_correlation_noise.png}
+    \caption{Correlation for \textit{noisy scenarios}.}
+    \label{fast_correlation_noise}
+\end{figure}
+
+
+\subsection{MDS based on Gower interpolation}
 
 
 
+
+\section{Eigenvalues}
+
+
+\section{Time to compute MDS}
 
 \chapter{Conclusions}
 
@@ -1286,6 +1388,86 @@ real-time analytics.
 
 
 \appendix 
+
+\chapter{Correlation coeficients boxplots}
+
+\section{Divide and Conquer MDS}
+\label{div_conquer_corr}
+
+%\begin{figure}[ht]
+%\centering
+%    \includegraphics[scale = 1.5]{./images/divide_correlation_3000.png}
+%    \caption{Correlation for $n = 3000$.}
+%    \label{divide_correlation_3000}
+%\end{figure}
+%
+%\begin{figure}[ht]
+%\centering
+%    \includegraphics[scale = 1.5]{./images/divide_correlation_5000.png}
+%    \caption{Correlation for $n = 5000$.}
+%    \label{divide_correlation_5000}
+%\end{figure}
+%
+%\begin{figure}[ht]
+%\centering
+%    \includegraphics[scale = 1.5]{./images/divide_correlation_10000.png}
+%    \caption{Correlation for $n = 10000$.}
+%    \label{divide_correlation_10000}
+%\end{figure}
+%
+%\begin{figure}[ht]
+%\centering
+%    \includegraphics[scale = 1.5]{./images/divide_correlation_100000.png}
+%    \caption{Correlation for $n = 100000$.}
+%    \label{divide_correlation_100000}
+%\end{figure}
+%
+%\begin{figure}[ht]
+%\centering
+%    \includegraphics[scale = 1.5]{./images/divide_correlation_1000000.png}
+%    \caption{Correlation for $n = 1000000$.}
+%    \label{divide_correlation_1000000}
+%\end{figure}
+
+
+\section{Fast MDS}
+\label{fast_corr}
+
+\begin{figure}[ht]
+\centering
+    \includegraphics[scale = 1.5]{./images/fast_correlation_3000.png}
+    \caption{Correlation for $n = 3000$.}
+    \label{fast_correlation_3000}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+    \includegraphics[scale = 1.5]{./images/fast_correlation_5000.png}
+    \caption{Correlation for $n = 5000$.}
+    \label{fast_correlation_5000}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+    \includegraphics[scale = 1.5]{./images/fast_correlation_10000.png}
+    \caption{Correlation for $n = 10000$.}
+    \label{fast_correlation_10000}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+    \includegraphics[scale = 1.5]{./images/fast_correlation_100000.png}
+    \caption{Correlation for $n = 100000$.}
+    \label{fast_correlation_100000}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+    \includegraphics[scale = 1.5]{./images/fast_correlation_1000000.png}
+    \caption{Correlation for $n = 1000000$.}
+    \label{fast_correlation_1000000}
+\end{figure}
+
 
 \chapter{Code}
 \label{chap:code}
