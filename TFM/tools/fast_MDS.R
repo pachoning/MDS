@@ -1,11 +1,11 @@
 fast_mds <- function(
   x,
-  n,
   l,
   s,
   k,
   metric
 ){
+  
   # Parametres inicials
   list_matrix = list()
   list_index = list()
@@ -13,10 +13,12 @@ fast_mds <- function(
   list_mds_align = list()
   
   sub_sample_size = k * s
+  n = nrow(x)
   
   # Division into p matrices
-  # Puede ser que al hacer la particion, haya tantas matrices que k*s< nrow(x_i)
-  # En este caso, volvemos a hacer un sampling
+  # When doing the partitions it can happen that there are so many matrices
+  # that s*k < nrow(x_i). In this case, we do a sampling again
+
   p = ceiling(l/sub_sample_size)
   observations_division = sample(x = p, size = nrow(x), replace = TRUE)
   observations_division = sort(observations_division)

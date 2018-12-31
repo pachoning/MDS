@@ -9,6 +9,7 @@ divide_conquer.mds <- function(
   ls_positions = list()
   list_eigenvalues = list()
   i_eigen = 1
+  
   # Initial parameters
   p = ceiling(2*nrow(x)/l)
   groups = sample(x = p, size = nrow(x), replace = TRUE)
@@ -23,7 +24,7 @@ divide_conquer.mds <- function(
     ls_positions[[k]] = x_positions_current_group
     
     # Take the data in the following way:
-    #   If it is the first iteration, take the data from fist group
+    #   If it is the first iteration, take the data from first group
     #   else, take the data from k-1 and k groups
     if(k == 1){
       filter_rows_by_position = x_positions_current_group
@@ -37,27 +38,24 @@ divide_conquer.mds <- function(
       previous_group = unique_group[k-1]
       x_positions_previous_group =  which(groups == previous_group)
       
-      # Registers to be filtered
+      # Rows to be filtered
       filter_rows_by_position = c(
         x_positions_previous_group,
         x_positions_current_group
       )
       
     }
-    # message(paste0("Iteration number ", k, " out of ", total_groups))
     
     # Matrix to apply MDS
     submatrix_data = x[filter_rows_by_position, ]
     
     # Calculate distance
-    # message("computing matrix distance")
     distance_matrix = cluster::daisy(
       x = submatrix_data,
       metric = metric
     )
     
     # Applying MDS to the submatrix of data
-    # message("computing MDS")
     cmd_eig = stats::cmdscale(
       d = distance_matrix, 
       k = s,
@@ -76,10 +74,8 @@ divide_conquer.mds <- function(
         i_eigen = i_eigen + 1
       }
     }
-    
-    # list_eigenvalues[[k]] = cmd_eig$eig
-    
-    row.names(mds_iteration) = row.names(submatrix_data)
+
+        row.names(mds_iteration) = row.names(submatrix_data)
     
     if(k == 1){
       # Define cum-MDS as MDS(1)
@@ -97,8 +93,7 @@ divide_conquer.mds <- function(
       cum_mds_previous = cum_mds[positions_cum_sum_previous, ] 
       
       
-      # Applying Procrustes transformation
-      # message("computing Procrustes")
+      # Apply Procrustes transformation
       procrustes_result =  MCMCpack::procrustes(
         X = mds_previous, #The matrix to be transformed
         Xstar = cum_mds_previous, # target matrix
@@ -112,7 +107,7 @@ divide_conquer.mds <- function(
       ones_vector = rep(1, nrow(mds_current)) 
       translation_matrix = ones_vector %*% t(translation)
       
-      # Transforming the data for the k-th group  
+      # Transform the data for the k-th group  
       cum_mds_current = dilation * mds_current %*% rotation_matrix + translation_matrix
       
       cum_mds = rbind(
@@ -123,6 +118,7 @@ divide_conquer.mds <- function(
     }
     
   }
+  
   # Reordering
   reording_permutation = match(1:nrow(x), rows_processed)
   cum_mds = cum_mds[reording_permutation, ]

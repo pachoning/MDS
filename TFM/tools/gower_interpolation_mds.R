@@ -27,7 +27,7 @@ gower.interpolation.mds <- function(
     
     distance_matrix = as.matrix(distance_matrix)
     
-    # MDS for the first groups
+    # MDS for the first group
     cmd_eig = stats::cmdscale(
       d = distance_matrix, 
       k = s,
@@ -72,7 +72,7 @@ gower.interpolation.mds <- function(
       )
     }
   }else{
-    # It is possible to num MDS without need of doing Gower interpolation
+    # It is possible to run MDS directly
     distance_matrix = cluster::daisy(
       x = x,
       metric = "euclidean"

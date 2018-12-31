@@ -1,12 +1,11 @@
 fast.mds <- function(
   x,
-  n,
   l,
   s,
   k,
   metric
 ){
-  # Parametres inicials
+  # Initial Parametres
   list_matrix = list()
   list_index = list()
   list_mds = list()
@@ -15,10 +14,13 @@ fast.mds <- function(
   list_eigenvalues = list()
   
   sub_sample_size = k * s
+  n = nrow(x)
   
-  # Division into p matrices
-  # Puede ser que al hacer la particion, haya tantas matrices que k*s< nrow(x_i)
-  # En este caso, volvemos a hacer un sampling
+  # Partition into p matrices
+  # When doing the partitions it can happen that there are so many matrices
+  # that s*k < nrow(x_i). In this case, we do a sampling again, otherwise
+  # cmdscale have problems
+  
   p = ceiling(l/sub_sample_size)
   observations_division = sample(x = p, size = nrow(x), replace = TRUE)
   observations_division = sort(observations_division)
@@ -32,7 +34,6 @@ fast.mds <- function(
   }
   
   # Partition into p submatrices
-  # message(paste0("        p equals ", p))
   for(i_group in 1:p){
     ind = which(observations_division == i_group)
     list_matrix[[i_group]] = x[ind, ]
@@ -43,7 +44,6 @@ fast.mds <- function(
   
   # We can do MDS
   if(able_to_do_mds == TRUE){
-    # message(paste0("Non-recursive!!"))
     for (i_group in 1:p) {
       matrix_filter = list_matrix[[i_group]]
       
@@ -59,7 +59,7 @@ fast.mds <- function(
         eig = TRUE
       )
       
-      #Storing the eigenvalues
+      # Storing the eigenvalues
       list_mds[[i_group]] = cmd_eig$points
       list_eigenvalues[[i_group]] = cmd_eig$eig
       
@@ -145,7 +145,6 @@ fast.mds <- function(
     row.names(Z) = row.names(x)
     
   }else{
-    # message("Recursive!!!")
     list_zi <- list()
     list_index <- list()
     list_number_dimensions = list()
@@ -166,7 +165,7 @@ fast.mds <- function(
       list_zi[[i_group]] = cmd_eig$points
       list_eigenvalues[[i_group]] = cmd_eig$eig
 
-      #Take a subsample
+      # Take a subsample
       list_index[[i_group]] = sample(
         x = row.names( list_zi[[i_group]] ), 
         size = k * s, 
@@ -186,8 +185,6 @@ fast.mds <- function(
         )
       }
     }
-    
-    # message(paste0("        At the end x_M_align has ", nrow(x_M_align), " rows"))
     
     
     distance_matrix_M  = daisy(

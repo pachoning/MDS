@@ -142,7 +142,6 @@ aggregator.mds <- function(
     message("Performing fast mds")
     result_mds = fast.mds(
       x = x,
-      n = nrow(x),
       l = l,
       s = s,
       k = k,
