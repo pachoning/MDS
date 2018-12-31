@@ -6,7 +6,7 @@ fast_mds <- function(
   metric
 ){
   
-  # Parametres inicials
+  # Initial parameters
   list_matrix = list()
   list_index = list()
   list_mds = list()
