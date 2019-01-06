@@ -415,9 +415,9 @@ df_time_melt$scenario_id = as.numeric(df_time_melt$scenario_id)
 
 df_time_melt_filter = df_time_melt %>% 
   filter(
-    scenario_id >55 &
-      scenario_id <=60 &
-    sample_size == 1000000 
+    scenario_id >15 &
+      scenario_id <=20 &
+    sample_size == 3000 
       
   )
 
@@ -426,10 +426,10 @@ pdf(
     getwd(),
     "thesis",
     "images",
-    "elapsed_time_1000000_part2.pdf"
+    "elapsed_time_3000_part2.pdf"
   ),
-  width = 6, # 8
-  height = 6 # 10
+  width = 8, # 8
+  height = 8 # 10
 )
 df_time_melt_filter %>% 
   ggplot(
