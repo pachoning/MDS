@@ -70,7 +70,6 @@ if(FALSE){
   
   mds_fast_sol = fast.mds(
     x = x,
-    n = nrow(x),
     l = l,
     s = s,
     k = k,
@@ -94,8 +93,7 @@ if(FALSE){
   mds_gower_sol = gower.interpolation.mds(
     x = x,
     l = l,
-    s = s,
-    metric = "euclidean"
+    s = s
   )
   diff_time = proc.time() - starting_time 
   
@@ -111,21 +109,33 @@ results_compare_divide_conquer = compare.methods(
 )
 
 # Comparing coordinates for divide and classical
+pdf(
+  file.path(
+    getwd(),
+    "thesis",
+    "images",
+    "first_div.pdf"
+  ),
+  width = 4, 
+  height = 4
+)
 ggplot(
   data.frame(
-    x = mds_divide_conquer[,3],
-    y = results_compare_divide_conquer$mds_classical_transformed[,3]
+    x = mds_divide_conquer[,1],
+    y = results_compare_divide_conquer$mds_classical_transformed[,1]
   ), 
   aes(x=x, y=y)
 ) +
   geom_point(shape = 1)  +
   geom_abline(aes(intercept = 0, slope = 1, colour = "B")) + 
   guides(fill=FALSE, color=FALSE) + 
+  xlim(-4, 4) + 
+  ylim(-4,4)+
   labs(
-    x ="Third dimension of x", 
-    y = "Third dimension of Div. and Conquer"
+    x ="First dim. of X", 
+    y = "First dim. of Divide and Conquer MDS"
   )
-
+dev.off()
 
 xtable::xtable(
   cor(results_compare_divide_conquer$mds_classical_transformed, mds_divide_conquer)
@@ -158,20 +168,34 @@ results_compare_fast = compare.methods(
 
 
 # Comparing coordinates for fast and classical
+pdf(
+  file.path(
+    getwd(),
+    "thesis",
+    "images",
+    "third_fast.pdf"
+  ),
+  width = 4, 
+  height = 4
+)
 ggplot(
   data.frame(
-    x = mds_fast[,2],
-    y = results_compare_fast$mds_classical_transformed[,2]
+    x = mds_fast[,3],
+    y = results_compare_fast$mds_classical_transformed[,3]
   ), 
   aes(x=x, y=y)
 ) +
   geom_point(shape = 1)  +
   geom_abline(aes(intercept = 0, slope = 1, colour = "B")) + 
   guides(fill=FALSE, color=FALSE) + 
+  xlim(-4, 4) + 
+  ylim(-4,4) +
   labs(
-    x ="Third dimension of x", 
-    y = "Third dimension of Fast"
+    x ="Third dim. of X", 
+    y = "Third dim. of Fast MDS"
   )
+dev.off()
+
 
 xtable::xtable(
   cor(results_compare_fast$mds_classical_transformed, mds_fast)
@@ -202,6 +226,16 @@ results_compare_gower = compare.methods(
 )
 
 # Comparing coordinates for divide and classical
+pdf(
+  file.path(
+    getwd(),
+    "thesis",
+    "images",
+    "third_gower.pdf"
+  ),
+  width = 4, 
+  height = 4
+)
 ggplot(
   data.frame(
     x = mds_gower[,3],
@@ -212,11 +246,13 @@ ggplot(
   geom_point(shape = 1)  +
   geom_abline(aes(intercept = 0, slope = 1, colour = "B")) + 
   guides(fill=FALSE, color=FALSE) + 
+  xlim(-4, 4) + 
+  ylim(-4,4) +
   labs(
-    x ="Third dimension of x", 
-    y = "Third dimension of Gower"
+    x ="Third dim. of X", 
+    y = "Third dim. of MDS based on Gower interp."
   )
-
+dev.off()
 
 xtable::xtable(
   cor(results_compare_gower$mds_classical_transformed, mds_gower)

@@ -1,0 +1,7 @@
+source("tools/load_libraries.R")
+source("tools/classical_mds.R")
+source("tools/fast_MDS_eigen.R")
+source("tools/divide_conquer_mds.R")
+source("tools/gower_interpolation_mds.R")
+source("tools/simulator.R")
+source("tools/compute_accuracy.R")

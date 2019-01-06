@@ -7,18 +7,10 @@ Borg, I. and P.~Groenen (2005).
 \newblock Springer.
 
 \bibitem[\protect\citeauthoryear{Gower and Hand}{Gower and
-  Hand}{1996}]{gowerHand}
-Gower, J.~C. and D.~J. Hand (1996).
-\newblock {\em Biplots\/} (1st ed ed.).
-\newblock London ; Melbourne : Chapman and Hall.
-\newblock Includes index and bibliographical references.
-
-\bibitem[\protect\citeauthoryear{Handl}{Handl}{1996}]{gowerformula}
-Handl, A. (1996, October).
-\newblock {Biplots : J. C. Gower and D. J. Hand (1996) London: Chapman \& Hall,
-  ISBN 0-412-71630-5, [pound sign] 32.00, pp. 277}.
-\newblock {\em Computational Statistics \& Data Analysis\/}~{\em 22\/}(6),
-  655--651.
+  Hand}{1995}]{gowerformula}
+Gower, J.~C. and D.~J. Hand (1995).
+\newblock {\em Biplots}, Volume~54.
+\newblock CRC Press.
 
 \bibitem[\protect\citeauthoryear{Pe{\~n}a}{Pe{\~n}a}{2002}]{pena_libro}
 Pe{\~n}a, D. (2002).

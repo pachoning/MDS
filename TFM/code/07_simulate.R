@@ -10,22 +10,22 @@ source("tools/compute_accuracy.R")
 
 threshold_main_dimensions = 0.9
 
-simulation_id = 30020
-initial_scenario_id = 30010
-total_replicas = 1
+simulation_id = 1
+initial_scenario_id = 33
+total_replicas = 10
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(10^3),
-  data_dimension = list(10,100),
-  main_dimensions_vector = list(NULL, 15, c(15,15), c(15,10), c(15,15,15,15)),
+  sample_size = list(10^4),
+  data_dimension = list(10),
+  main_dimensions_vector = list(15),
   l = list(500),
   k = list(3),
   metric = list("euclidean"),
-  compute_divide_conquer_mds = list(TRUE),
+  compute_divide_conquer_mds = list(FALSE),
   compute_fast_mds = list(TRUE),
-  compute_gower_mds = list(TRUE),
+  compute_gower_mds = list(FALSE),
   compute_classical_mds = list(TRUE),
   max_sample_size_classical = 3000,
   n_eigenvalues = 6,

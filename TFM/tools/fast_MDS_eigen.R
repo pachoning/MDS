@@ -154,7 +154,6 @@ fast.mds <- function(
       # Apply the algorithm
       cmd_eig = fast.mds(
         x = list_matrix[[i_group]],
-        n = nrow(list_matrix[[i_group]]),
         l = l,
         s = s,
         k = k,
