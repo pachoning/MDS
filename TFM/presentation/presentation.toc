@@ -1,0 +1,6 @@
+\beamer@sectionintoc {1}{Introduction}{3}{0}{1}
+\beamer@sectionintoc {2}{Algorithms for MDS with Big Data}{9}{0}{2}
+\beamer@sectionintoc {3}{Simulation study}{17}{0}{3}
+\beamer@subsectionintoc {3}{1}{Design of the simulation}{19}{0}{3}
+\beamer@subsectionintoc {3}{2}{Results}{23}{0}{3}
+\beamer@sectionintoc {4}{Conclusions}{33}{0}{4}

@@ -107,7 +107,6 @@ ggplot(
   xlab('x') + 
   ylab('y') +
   labs(
-    title = 'Traditional MDS',
     x = 'x',
     y = 'y'
   )

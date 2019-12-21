@@ -1,0 +1,241 @@
+\documentclass[10pt,compress]{beamer}
+\mode<presentation>
+\usepackage{graphicx}
+%\usepackage{beamerthemesplit}
+\usepackage[ansinew]{inputenc}
+%\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{eqlist}
+\usepackage{amsfonts} % Simbolos matematicos
+\usepackage{amsthm} %Enunciados predefinidos y demostraciones
+\usepackage{bbm}
+\usepackage{enumerate}
+\usepackage[dvips]{epsfig} %Incluir figuras .eps
+\usepackage{epsf}%Incluir figuras .eps
+\usepackage{eurosym}
+\usepackage{subfigure}
+%\usetheme{Malmoe} 
+
+
+\usepackage{multirow}
+
+\useoutertheme[footline=authortitle]{miniframes} % Sections at the top of slides
+\useinnertheme{circles}
+
+\usepackage{chicago}%,e:/latex/psfrag
+
+\input{slides_English.sty}
+
+\def\noframe#1{}
+\newcommand{\mb}{\mbox}
+\newcommand{\ts}{\thickspace}
+\newcommand{\xq}{\overline{\mb{x}}}
+\newcommand{\yq}{\overline{\mb{y}}}
+\renewcommand{\baselinestretch}{1,2}
+%\newcommand{\R}{ \mathbb{R} }
+
+\def\red#1{\textcolor[rgb]{1.00,0.00,0.00}{#1}}
+\def\green#1{\textcolor[rgb]{0.20,0.70,0.10}{#1}}
+\def\blue#1{\textcolor[rgb]{0.00,0.00,1.00}{#1}}
+
+%\def\citeN{\cite}    
+\def\bi{\begin{itemize}}
+\def\ei{\end{itemize}}
+\def\F{\mathcal{F}}
+\def\then{\Rightarrow}
+\def\tiende{\longrightarrow}
+
+\def\MSE{\mbox{MSE}}
+\def\ISE{\mbox{ISE}}
+\def\MISE{\mbox{MISE}}
+\def\IMSE{\mbox{IMSE}}
+\def\AMISE{\mbox{AMISE}}
+\def\AMSE{\mbox{AMSE}}
+\def\Sesgo{\mbox{Sesgo}}
+\def\Bias{\mbox{Bias}}
+\def\Var{\mbox{Var}}
+\def\IQR{\mbox{IQR}}
+\def\LSCV{\mbox{LSCV}}
+\def\CV{\mbox{CV}}
+\def\GCV{\mbox{GCV}}
+\def\PI{\mbox{PI}}
+\def\ECMP{\mbox{ECMP}}
+\def\test{\mbox{\scriptsize test}}
+
+
+\def\diag{\mbox{Diag}}
+\def\Traza{\mbox{Traza}}
+\def\traza{\mbox{Traza}}
+\def\tr{^{\mbox{\scriptsize T}}}
+
+%\newtheorem{teorema}{Teorema}
+
+\def\comment#1{}
+\def\practice#1{\frame{\Large {\bf \green{Practice:}} \\ #1}}
+
+%%%%%%%%%%
+%    1   %
+%%%%%%%%%%
+\title[ASM. Intro 2nd Part ASM, MIRI. \qquad{} \qquad{} \insertframenumber /\inserttotalframenumber]
+{
+%Advanced Statistical Modeling
+%\\[1.5mm]
+%Part 2. Nonparametric Modeling
+%\\[2.5mm]
+Introduction to the 2nd Part of ASM:
+\\
+{\bf 
+Beyond LM and GLM
+}
+}
+\author[Pedro Delicado]{{\Large Pedro Delicado}\\ \ \\
+{\small Departament d'Estadística i Investigació Operativa \\
+Universitat Politècnica de Catalunya}}
+\date{}%November, December 2015}
+
+
+\begin{document}
+
+%%%%%%%%%%
+%    2   %
+%%%%%%%%%%
+
+\frame{\titlepage}
+
+%\section{}
+%\frame{\scriptsize{\tableofcontents} }
+%\AtBeginSubsection[]
+%{
+%  \begin{frame}<beamer>
+%    \frametitle{}
+%    \scriptsize{\tableofcontents[currentsection,currentsubsection]}
+%  \end{frame}
+%}
+%
+%\AtBeginSection[]
+%{
+%  \begin{frame}<beamer>
+%   \frametitle{}
+%    \scriptsize{\tableofcontents[currentsection,currentsubsection]}
+%  \end{frame}
+%}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{\frametitle{In the first part of Advanced Statistical Models}
+\bi 
+\item \blue{Multiple Linear Regression Model (LM):} 
+\bi 
+\item $Y=\bx\tr \bbeta +\varepsilon,\,\, Y\in\R, \bx\in\R^p$.
+\item Data: $(Y_i,\bx_i)$, $i=1,\ldots,n$.
+\item Estimation: Ordinary Least Squares (OLS),
+\[
+\hat{\bbeta}_{\mbox{\tiny OLS}} = \arg\min_{\bbeta} \sum_{i=1}^n \left(Y_i-\bx_i\tr \bbeta\right)^2.
+\]
+\ei 
+\item \blue{Generalized Linear Model (LM):} 
+\bi 
+\item $(Y|\bX=\bx) \sim f(y;\mu(\bx)),\,\, Y\in S \subseteq \R, \bx\in\R^p$, \newline
+$\mu(\bx)=\E(Y|\bX=\bx)$, $g(\mu(\bx))=\bx\tr \bbeta$, $\mu(\bx)=g^{-1}\left(\bx\tr \bbeta\right)$.
+\item Data: $(Y_i,\bx_i)$, $i=1,\ldots,n$, independent.
+\item Estimation: Maximum Likelihood,
+\[
+\hat{\bbeta}_{\mbox{\tiny ML}} = \arg\max_{\bbeta} 
+\sum_{i=1}^n \log\left( f(Y_i;g^{-1}(\bx_i\tr \bbeta))\right).
+\]
+\ei 
+\ei 
+}
+
+\frame{\frametitle{In the second part of Advanced Statistical Models}
+\bi 
+\item First, we explore \blue{penalized} estimation criteria:
+\bi 
+\item Ridge regression and Lasso for LM and for GLM.
+\ei 
+\item Second, we remove the assumptions of linearity. 
+In fact we are not considering parametric forms for 
+$m(\bx)=\E(Y|\bX=\bx)$ (\blue{nonparametric regression}):
+\bi 
+\item Local linear regression, local likelihood estimators.
+\item Spline smoothing.
+\item Generalized Additive Models (GAM).
+\ei 
+\ei 
+}
+
+\frame{\frametitle{Contents of 2nd part of the course}
+	
+	\vspace*{-.2cm}
+	{\footnotesize
+		\blue{\bf Regularized estimation of LM and GLM.}
+		1. Ridge regression.
+%		1.1. Linear estimators of a regression function.
+%		1.2. Choosing the tunning parameter by CV and GCV.
+		2. The Lasso estimation.
+		3. Lasso estimation in the GLM.
+
+		\blue{\bf Nonparametric regression model.}
+		1. Local polynomial regression.
+		2. Kernel functions.
+		3. Theoretical properties. The bias-variance trade off.
+		4. Bandwidth choice.
+		
+		\blue{\bf Generalized nonparametric regression model.}
+		1. Nonparametric regression with binary response.
+		2. Generalized nonparametric regression model.
+		3. Estimation by maximum local likelihood. 
+		
+%		\blue{\bf Session 5: Inference with nonparametric regression.}
+%		1. Variability bands.
+%		2. Testing for no effects.
+%		3. Checking a parametric model.
+%		4. Comparing curves. 
+%		
+		\blue{\bf Spline smoothing.}
+		1. Penalized least squares nonparametric regression.
+		2. Splines, cubic splines and interpolation.
+		3. Smoothing splines.
+		4. B-splines and P-splines.
+		5. Spline regression.
+		6. Fitting generalized nonparametric regression models with splines.
+		
+		\blue{\bf Generalized additive models and Semiparametric models.}
+		1. Multiple nonparametric regression. The curse of dimensionality.
+		2. Additive models.
+		3. Generalized additive models.
+		4. Semiparametric models.
+		
+		%\blue{\bf Session 7}. Contents to be determined in a flexible way:
+		%Buffer session; 
+		%Introduction to Functional Data Analysis; ...
+	}
+}
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%  Bibliografía
+% Bibliografía utilizada para elaborar estas notas:
+%\nocite{Silverman:1986}
+%\nocite{Scott:1992}
+\nocite{WanJon:1995}
+\nocite{Simonoff:1996}
+\nocite{FanGij:1996}
+\nocite{BowAzz:1997}
+\nocite{HasTibFri:2001}
+\nocite{Wasserman:2006}
+\nocite{Loader:1999}
+\nocite{Wood:2006}
+
+{\tiny 
+\bibliographystyle{chicago}
+%\bibliographystyle{e:/latex/chicago_esp}
+%\bibliographystyle{g:/latex/chicago_esp}
+%\bibliographystyle{c:/pedro/latex/chicago_esp}
+\bibliography{ModNoPar}
+}
+
+
+
+\end{document}
+
