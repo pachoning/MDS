@@ -3,7 +3,7 @@
 source("tools/load_libraries.R")
 source("tools/classical_mds.R")
 source("tools/fast_MDS_eigen.R")
-source("tools/divide_conquer_mds.R")
+source("tools/fast_divide_conquer_mds.R")
 source("tools/gower_interpolation_mds.R")
 source("tools/simulator.R")
 source("tools/compute_accuracy.R")
@@ -11,26 +11,26 @@ source("tools/compute_accuracy.R")
 threshold_main_dimensions = 0.9
 
 simulation_id = 1
-initial_scenario_id = 33
-total_replicas = 10
+initial_scenario_id = 1
+total_replicas = 100
 
 
 df = expand.grid(
   scenario_id = list(NULL),
-  sample_size = list(10^4),
-  data_dimension = list(10),
-  main_dimensions_vector = list(15),
+  sample_size = list(10^3),
+  data_dimension = list(100),
+  main_dimensions_vector = list(c(15, 15, 15, 15)),
   l = list(500),
   k = list(3),
   metric = list("euclidean"),
-  compute_divide_conquer_mds = list(FALSE),
-  compute_fast_mds = list(TRUE),
+  compute_divide_conquer_mds = list(TRUE),
+  compute_fast_mds = list(FALSE),
   compute_gower_mds = list(FALSE),
-  compute_classical_mds = list(TRUE),
+  compute_classical_mds = list(FALSE),
   max_sample_size_classical = 3000,
   n_eigenvalues = 6,
   n_cols_procrustes_noise = 5, # When there is noise, use 5 columns to do the procrustes
-  split_procrustes = list(TRUE), # This is because when the matrix is too big and procrustes is perform to get the correlation matrix, it explodes. With that, procrustes is calcualted in a for
+  split_procrustes = list(TRUE), # This is because when the matrix is too big and procrustes is performed to get the correlation matrix, it explodes. With that, procrustes is calcualted in a for
   n_max_procrustes = list(5000)
 )
 
