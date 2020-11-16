@@ -1,8 +1,9 @@
-divide_conquer.mds <- function(
+fast_divide_conquer.mds <- function(
   x,
   l,
   s,
-  metric
+  metric,
+  sampling_rate
 ){
   
   # List positions
@@ -38,8 +39,8 @@ divide_conquer.mds <- function(
       previous_group = unique_group[k-1]
       x_positions_previous_group =  which(groups == previous_group)
       x_position_subsample_previous_group = sample(x = x_positions_previous_group, 
-                                          size = floor(0.5*length(x_positions_previous_group)),
-                                          replace = FALSE)
+                                                   size = floor(sampling_rate*length(x_positions_previous_group)),
+                                                   replace = FALSE)
       x_position_subsample_previous_group = sort(x_position_subsample_previous_group)
       
       

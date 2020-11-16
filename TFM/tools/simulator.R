@@ -126,6 +126,7 @@ aggregator.mds <- function(
   s, 
   k,
   metric,
+  sampling_rate,
   method_wanted
 ){
   
@@ -161,6 +162,15 @@ aggregator.mds <- function(
       x = x,
       l = l,
       s = s
+    )
+  }else if(method_wanted == 'fast_divide_conquer'){
+    message("Performing fast divide and conquer mds")
+    result_mds = fast_divide_conquer.mds(
+      x = x,
+      l = l,
+      s = s,
+      metric = metric,
+      sampling_rate = sampling_rate
     )
   }else{
     stop( "invalid value for method_wanted variable" )
@@ -281,10 +291,12 @@ do.magic <- function(
   k,
   metric,
   compute_divide_conquer_mds,
+  compute_fast_divide_conquer_mds,
   compute_fast_mds,
   compute_gower_mds,
   compute_classical_mds,
   max_sample_size_classical,
+  sampling_rate_fast_divide_conquer,
   threshold_main_dimensions,
   n_eigenvalues,
   n_cols_procrustes_noise,
@@ -343,6 +355,44 @@ do.magic <- function(
       n_max_procrustes = n_max_procrustes
     )
     
+  }
+  
+  # Run fast divide and conquer in case it is needed
+  fast_divide_conquer_points = NA
+  fast_divide_conquer_eig = NA
+  fast_divide_conquer_eig_subsample = NA
+  fast_divide_conquer_n_dimensions = NA
+  fast_divide_conquer_elapsed_time = NA
+  fast_divide_conquer_corr_matrix = NA
+  
+  if(compute_fast_divide_conquer_mds == TRUE){
+    fast_divide_conquer_mds = aggregator.mds(
+      x = x,
+      l = l,
+      s = data_dimension, 
+      k = k,
+      metric = metric,
+      sampling_rate = sampling_rate_fast_divide_conquer,
+      method_wanted = 'fast_divide_conquer'
+    )
+    
+    fast_divide_conquer_points = fast_divide_conquer_mds$points
+    fast_divide_conquer_eig = fast_divide_conquer_mds$eig
+    fast_divide_conquer_eig_subsample = get.mean.eigenvalues(
+      list_eigenvalues = fast_divide_conquer_eig,
+      n_eigenvalues = n_eigenvalues
+    )
+    fast_divide_conquer_n_dimensions = n.dimensions(
+      list_eigenvalues = fast_divide_conquer_eig,
+      threshold_main_dimensions = threshold_main_dimensions
+    )
+    fast_divide_conquer_elapsed_time = as.numeric(fast_divide_conquer_mds$elapsed_time)
+    fast_divide_conquer_corr_matrix = corr.groups.procrustes(
+      x_to_be_transformed = x[, 1:n_dimensions_procrustes, drop = FALSE],
+      x_target = fast_divide_conquer_points[, 1:n_dimensions_procrustes, drop = FALSE],
+      want_to_divide = split_procrustes,
+      n_max_procrustes = n_max_procrustes
+    )
   }
 
   # Run fast in case it is needed
@@ -480,6 +530,13 @@ do.magic <- function(
     divide_conquer_n_dimensions = divide_conquer_n_dimensions,
     divide_conquer_elapsed_time = divide_conquer_elapsed_time,
     divide_conquer_corr_matrix = divide_conquer_corr_matrix,
+    
+    # Output for fast divide and conquer
+    fast_divide_conquer_points = fast_divide_conquer_points,
+    fast_divide_conquer_eig_subsample = fast_divide_conquer_eig_subsample,
+    fast_divide_conquer_n_dimensions = fast_divide_conquer_n_dimensions,
+    fast_divide_conquer_elapsed_time = fast_divide_conquer_elapsed_time,
+    fast_divide_conquer_corr_matrix = fast_divide_conquer_corr_matrix,
     
     # Output for fast
     fast_points = fast_points,

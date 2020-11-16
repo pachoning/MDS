@@ -1,6 +1,5 @@
-# This one will do 19 replicas
-# i-0253d596f0dd7ccaf
 source("tools/load_libraries.R")
+source("tools/divide_conquer_mds.R")
 source("tools/classical_mds.R")
 source("tools/fast_MDS_eigen.R")
 source("tools/fast_divide_conquer_mds.R")
@@ -24,10 +23,12 @@ df = expand.grid(
   k = list(3),
   metric = list("euclidean"),
   compute_divide_conquer_mds = list(TRUE),
-  compute_fast_mds = list(FALSE),
-  compute_gower_mds = list(FALSE),
-  compute_classical_mds = list(FALSE),
+  compute_fast_divide_conquer_mds = list(TRUE),
+  compute_fast_mds = list(TRUE),
+  compute_gower_mds = list(TRUE),
+  compute_classical_mds = list(TRUE),
   max_sample_size_classical = 3000,
+  sampling_rate_fast_divide_conquer = 0.3,
   n_eigenvalues = 6,
   n_cols_procrustes_noise = 5, # When there is noise, use 5 columns to do the procrustes
   split_procrustes = list(TRUE), # This is because when the matrix is too big and procrustes is performed to get the correlation matrix, it explodes. With that, procrustes is calcualted in a for
@@ -91,10 +92,12 @@ for(i_replica in 1:total_replicas){
       k = df_filter$k[[1]],
       metric = df_filter$metric[[1]],
       compute_divide_conquer_mds = df_filter$compute_divide_conquer_mds[[1]],
+      compute_fast_divide_conquer_mds = df_filter$compute_fast_divide_conquer_mds[[1]],
       compute_fast_mds = df_filter$compute_fast_mds[[1]],
       compute_classical_mds = df_filter$compute_classical_mds[[1]],
       compute_gower_mds = df_filter$compute_gower_mds[[1]],
       max_sample_size_classical = df_filter$max_sample_size_classical[[1]],
+      sampling_rate_fast_divide_conquer = df_filter$sampling_rate_fast_divide_conquer[[1]],
       threshold_main_dimensions = threshold_main_dimensions,
       n_eigenvalues = df_filter$n_eigenvalues[[1]],
       n_cols_procrustes_noise =  df_filter$n_cols_procrustes_noise[[1]],
@@ -128,6 +131,12 @@ for(i_replica in 1:total_replicas){
       eig_subsample_divide_conquer = NA,
       corr_matrix_divide_conquer = NA,
       
+      # Output for fast divide and conquer
+      n_dimensions_fast_divide_conquer = list_results_i$fast_divide_conquer_n_dimensions,
+      elapsed_time_fast_divide_conquer = list_results_i$fast_divide_conquer_elapsed_time,
+      eig_subsample_fast_divide_conquer = NA,
+      corr_matrix_fast_divide_conquer = NA,
+      
       # Output for fast
       n_dimensions_fast = list_results_i$fast_n_dimensions,
       elapsed_time_fast = list_results_i$fast_elapsed_time,
@@ -150,6 +159,9 @@ for(i_replica in 1:total_replicas){
     
     df_summary_i$eig_subsample_divide_conquer = list(list_results_i$divide_conquer_eig_subsample)
     df_summary_i$corr_matrix_divide_conquer = list(list_results_i$divide_conquer_corr_matrix)
+    
+    df_summary_i$eig_subsample_fast_divide_conquer = list(list_results_i$fast_divide_conquer_eig_subsample)
+    df_summary_i$corr_matrix_fast_divide_conquer = list(list_results_i$fast_divide_conquer_corr_matrix)
 
     df_summary_i$eig_subsample_fast = list(list_results_i$fast_eig_subsample)
     df_summary_i$corr_matrix_fast = list(list_results_i$fast_corr_matrix)
