@@ -1,5 +1,6 @@
 source("tools/procrustes.R")
 
+
 #'@title Classical MDS
 #'@description Perfroms classical MDS with eigenvalues.
 #'@param x Data matrix.
@@ -21,14 +22,34 @@ classical_mds <-function(x, k){
   return(mds)
 }
 
-rec <<- 1
+
+#'@title Number of partitions
+#'@descriptionReturn the number of partitions.
+#'@param n Number of rows.
+#'@param l The highest value where classical MDS can be computed efficiently.
+#'@param s Number of sampling points. It should be 1 + estimated datsa dimension.
+#'@param k Number of principal coordinates.
+#'@return Returns p (number of partitions).
+get_number_partitions <-function(n, l, s, k){
+  p = ceiling(l/s)
+  reminder = n%%p
+  quotient = floor(n/p)
+  while((reminder!=0 & reminder<=k) | quotient<=k){
+    p = p-1
+    reminder = n%%p
+    quotient = floor(n/p)
+  }
+  return(p)
+}
+
+
 #'@title Fast MDS
 #'@description Perfroms MDS based on Tynia, Jinze, Leonard, and Wei (2006).
 #'@param x Data matrix.
 #'@param l The highest value where classical MDS can be computed efficiently.
 #'@param s Number of sampling points. It should be 1 + estimated datsa dimension.
 #'@param k Number of principal coordinates.
-#'@return Returns MDS based on fast MDS algorithm
+#'@return Returns MDS based on fast MDS algorithm.
 fast_mds <-function(x,l,s,k){
   
   has_row_names = !is.null(row.names(x))
@@ -39,15 +60,12 @@ fast_mds <-function(x,l,s,k){
   #If possible to run classical MDS on the whole matrix, run it
   if(nrow(x)<=l){
     mds = classical_mds(x=x, k=k)
-    cat("Times classical MDS:", rec, "with", nrow(x), "points \n")
-    rec <<- rec + 1
-    cat("----------------------------- \n")
     return(mds)
   
   # Otherwise, call it recursively
   }else{
-    p = ceiling(l/s)
-    index_partition = rep(x=1:p, length.out=nrow(x), each=ceiling(nrow(x)/p))
+    p = get_number_partitions(n=nrow(x), l=l, s=s, k=k)
+    index_partition = rep(x=1:p, length.out=nrow(x), each=floor(nrow(x)/p))
     points = list()
     eigen = list()
     sampling_points = list()
@@ -55,7 +73,6 @@ fast_mds <-function(x,l,s,k){
     # For each partition, compute fast MDS
     for(i in 1:p){
       indexes_partition = which(index_partition==i)
-      cat("Number of points: ", length(indexes_partition), "\n")
       x_partition = x[indexes_partition, ]
       mds_partition = fast_mds(x=x_partition, l=l, s=s, k=k)
       points[[i]] = mds_partition$points
@@ -66,7 +83,6 @@ fast_mds <-function(x,l,s,k){
     
     # Get M_align by getting the sampled points
     ind = unlist(sampling_points)
-    cat("sp:", length(ind), "\n")
     x_M = x[ind, ]
     row.names(x_M) = row.names(x[ind, ])
     mds_M = classical_mds(x=x_M, k=k)
@@ -79,13 +95,10 @@ fast_mds <-function(x,l,s,k){
       sampling_points_i = sampling_points[[i]] 
       mds_M_sampling = mds_M[sampling_points_i,]
       mds_i_sampling = mds_i[sampling_points_i, ]
-      cat("sampling_points_i", sampling_points_i, "\n")
-      cat("sampling points for M", row.names(mds_M_sampling), "\n")
-      cat("sampling points for MDS", row.names(mds_i_sampling), "\n")
-      
+    
       mds_aligned_i = perform_procrustes(x=mds_i_sampling, target=mds_M_sampling, 
                                          matrix_to_transform=mds_i, 
-                                         translation=TRUE, dilation=TRUE)
+                                         translation=FALSE, dilation=TRUE)
       if(i==1){
         mds_stitched = mds_aligned_i
         eigen_stitched = eigen[[i]]
@@ -104,11 +117,12 @@ fast_mds <-function(x,l,s,k){
   }
 }
 
-ssss = fast_mds(x=x,l=100,s=20,k=data_dimension)
-perform_procrustes(x=ssss$points, target=x, matrix_to_transform=ssss$points, 
+ssss = fast_mds(x=x,l=100,s=10,k=data_dimension)
+ssss_proc = perform_procrustes(x=ssss$points, target=x, matrix_to_transform=ssss$points, 
                    translation=FALSE, dilation=FALSE)
 
 
+cor(ssss_proc[,1], x[,1])
 
 if(TRUE){
   sample_size = 5000
