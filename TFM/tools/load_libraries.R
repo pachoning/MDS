@@ -22,11 +22,11 @@ if( require(MCMCpack) == FALSE ){
   library(MCMCpack)
 }
 
-#if( require(pdist) == FALSE ){
-#  message("installing pdist library -----------------------------------")
-#  install.packages('pdist')
-#  library(pdist)
-#}
+if( require(pdist) == FALSE ){
+  message("installing pdist library -----------------------------------")
+  install.packages('pdist')
+  library(pdist)
+}
 
 #if( require(rlist) == FALSE ){
 #  message("installing rlist library -----------------------------------")

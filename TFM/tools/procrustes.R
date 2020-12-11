@@ -8,7 +8,7 @@
 #'@param dilation logical value indicating whether X should be dilated.
 #'@return Returns Procruster to \emph{matrix_to_transform}.
 perform_procrustes <- function(x, target, matrix_to_transform, translation, dilation){
-  
+
   procrustes_result =  MCMCpack::procrustes(
     X=x, #The matrix to be transformed
     Xstar=target, # target matrix
