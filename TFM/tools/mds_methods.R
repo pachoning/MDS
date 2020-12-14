@@ -11,7 +11,7 @@ source("tools/procrustes.R")
 #'   \item{points}{MDS}
 #'   \item{eigen}{eigenvalues}
 #' }
-classical_mds <-function(x, k, return_distance_matrix=FALSE){
+classical_mds <- function(x, k, return_distance_matrix=FALSE){
   
   mds = list()
   dist_matrix = dist(x=x)
@@ -33,7 +33,7 @@ classical_mds <-function(x, k, return_distance_matrix=FALSE){
 #'@param s Number of sampling points. It should be 1 + estimated datsa dimension.
 #'@param k Number of principal coordinates.
 #'@return Returns p (number of partitions).
-get_number_partitions <-function(n, l, s, k){
+get_number_partitions <- function(n, l, s, k){
   p = ceiling(l/s)
   reminder = n%%p
   quotient = floor(n/p)
@@ -53,7 +53,11 @@ get_number_partitions <-function(n, l, s, k){
 #'@param s Number of sampling points. It should be 1 + estimated datsa dimension.
 #'@param k Number of principal coordinates.
 #'@return Returns MDS based on fast MDS algorithm.
-fast_mds <-function(x,l,s,k){
+#' \describe{
+#'   \item{points}{MDS}
+#'   \item{eigen}{eigenvalues}
+#' }
+fast_mds <- function(x,l,s,k){
   
   has_row_names = !is.null(row.names(x))
   if(!has_row_names){
@@ -135,7 +139,11 @@ fast_mds <-function(x,l,s,k){
 #'@param s Number of sampling points. It should be 1 + estimated datsa dimension.
 #'@param k Number of principal coordinates.
 #'@return Returns MDS based on fast MDS algorithm.
-divide_conquer_mds <-function(x,l,s,k){
+#' \describe{
+#'   \item{points}{MDS}
+#'   \item{eigen}{eigenvalues}
+#' }
+divide_conquer_mds <- function(x,l,s,k){
   
   initial_row_names = row.names(x)
   row.names(x) = 1:nrow(x)
@@ -197,10 +205,15 @@ divide_conquer_mds <-function(x,l,s,k){
 #'@param l The highest value where classical MDS can be computed efficiently.
 #'@param k Number of principal coordinates.
 #'@return Returns MDS based on Gower interpolation formula.
+#' \describe{
+#'   \item{points}{MDS}
+#'   \item{eigen}{eigenvalues}
+#' }
 gower_interpolation_mds <- function(
   x,
   l,
-  k
+  k,
+  ...
 ){
   
   nrow_x = nrow(x)
@@ -274,47 +287,3 @@ gower_interpolation_mds <- function(
     )
   )
 }
-
-pppp = gower_interpolation_mds(x=x, l=100, k=data_dimension)
-pppp_proc = perform_procrustes(x=pppp$points, target=x, matrix_to_transform=pppp$points, 
-                                translation=FALSE, dilation=FALSE)
-cor(pppp_proc[,1], x[,1])
-
-
-
-
-
-ddddd = divide_conquer_mds(x=x, l=100, s=10, k=data_dimension)
-ddddd_proc = perform_procrustes(x=ddddd$points, target=x, matrix_to_transform=ddddd$points, 
-                               translation=FALSE, dilation=FALSE)
-cor(ddddd_proc[,1], x[,1])
-
-ssss = fast_mds(x=x,l=100,s=10, k=data_dimension)
-ssss_proc = perform_procrustes(x=ssss$points, target=x, matrix_to_transform=ssss$points, 
-                               translation=FALSE, dilation=FALSE)
-cor(ssss_proc[,1], x[,1])
-
-
-if(TRUE){
-  sample_size = 5000
-  data_dimension = 5
-  main_dimensions_vector = c(2, 2)
-  
-  x = matrix(
-    rnorm(
-      n = sample_size*data_dimension
-    ),
-    ncol = data_dimension,
-    nrow = sample_size
-  )
-  
-  dim(x)
-  real_data_dimension = length(main_dimensions_vector)
-  lambda_vector = rep(1, data_dimension)
-  lambda_vector[1:real_data_dimension] = main_dimensions_vector
-  
-  x = x %*% diag(lambda_vector)
-  dim(x)
-}
-
-
