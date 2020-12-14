@@ -1,47 +1,10 @@
-#if( require(cluster) == FALSE ){
-#  message("installing cluster library -----------------------------------")
-#  install.packages('cluster')
-#  library(cluster)
-#}
+packages_list = c("MCMCpack", "pdist", "sets")
 
-#if( require(fields) == FALSE ){
-#  message("installing fields library -----------------------------------")
-#  install.packages('fields')
-#  library(fields)
-#}
-
-#if( require(ggplot2) == FALSE ){
-#  message("installing ggplot2 library -----------------------------------")
-#  install.packages('ggplot2')
-#  library(ggplot2)
-#}
-
-if( require(MCMCpack) == FALSE ){
-  message("installing MCMCpack library -----------------------------------")
-  install.packages('MCMCpack')
-  library(MCMCpack)
+for(pkg in packages_list){
+  print(pkg)
+  if(!require(pkg, character.only = TRUE)){
+    message(paste0("Installing", pkg, "------------------------------"))
+    install.packages(eval(pkg))
+    library(pkg, character.only=TRUE)
+  }
 }
-
-if( require(pdist) == FALSE ){
-  message("installing pdist library -----------------------------------")
-  install.packages('pdist')
-  library(pdist)
-}
-
-#if( require(rlist) == FALSE ){
-#  message("installing rlist library -----------------------------------")
-#  install.packages('rlist')
-#  library(rlist)
-#}
-
-#if( require(smacof) == FALSE ){
-#  message("installing smacof library -----------------------------------")
-#  install.packages('smacof')
-#  library(smacof)
-#}
-
-#if( require(tidyverse) == FALSE ){
-#  message("installing tidyverse library -----------------------------------")
-#  install.packages('tidyverse')
-#  library(tidyverse)
-#}
