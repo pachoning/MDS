@@ -203,6 +203,7 @@ update_correlation_data <- function(file_path, scenario_id, num_sim, method_name
 
 
 validate_input <- function(list_inputs){
+
   parameter_names = names(list_inputs)
   for(name in parameter_names){
     values = list_inputs[[name]]
@@ -211,6 +212,8 @@ validate_input <- function(list_inputs){
       stop(msg)
     }
   }
+  
+  message("Ei ei ei 2")
 }
 
 get_simulations <-function(

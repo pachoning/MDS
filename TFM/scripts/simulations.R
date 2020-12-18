@@ -11,7 +11,7 @@ scenarios = list(sample_size=sample_size, n_cols=n_cols, distribution_parameters
 
 get_simulations(
   scenarios=scenarios,
-  path=file.path(dirname(dirname(rstudioapi::getSourceEditorContext()$path)), 'data'),
+  path=file.path(getwd(), 'data'),
   mds_methods = c(divide_conquer_mds, fast_mds, gower_interpolation_mds),
   n_simulations = 50,
   overwrite_simulations = TRUE,
