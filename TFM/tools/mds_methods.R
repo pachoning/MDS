@@ -1,5 +1,5 @@
-source("tools/load_libraries.R")
-source("tools/procrustes.R")
+#source("tools/load_libraries.R")
+#source("tools/procrustes.R")
 
 
 #'@title Classical MDS
@@ -33,16 +33,25 @@ classical_mds <- function(x, k, return_distance_matrix=FALSE){
 #'@param s Number of sampling points. It should be 1 + estimated datsa dimension.
 #'@param k Number of principal coordinates.
 #'@return Returns p (number of partitions).
-get_number_partitions <- function(n, l, s, k){
+get_partitions <- function(n, l, s, k){
+  
   p = ceiling(l/s)
-  reminder = n%%p
-  quotient = floor(n/p)
-  while((reminder!=0 & reminder<=k) | quotient<=k){
-    p = p-1
-    reminder = n%%p
-    quotient = floor(n/p)
+  num_obs_group = ceiling(n/p)
+  
+  while(p>0 & num_obs_group < k + 2){
+    p = p -1
+    num_obs_group = ceiling(n/p)
   }
-  return(p)
+  
+  partition = sort(rep(x=1:p, length.out=n, each=num_obs_group))
+  last_partition_value = max(partition)
+  last_group_idx = which(partition == last_partition_value)
+  
+  if(length(last_group_idx) <= k){
+    partition[last_group_idx] = last_partition_value-1
+  }
+  
+  return(partition)
 }
 
 
@@ -58,7 +67,7 @@ get_number_partitions <- function(n, l, s, k){
 #'   \item{eigen}{eigenvalues}
 #' }
 fast_mds <- function(x,l,s,k){
-  
+
   has_row_names = !is.null(row.names(x))
   if(!has_row_names){
     row.names(x) = 1:nrow(x)
@@ -66,8 +75,8 @@ fast_mds <- function(x,l,s,k){
   
   #If possible to run classical MDS on the whole matrix, run it
   if(nrow(x)<=l){
-    
     mds = classical_mds(x=x, k=k)
+    mds$eigen = mds$eigen/length(mds$eigen)
     
     if(!has_row_names){
       row.names(x) = NULL
@@ -75,13 +84,14 @@ fast_mds <- function(x,l,s,k){
     }
     
     return(mds)
-  
-  # Otherwise, call it recursively
+    
+    # Otherwise, call it recursively
   }else{
-    p = get_number_partitions(n=nrow(x), l=l, s=s, k=k)
-    index_partition = rep(x=1:p, length.out=nrow(x), each=floor(nrow(x)/p))
+    index_partition = get_partitions(n=nrow(x), l=l, s=s, k=k)
+    p = length(unique(index_partition))
     points = list()
-    eigen = list()
+    eigen = c()
+    min_len = Inf
     sampling_points = list()
     
     # For each partition, compute fast MDS
@@ -91,9 +101,20 @@ fast_mds <- function(x,l,s,k){
       mds_partition = fast_mds(x=x_partition, l=l, s=s, k=k)
       points[[i]] = mds_partition$points
       row.names(points[[i]]) = row.names(x_partition)
-      eigen[[i]] = mds_partition$eigen
       sampling_points[[i]] = sample(x=row.names(x_partition), size=s, replace=FALSE)
+      
+      if(i==1){
+        min_len = length(mds_partition$eigen)
+        eigen = mds_partition$eigen
+      }else{
+        min_len = pmin(min_len, length(mds_partition$eigen))
+        eigen = eigen[1:min_len] + mds_partition$eigen[1:min_len]
+      }
+      
     }
+    
+    # Perform the mean for the eigenvalues
+    eigen = eigen/p
     
     # Get M_align by getting the sampled points
     ind = unlist(sampling_points)
@@ -109,16 +130,14 @@ fast_mds <- function(x,l,s,k){
       sampling_points_i = sampling_points[[i]] 
       mds_M_sampling = mds_M[sampling_points_i,]
       mds_i_sampling = mds_i[sampling_points_i, ]
-    
+      
       mds_aligned_i = perform_procrustes(x=mds_i_sampling, target=mds_M_sampling, 
                                          matrix_to_transform=mds_i, 
                                          translation=FALSE, dilation=FALSE)
       if(i==1){
         mds_stitched = mds_aligned_i
-        eigen_stitched = eigen[[i]]
       }else{
         mds_stitched = rbind(mds_stitched, mds_aligned_i)
-        eigen_stitched = c(eigen_stitched, eigen[[i]])
       }
     } 
     
@@ -127,7 +146,7 @@ fast_mds <- function(x,l,s,k){
       row.names(mds_stitched) = NULL
     }
     
-    return(list(points=mds_stitched, eigen=eigen_stitched))
+    return(list(points=mds_stitched, eigen=eigen))
   }
 }
 
@@ -150,12 +169,13 @@ divide_conquer_mds <- function(x,l,s,k){
   
   if(nrow(x)<=l){
     mds_to_return = classical_mds(x=x, k=k)
+    mds_to_return$eigen = mds_to_return$eigen/length(mds_to_return$eigen)
   }else{
-    
     if(s>l){stop("s cannot be larger than l")}
 
-    p = ceiling(nrow(x)/l)
-    index_partition = rep(x=1:p, length.out=nrow(x), each=ceiling(nrow(x)/p))
+    p = ceiling(nrow(x)/(l-(s +2)))
+    index_partition = sort(rep(x=1:p, length.out=nrow(x), each=ceiling(nrow(x)/p)))
+    min_len = Inf
     eigen = c()
 
     # Calculate mds for each partition and take s poits from each subsample
@@ -165,30 +185,36 @@ divide_conquer_mds <- function(x,l,s,k){
       row_names_current = row.names(x_current)
       list_classical_mds = classical_mds(x=x_current, k=k) 
       mds_current = list_classical_mds$points
-      row.names(mds_current) = row.names(x_current)
-      eigen = c(eigen, list_classical_mds$eigen)
     
       if(i == 1){
         cum_mds = mds_current
+        eigen = list_classical_mds$eigen/length(list_classical_mds$eigen)
+        min_len = length(eigen)
       }else{
-        indexes_previous = which(index_partition==(i-1))
-        row_names_previous = row.names(x)[indexes_previous]
-        rn_subsample_previous = sample(x=row_names_previous, size=s, replace=FALSE)
-        
+
         list_mds_both = classical_mds(x=x[c(rn_subsample_previous, row_names_current), ], k=k)
         mds_both = list_mds_both$points
-        row.names(mds_both) = c(rn_subsample_previous, row_names_current)
+        
         mds_both_previous = mds_both[rn_subsample_previous, ]
         mds_both_current = mds_both[row_names_current, ]
         cum_mds_previous = cum_mds[rn_subsample_previous, ]
-        mds_current_aligned = perform_procrustes(
-          x=mds_both_previous, target=cum_mds_previous, matrix_to_transform=mds_both_current, 
-          translation=FALSE, dilation=FALSE
-        )
-        row.names(mds_current_aligned) = row_names_current
+        mds_current_aligned = perform_procrustes(x=mds_both_previous, target=cum_mds_previous, 
+                                                 matrix_to_transform=mds_both_current, 
+                                                 translation=FALSE, dilation=FALSE)
+        
         cum_mds = rbind(cum_mds, mds_current_aligned)
+        min_len = pmin(min_len, length(list_mds_both$eigen))
+        eigen = eigen[1:min_len] + (list_mds_both$eigen[1:min_len]/length(list_mds_both$eigen))
       }
+      
+      rn_subsample_previous = sample(x=row_names_current, size=s, replace=FALSE)
+      
     }
+    
+    # Perform the mean for the eigenvalues
+    eigen = eigen/p
+    
+    # Divide by the number of observations
     mds_to_return = list(points=cum_mds, eigen=eigen)
   }
   
@@ -209,12 +235,7 @@ divide_conquer_mds <- function(x,l,s,k){
 #'   \item{points}{MDS}
 #'   \item{eigen}{eigenvalues}
 #' }
-gower_interpolation_mds <- function(
-  x,
-  l,
-  k,
-  ...
-){
+gower_interpolation_mds <- function(x,l,k,...){
   
   nrow_x = nrow(x)
   p = ceiling(nrow_x/l)
@@ -222,7 +243,7 @@ gower_interpolation_mds <- function(
   
   if( p>1 ){
     # Do MDS with the first group and then use the Gower interpolation formula
-    sample_distribution = sample(x=p, size=nrow_x, replace=TRUE)
+    sample_distribution = sort(sample(x=p, size=nrow_x, replace=TRUE))
     sample_distribution = sort(sample_distribution)
     
     # Get the first group 
@@ -255,7 +276,6 @@ gower_interpolation_mds <- function(
       ind_i_group = which(sample_distribution == i_group)
       submatrix_data = x[ind_i_group, ]
       
-      
       # A matrix
       distance_matrix_filter = pdist::pdist(
         X = submatrix_data,
@@ -280,10 +300,5 @@ gower_interpolation_mds <- function(
     eigen = mds_eig$eig/nrow_x
   }
   
-  return(
-    list(
-      points = cum_mds,
-      eig = eigen
-    )
-  )
+  return(list(points=cum_mds, eigen=eigen))
 }
