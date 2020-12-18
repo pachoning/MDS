@@ -71,7 +71,7 @@ fast_mds <- function(x,l,s,k){
     
     if(!has_row_names){
       row.names(x) = NULL
-      row.names(mds_stitched) = NULL
+      row.names(mds) = NULL
     }
     
     return(mds)
