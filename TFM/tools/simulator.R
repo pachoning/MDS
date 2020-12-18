@@ -41,22 +41,25 @@ generate_df_scenarios <- function(scenarios){
   
   total_scenarios = dim(df)[1]
   for(i in 1:total_scenarios){
+    
+    n_main_dimensions = 0
     current_scenario = df[i, ]
     n_cols = current_scenario$n_cols
     distribution_parameters = current_scenario$distribution_parameters[[1]]
+
     mu = unlist(distribution_parameters$mu)
     sd = unlist(distribution_parameters$sd)
-    n_main_dimensions = 0
     
     if(is.null(mu)){
       mu = rep(0, times=n_cols)
     }else if(length(mu) < n_cols){
       mu = c(mu, rep(0, times=n_cols-length(mu)))
     }
+
     
     if(is.null(sd)){
       sd = rep(1, times=n_cols)
-    }else if(length(sd) < n_cols){
+    }else if(length(sd) <= n_cols){
       n_main_dimensions = length(sd)
       sd = c(sd, rep(1, times=n_cols-length(sd)))
     }
@@ -267,7 +270,6 @@ get_simulations <-function(
       x = generate_data(scenario=current_scenario)
       i_method = 1
       for(method in mds_methods){
-        
         starting_time = proc.time()
         result = method(x=x, l=l, s=s, k=k)
         elapsed_time = (proc.time() - starting_time)[3]

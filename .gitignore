@@ -12,3 +12,6 @@ TFM/tools/to be deleted/
 /thesis/*.log
 *.log
 Bioinformatica/
+scripts/.Rapp.history
+TFM/scripts/.Rapp.history
+TFM/scripts/to be deleted/
