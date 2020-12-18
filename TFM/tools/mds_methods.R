@@ -173,7 +173,7 @@ divide_conquer_mds <- function(x,l,s,k){
   }else{
     if(s>l){stop("s cannot be larger than l")}
 
-    p = ceiling(nrow(x)/(l-(s +2)))
+    p = ceiling(nrow(x)/(l-(s+2)))
     index_partition = sort(rep(x=1:p, length.out=nrow(x), each=ceiling(nrow(x)/p)))
     min_len = Inf
     eigen = c()
