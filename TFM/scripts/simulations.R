@@ -12,13 +12,13 @@ scenarios = list(sample_size=sample_size, n_cols=n_cols, distribution_parameters
 get_simulations(
   scenarios=scenarios,
   path=file.path(getwd(), 'data'),
-  mds_methods = c(divide_conquer_mds, fast_mds, gower_interpolation_mds),
-  n_simulations = 100,
-  overwrite_simulations = TRUE,
-  n_sampling_points = NA,
-  largest_matrix_efficient_mds = 100,
-  num_mds_dimesions = NA,
-  verbose = TRUE
+  mds_methods =c(divide_conquer_mds, fast_mds, gower_interpolation_mds),
+  n_simulations=100,
+  overwrite_simulations=TRUE,
+  n_sampling_points=NA,
+  largest_matrix_efficient_mds=100,
+  num_mds_dimesions=NA,
+  verbose=TRUE
 )
 
 
