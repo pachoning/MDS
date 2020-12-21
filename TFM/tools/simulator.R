@@ -50,14 +50,14 @@ generate_df_scenarios <- function(scenarios){
     mu = unlist(distribution_parameters$mu)
     sd = unlist(distribution_parameters$sd)
     
-    if(is.null(mu)){
+    if(any(is.na(mu) | is.null(mu))){
       mu = rep(0, times=n_cols)
     }else if(length(mu) < n_cols){
       mu = c(mu, rep(0, times=n_cols-length(mu)))
     }
 
     
-    if(is.null(sd)){
+    if(any(is.na(sd) | is.null(sd))){
       sd = rep(1, times=n_cols)
     }else if(length(sd) <= n_cols){
       n_main_dimensions = length(sd)
@@ -212,8 +212,6 @@ validate_input <- function(list_inputs){
       stop(msg)
     }
   }
-  
-  message("Ei ei ei 2")
 }
 
 get_simulations <-function(

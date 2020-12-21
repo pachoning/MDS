@@ -97,7 +97,7 @@ fast_mds <- function(x,l,s,k){
     # For each partition, compute fast MDS
     for(i in 1:p){
       indexes_partition = which(index_partition==i)
-      x_partition = x[indexes_partition, ]
+      x_partition = x[indexes_partition, ,drop=FALSE]
       mds_partition = fast_mds(x=x_partition, l=l, s=s, k=k)
       points[[i]] = mds_partition$points
       row.names(points[[i]]) = row.names(x_partition)
@@ -118,8 +118,8 @@ fast_mds <- function(x,l,s,k){
     
     # Get M_align by getting the sampled points
     ind = unlist(sampling_points)
-    x_M = x[ind, ]
-    row.names(x_M) = row.names(x[ind, ])
+    x_M = x[ind, ,drop=FALSE]
+    row.names(x_M) = row.names(x[ind, ,drop=FALSE])
     mds_M = classical_mds(x=x_M, k=k)
     mds_M = mds_M$points
     row.names(mds_M) = row.names(x_M)
@@ -128,8 +128,8 @@ fast_mds <- function(x,l,s,k){
     for(i in 1:p){
       mds_i = points[[i]]
       sampling_points_i = sampling_points[[i]] 
-      mds_M_sampling = mds_M[sampling_points_i,]
-      mds_i_sampling = mds_i[sampling_points_i, ]
+      mds_M_sampling = mds_M[sampling_points_i, ,drop=FALSE]
+      mds_i_sampling = mds_i[sampling_points_i, ,drop=FALSE]
       
       mds_aligned_i = perform_procrustes(x=mds_i_sampling, target=mds_M_sampling, 
                                          matrix_to_transform=mds_i, 
@@ -163,7 +163,6 @@ fast_mds <- function(x,l,s,k){
 #'   \item{eigen}{eigenvalues}
 #' }
 divide_conquer_mds <- function(x,l,s,k){
-  
   initial_row_names = row.names(x)
   row.names(x) = 1:nrow(x)
   
@@ -181,7 +180,7 @@ divide_conquer_mds <- function(x,l,s,k){
     # Calculate mds for each partition and take s poits from each subsample
     for (i in 1:p) {
       indexes_current = which(index_partition==i)
-      x_current = x[indexes_current, ]
+      x_current = x[indexes_current, ,drop=FALSE]
       row_names_current = row.names(x_current)
       list_classical_mds = classical_mds(x=x_current, k=k) 
       mds_current = list_classical_mds$points
@@ -192,16 +191,14 @@ divide_conquer_mds <- function(x,l,s,k){
         min_len = length(eigen)
       }else{
 
-        list_mds_both = classical_mds(x=x[c(rn_subsample_previous, row_names_current), ], k=k)
+        list_mds_both = classical_mds(x=x[c(rn_subsample_previous, row_names_current), ,drop=FALSE], k=k)
         mds_both = list_mds_both$points
-        
-        mds_both_previous = mds_both[rn_subsample_previous, ]
-        mds_both_current = mds_both[row_names_current, ]
-        cum_mds_previous = cum_mds[rn_subsample_previous, ]
+        mds_both_previous = mds_both[rn_subsample_previous, ,drop=FALSE]
+        mds_both_current = mds_both[row_names_current, ,drop=FALSE]
+        cum_mds_previous = cum_mds[rn_subsample_previous, ,drop=FALSE]
         mds_current_aligned = perform_procrustes(x=mds_both_previous, target=cum_mds_previous, 
                                                  matrix_to_transform=mds_both_current, 
                                                  translation=FALSE, dilation=FALSE)
-        
         cum_mds = rbind(cum_mds, mds_current_aligned)
         min_len = pmin(min_len, length(list_mds_both$eigen))
         eigen = eigen[1:min_len] + (list_mds_both$eigen[1:min_len]/length(list_mds_both$eigen))
@@ -251,7 +248,7 @@ gower_interpolation_mds <- function(x,l,k,...){
     n_1 = length(ind_1)
     
     # Do MDS with the first group
-    submatrix_data = x[ind_1, ]
+    submatrix_data = x[ind_1, ,drop=FALSE]
     mds_eig = classical_mds(x=submatrix_data, k=k, return_distance_matrix=TRUE)
     distance_matrix = mds_eig$distance
     
@@ -274,12 +271,12 @@ gower_interpolation_mds <- function(x,l,k,...){
     for(i_group in 2:p){
       # Filtering the data
       ind_i_group = which(sample_distribution == i_group)
-      submatrix_data = x[ind_i_group, ]
+      submatrix_data = x[ind_i_group, ,drop=FALSE]
       
       # A matrix
       distance_matrix_filter = pdist::pdist(
         X = submatrix_data,
-        Y = x[ind_1, ]
+        Y = x[ind_1, ,drop=FALSE]
       )
       
       distance_matrix_filter = as.matrix(distance_matrix_filter)
