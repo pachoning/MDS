@@ -33,7 +33,7 @@ classical_mds <- function(x, k, return_distance_matrix=FALSE){
 #'@param s Number of sampling points. It should be 1 + estimated datsa dimension.
 #'@param k Number of principal coordinates.
 #'@return Returns p (number of partitions).
-get_partitions <- function(n, l, s, k){
+get_partitions_for_mds <- function(n, l, s, k){
   
   p = ceiling(l/s)
   num_obs_group = ceiling(n/p)
@@ -87,7 +87,7 @@ fast_mds <- function(x,l,s,k){
     
     # Otherwise, call it recursively
   }else{
-    index_partition = get_partitions(n=nrow(x), l=l, s=s, k=k)
+    index_partition = get_partitions_for_mds(n=nrow(x), l=l, s=s, k=k)
     p = length(unique(index_partition))
     points = list()
     eigen = c()
@@ -151,6 +151,18 @@ fast_mds <- function(x,l,s,k){
 }
 
 
+get_partitions_for_divide_conquer <- function(n, l, s, k){
+  p = p = ceiling(n/(l-(s+2)))
+  index_partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
+  while(sum(index_partition == p) < k +2){
+    p = p + 1
+    index_partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
+  }
+  
+  return(index_partition)
+}
+
+
 #'@title Divide and Conquer MDS
 #'@description Perfroms Divide and Conquer MDS.
 #'@param x Data matrix.
@@ -172,8 +184,9 @@ divide_conquer_mds <- function(x,l,s,k){
   }else{
     if(s>l){stop("s cannot be larger than l")}
 
-    p = ceiling(nrow(x)/(l-(s+2)))
-    index_partition = sort(rep(x=1:p, length.out=nrow(x), each=ceiling(nrow(x)/p)))
+    index_partition = get_partitions_for_divide_conquer(n=nrow(x), l=l, s=s, k=k)
+    p = max(index_partition)
+    
     min_len = Inf
     eigen = c()
 
