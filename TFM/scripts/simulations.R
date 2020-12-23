@@ -1,20 +1,21 @@
 source("tools/simulator.R")
 library(tidyverse)
 
-sample_size = c(1000)
-n_cols = c(10)
+sample_size = c(1000, 5000, 10000)
+n_cols = c(20, 100)
 
 distribution_parameters = list(list(sd=c(NA)), list(sd=c(5)), list(sd=c(5,10)), list(sd=c(5,10, 15)), 
                                list(sd=c(5,10, 15, 20)), list(sd=c(5,10, 15, 25, 30)))
+
 scenarios = list(sample_size=sample_size, n_cols=n_cols, distribution_parameters=distribution_parameters)
 
 
 get_simulations(
   scenarios=scenarios,
   path=file.path(getwd(), 'data'),
-  mds_methods =c(divide_conquer_mds, fast_mds, gower_interpolation_mds),
+  mds_methods_vector=c(divide_conquer_mds, fast_mds, gower_interpolation_mds),
   n_simulations=100,
-  overwrite_simulations=TRUE,
+  overwrite_simulations=FALSE,
   n_sampling_points=NA,
   largest_matrix_efficient_mds=100,
   num_mds_dimesions=NA,
@@ -34,3 +35,7 @@ df_join %>%
   summarise(mean_time = mean(elapsed_time))%>% 
   ggplot(aes(x=n_main_dimensions, y=mean_time, color=method_name, group=method_name)) +
   geom_line()
+
+
+df_scenarios
+df_time %>% View

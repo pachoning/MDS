@@ -27,10 +27,10 @@ validate_scenarios <- function(df, what){
 #'@param sample_size List of all sample sizes
 #'@param distribution_parameters List of all (mean, sd) 
 #'@return Returns a data frame that contains all the scenarios
-generate_df_scenarios <- function(scenarios){
+generate_df_scenarios <- function(scenarios, start_simulation_id){
   
   df = expand.grid(scenarios)
-  df$id = 1:nrow(df)
+  df$id = start_simulation_id:(start_simulation_id + nrow(df)-1)
   df = df[, ncol(df):1]
   df$mu = NA
   df$sd = NA
@@ -144,8 +144,18 @@ create_scenarios_file <- function(file_path, scenarios, overwrite_simulations){
     load(file_path)
     validate_scenarios(df=df_scenarios, what=c("content", "keys"))
   }else{
-    df_scenarios = generate_df_scenarios(scenarios=scenarios)
+    folder_path = dirname(file_path)
+    simulation_id_file = file.path(folder_path, 'max_id.RData')
+    print(simulation_id_file)
+    start_simulation_id = 1
+    if(file.exists(simulation_id_file)){
+      load(simulation_id_file)
+      start_simulation_id = max(max_id) + 1
+    }
+    df_scenarios = generate_df_scenarios(scenarios=scenarios, start_simulation_id=start_simulation_id)
     save(df_scenarios, file=file_path)
+    max_id = max(df_scenarios$id)
+    save(max_id, file=simulation_id_file)
   }
   assign("df_scenarios", df_scenarios, envir=.GlobalEnv)
 }
