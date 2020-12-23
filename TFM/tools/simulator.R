@@ -92,8 +92,9 @@ generate_data <- function(scenario){
 create_correlation_file <- function(file_path, overwrite_simulations){
   
   is_file_created = file.exists(file_path)
-  if(is_file_created){
+  if(is_file_created & !overwrite_simulations){
     load(file_path)
+    warning('Using simulations that are already saved. Current will be ignored')
   }else{
     df_correlation = data.frame(scenario_id=numeric(0), num_sim=numeric(0), method_name=character(0),
                                 n_main_dimensions=numeric(0), correlation_vector=numeric(0))
@@ -114,6 +115,7 @@ create_time_file <- function(file_path, overwrite_simulations){
   is_file_created = file.exists(file_path)
   if(is_file_created & !overwrite_simulations){
     load(file_path)
+    warning('Using simulations that are already saved. Current will be ignored')
   }else{
     df_time = data.frame(scenario_id=numeric(0), num_sim=numeric(0), method_name=character(0), elapsed_time=numeric(0))
   }
@@ -138,13 +140,14 @@ create_scenarios_file <- function(file_path, scenarios, overwrite_simulations){
   
   is_file_created = file.exists(file_path)
   if(is_file_created & !overwrite_simulations){
+    warning('Using simulations that are already saved. Current will be ignored')
     load(file_path)
     validate_scenarios(df=df_scenarios, what=c("content", "keys"))
   }else{
     df_scenarios = generate_df_scenarios(scenarios=scenarios)
     save(df_scenarios, file=file_path)
-    assign("df_scenarios", df_scenarios, envir=.GlobalEnv)
   }
+  assign("df_scenarios", df_scenarios, envir=.GlobalEnv)
 }
 
 
@@ -217,7 +220,7 @@ validate_input <- function(list_inputs){
 get_simulations <-function(
   scenarios, 
   path,
-  mds_methods,
+  mds_methods_vector,
   n_simulations,
   overwrite_simulations=FALSE,
   n_sampling_points = NA,
@@ -226,7 +229,7 @@ get_simulations <-function(
   verbose = FALSE
 ){
   
-  validate_input(list(scenarios=scenarios, path=path, mds_methods=mds_methods, 
+  validate_input(list(scenarios=scenarios, path=path, mds_methods=mds_methods_vector, 
                       n_simulations=n_simulations, largest_matrix_efficient_mds=largest_matrix_efficient_mds))
   
   scenarios_filename = "df_scenarios.RData"
@@ -237,8 +240,8 @@ get_simulations <-function(
   create_time_file(file_path=file.path(path, time_filename), overwrite_simulations=overwrite_simulations)
   create_correlation_file(file_path=file.path(path, correlation_filename), overwrite_simulations=overwrite_simulations)
   
-  methods_names = sapply(as.list(substitute(mds_methods))[-1], deparse)
-  total_methods = length(mds_methods)
+  methods_names = sapply(as.list(substitute(mds_methods_vector))[-1], deparse)
+  total_methods = length(mds_methods_vector)
   df_missing_scenarios = df_scenarios[is.na(df_scenarios$processed_at),]
   total_scenarios = dim(df_missing_scenarios)[1]
   
@@ -252,7 +255,7 @@ get_simulations <-function(
     }
     i_sim_method = 1
     
-    current_scenario = df_scenarios[i_scenario,]
+    current_scenario = df_missing_scenarios[i_scenario, ,drop=FALSE]
     
     # Set the parameter values for the methods
     s = ifelse(!is.na(n_sampling_points), n_sampling_points, current_scenario$n_main_dimensions + 1)
@@ -270,7 +273,7 @@ get_simulations <-function(
       if(verbose & (i_sim == 1 | (i_sim)%%10 == 0)){message(paste0("     Starting simulation: ", i_sim))}
       x = generate_data(scenario=current_scenario)
       i_method = 1
-      for(method in mds_methods){
+      for(method in mds_methods_vector){
         starting_time = proc.time()
         result = method(x=x, l=l, s=s, k=k)
         elapsed_time = (proc.time() - starting_time)[3]
