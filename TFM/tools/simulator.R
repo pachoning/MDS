@@ -144,9 +144,8 @@ create_scenarios_file <- function(file_path, scenarios, overwrite_simulations){
     load(file_path)
     validate_scenarios(df=df_scenarios, what=c("content", "keys"))
   }else{
-    folder_path = dirname(file_path)
+    folder_path = dirname(dirname(file_path))
     simulation_id_file = file.path(folder_path, 'max_id.RData')
-    print(simulation_id_file)
     start_simulation_id = 1
     if(file.exists(simulation_id_file)){
       load(simulation_id_file)
@@ -238,6 +237,10 @@ get_simulations <-function(
   num_mds_dimesions = NA,
   verbose = FALSE
 ){
+  
+  if(!dir.exists(path)){
+    dir.create(path)
+  }
   
   validate_input(list(scenarios=scenarios, path=path, mds_methods=mds_methods_vector, 
                       n_simulations=n_simulations, largest_matrix_efficient_mds=largest_matrix_efficient_mds))
