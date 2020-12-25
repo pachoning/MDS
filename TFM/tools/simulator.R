@@ -182,7 +182,7 @@ get_correlation_main_dimesions <- function(x, y, num_dimesions, largest_matrix_e
     y_main = y[, 1:num_dimesions, drop=FALSE]
     
     x_proc = perform_procrustes(x=x_main, target=y_main, matrix_to_transform=x_main, 
-                                translation=FALSE, dilation=FALSE,
+                                translation=TRUE, dilation=FALSE,
                                 largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
     
     for(i_dim in 1:num_dimesions){
@@ -279,6 +279,7 @@ get_simulations <-function(
   time_filename = "df_time.RData"
   correlation_filename = "df_correlation.RData"
   eigenvalue_filename = "df_eigenvalue.RData"
+  mds_parameters_filename = "mds_parameters.RData"
   
   create_scenarios_file(file_path=file.path(path, scenarios_filename), scenarios=scenarios, overwrite_simulations=overwrite_simulations)
   create_time_file(file_path=file.path(path, time_filename), overwrite_simulations=overwrite_simulations)
@@ -292,6 +293,7 @@ get_simulations <-function(
   
   if(total_scenarios == 0) {stop("All scenarios are alredy simulated")}
   
+  are_mds_parameters_saved = FALSE
   
   for(i_scenario in 1:total_scenarios){
     if(verbose){
@@ -304,8 +306,14 @@ get_simulations <-function(
     
     # Set the parameter values for the methods
     s = ifelse(!is.na(n_sampling_points), n_sampling_points, current_scenario$n_main_dimensions + 1)
-    k = ifelse(!is.na(num_mds_dimesions), num_mds_dimesions, current_scenario$n_cols)
+    k = ifelse(!is.na(num_mds_dimesions), num_mds_dimesions, pmax(current_scenario$n_main_dimensions, 1))
     l = largest_matrix_efficient_mds
+    
+    if(!are_mds_parameters_saved){
+      mds_parameters = list(s=s, k=k, l=l)
+      save(mds_parameters, file = file.path(path, mds_parameters_filename))
+      are_mds_parameters_saved = TRUE
+    }
     
     batch_scenario_ids = c()
     batch_num_sims = c()
@@ -329,10 +337,11 @@ get_simulations <-function(
         batch_method_names = c(batch_method_names, methods_names[i_method])
         batch_elapsed_times = c(batch_elapsed_times, elapsed_time)
         batch_n_main_dimensions = c(batch_n_main_dimensions, current_scenario$n_main_dimensions)
-        
+
         correlation_vector = get_correlation_main_dimesions(x=x, y=result$points, 
-                                                            num_dimesions=current_scenario$n_cols,
+                                                            num_dimesions=k,
                                                             largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
+
         eigenvalue_vector = result$eigen
         batch_correlation_vector[[i_sim_method]] = correlation_vector
         batch_eigenvalue_vector[[i_sim_method]] = eigenvalue_vector
