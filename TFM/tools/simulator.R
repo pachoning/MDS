@@ -30,7 +30,7 @@ validate_scenarios <- function(df, what){
 generate_df_scenarios <- function(scenarios, start_simulation_id){
   
   df = expand.grid(scenarios)
-  df$id = start_simulation_id:(start_simulation_id + nrow(df)-1)
+  df$id = stringi::stri_rand_strings(n=nrow(df), length=15)
   df = df[, ncol(df):1]
   df$mu = NA
   df$sd = NA
@@ -97,7 +97,7 @@ create_correlation_file <- function(file_path, overwrite_simulations){
     load(file_path)
     warning('Using simulations that are already saved. Current will be ignored')
   }else{
-    df_correlation = data.frame(scenario_id=numeric(0), num_sim=numeric(0), method_name=character(0),
+    df_correlation = data.frame(scenario_id=character(0), num_sim=numeric(0), method_name=character(0),
                                 n_main_dimensions=numeric(0), correlation_vector=numeric(0))
   }
   
@@ -117,7 +117,7 @@ create_eigenvalue_file <- function(file_path, overwrite_simulations){
     load(file_path)
     warning('Using simulations that are already saved. Current will be ignored')
   }else{
-    df_eigenvalue = data.frame(scenario_id=numeric(0), num_sim=numeric(0), method_name=character(0),eigenvalue_vector=numeric(0))
+    df_eigenvalue = data.frame(scenario_id=character(0), num_sim=numeric(0), method_name=character(0),eigenvalue_vector=numeric(0))
   }
   
   #In case a simulation breaks in the middle we delete all the simulations
@@ -136,7 +136,7 @@ create_time_file <- function(file_path, overwrite_simulations){
     load(file_path)
     warning('Using simulations that are already saved. Current will be ignored')
   }else{
-    df_time = data.frame(scenario_id=numeric(0), num_sim=numeric(0), method_name=character(0), elapsed_time=numeric(0))
+    df_time = data.frame(scenario_id=character(0), num_sim=numeric(0), method_name=character(0), elapsed_time=numeric(0))
   }
   
   #In case a simulation breaks in the middle we delete all the simulations
@@ -164,16 +164,8 @@ create_scenarios_file <- function(file_path, scenarios, overwrite_simulations){
     validate_scenarios(df=df_scenarios, what=c("content", "keys"))
   }else{
     folder_path = dirname(dirname(file_path))
-    simulation_id_file = file.path(folder_path, 'max_id.RData')
-    start_simulation_id = 1
-    if(file.exists(simulation_id_file)){
-      load(simulation_id_file)
-      start_simulation_id = max(max_id) + 1
-    }
-    df_scenarios = generate_df_scenarios(scenarios=scenarios, start_simulation_id=start_simulation_id)
+    df_scenarios = generate_df_scenarios(scenarios=scenarios)
     save(df_scenarios, file=file_path)
-    max_id = max(df_scenarios$id)
-    save(max_id, file=simulation_id_file)
   }
   assign("df_scenarios", df_scenarios, envir=.GlobalEnv)
 }

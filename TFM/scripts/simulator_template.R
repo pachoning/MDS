@@ -1,5 +1,4 @@
 source("tools/simulator.R")
-library(tidyverse)
 
 data_folder_name = 'experiment_3'
 sample_size = c(1000)
