@@ -175,6 +175,8 @@ get_correlation_main_dimesions <- function(x, y, num_dimesions, largest_matrix_e
   
   if(num_dimesions==0){
     return(NA)
+  }else if(num_dimesions == 1){
+    return(cor(x[, 1], y[, 1]))
   }else{
     
     corr_vector = c()
