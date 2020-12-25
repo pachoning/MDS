@@ -14,8 +14,6 @@ perform_procrustes <- function(x, target, matrix_to_transform, translation, dila
     p = ceiling(nrow(x)/largest_matrix_efficient_procrustes) + 2
   }
   
-  print(p)
-  
   indexes_group = sort(sample(x=p, size=nrow(x), replace=TRUE))
   
   rotation_matrix = matrix(data=0, nrow=ncol(x), ncol=ncol(x))
