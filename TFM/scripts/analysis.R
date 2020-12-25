@@ -1,3 +1,5 @@
+library(tidyverse)
+
 df_join = df_time %>% 
   left_join(
     df_scenarios %>% select(id, n_main_dimensions),
