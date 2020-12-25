@@ -16,6 +16,7 @@ perform_procrustes <- function(x, target, matrix_to_transform, translation, dila
   
   indexes_group = sort(sample(x=p, size=nrow(x), replace=TRUE))
   
+  # Procrustes parameters
   rotation_matrix = matrix(data=0, nrow=ncol(x), ncol=ncol(x))
   translation_matrix = matrix(data=0, nrow=nrow(matrix_to_transform), ncol=ncol(matrix_to_transform))
   cum_dilation = 0
@@ -30,7 +31,7 @@ perform_procrustes <- function(x, target, matrix_to_transform, translation, dila
       translation=translation, 
       dilation=dilation
     )
-    
+  
     rotation_matrix = rotation_matrix + procrustes_result$R
   
     if(translation){
@@ -43,12 +44,12 @@ perform_procrustes <- function(x, target, matrix_to_transform, translation, dila
     translation_matrix = translation_matrix + ones_vector %*% t(trans)
     
     if(dilation){
-      dilation = procrustes_result$s
+      dilation_factor = procrustes_result$s
     }else{
-      dilation = 1
+      dilation_factor = 1
     }
     
-    cum_dilation = cum_dilation + dilation
+    cum_dilation = cum_dilation + dilation_factor
   }
 
   return(cum_dilation/p * matrix_to_transform %*% rotation_matrix/p + translation_matrix/p)
