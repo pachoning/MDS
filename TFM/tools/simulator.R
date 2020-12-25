@@ -36,6 +36,7 @@ generate_df_scenarios <- function(scenarios, start_simulation_id){
   df$sd = NA
   df$n_main_dimensions = NA
   df$processed_at = as.POSIXct(NA)
+  df$computer_id = Sys.info()["nodename"]
   
   validate_scenarios(df=df, what="keys")
   
