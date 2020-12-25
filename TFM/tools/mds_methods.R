@@ -38,6 +38,8 @@ get_partitions_for_mds <- function(n, l, s, k){
   p = ceiling(l/s)
   num_obs_group = ceiling(n/p)
   
+  if(num_obs_group < k+2){stop("Too many columns and too few observations to perform Fast MDS")}
+  
   while(p>0 & num_obs_group < k + 2){
     p = p -1
     num_obs_group = ceiling(n/p)
@@ -66,7 +68,7 @@ get_partitions_for_mds <- function(n, l, s, k){
 #'   \item{points}{MDS}
 #'   \item{eigen}{eigenvalues}
 #' }
-fast_mds <- function(x,l,s,k){
+fast_mds <- function(x,l,s,k,largest_matrix_efficient_procrustes=5000){
 
   has_row_names = !is.null(row.names(x))
   if(!has_row_names){
@@ -133,7 +135,8 @@ fast_mds <- function(x,l,s,k){
       
       mds_aligned_i = perform_procrustes(x=mds_i_sampling, target=mds_M_sampling, 
                                          matrix_to_transform=mds_i, 
-                                         translation=FALSE, dilation=FALSE)
+                                         translation=FALSE, dilation=FALSE,
+                                         largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
       if(i==1){
         mds_stitched = mds_aligned_i
       }else{
@@ -152,11 +155,16 @@ fast_mds <- function(x,l,s,k){
 
 
 get_partitions_for_divide_conquer <- function(n, l, s, k){
-  p = p = ceiling(n/(l-(s+2)))
+  p = ceiling(n/(l-(s+2)))
   index_partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
-  while(sum(index_partition == p) < k +2){
+  
+  if(mean(table(index_partition)) < k+2) stop("Too many columns and too few observations to perform Divide and Conquer MDS")
+  
+  n_iter = 1
+  while((sum(index_partition == p) < k +2) & (n_iter <= 10)){
     p = p + 1
     index_partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
+    n_iter = n_iter + 1
   }
   
   return(index_partition)
@@ -174,7 +182,7 @@ get_partitions_for_divide_conquer <- function(n, l, s, k){
 #'   \item{points}{MDS}
 #'   \item{eigen}{eigenvalues}
 #' }
-divide_conquer_mds <- function(x,l,s,k){
+divide_conquer_mds <- function(x,l,s,k,largest_matrix_efficient_procrustes=5000){
   initial_row_names = row.names(x)
   row.names(x) = 1:nrow(x)
   
@@ -211,7 +219,8 @@ divide_conquer_mds <- function(x,l,s,k){
         cum_mds_previous = cum_mds[rn_subsample_previous, ,drop=FALSE]
         mds_current_aligned = perform_procrustes(x=mds_both_previous, target=cum_mds_previous, 
                                                  matrix_to_transform=mds_both_current, 
-                                                 translation=FALSE, dilation=FALSE)
+                                                 translation=FALSE, dilation=FALSE,
+                                                 largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
         cum_mds = rbind(cum_mds, mds_current_aligned)
         min_len = pmin(min_len, length(list_mds_both$eigen))
         eigen = eigen[1:min_len] + (list_mds_both$eigen[1:min_len]/length(list_mds_both$eigen))
