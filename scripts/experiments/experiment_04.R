@@ -14,7 +14,7 @@ get_simulations(
   scenarios=scenarios,
   path=file.path(getwd(), 'data', 'experiments', results_folder_name),
   mds_methods_vector=c(divide_conquer_mds, fast_mds, gower_interpolation_mds),
-  n_simulations=1,
+  n_simulations=100,
   overwrite_simulations=FALSE,
   n_sampling_points=NA,
   largest_matrix_efficient_mds=200,
