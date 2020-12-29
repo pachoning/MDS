@@ -2,9 +2,10 @@ library(tidyverse)
 library(stringi)
 
 data_folder = file.path(getwd(), 'data')
+experiments_folder = file.path(data_folder, 'experiments')
 excluded_experiments = 'experiment_03'
 
-all_files = list.files(data_folder)
+all_files = list.files(experiments_folder)
 all_experiments = all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
 experiments_to_retrieve = setdiff(all_experiments, excluded_experiments)
 total_experiments_to_retrieve = length(experiments_to_retrieve)
@@ -15,7 +16,7 @@ df_correlation_full = c()
 
 i_experiment = 1
 while(i_experiment <= total_experiments_to_retrieve){
-  current_experiment = file.path(data_folder, experiments_to_retrieve[i_experiment])
+  current_experiment = file.path(experiments_folder, experiments_to_retrieve[i_experiment])
   experiment_files = list.files(current_experiment)
   for(file in experiment_files){
     if(stringi::stri_detect_regex(str=file, pattern="df_scenarios.RData")){
