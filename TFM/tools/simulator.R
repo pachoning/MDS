@@ -129,6 +129,24 @@ create_eigenvalue_file <- function(file_path, overwrite_simulations){
 }
 
 
+create_mds_parameters_file <- function(file_path, overwrite_simulations){
+  
+  is_file_created = file.exists(file_path)
+  if(is_file_created & !overwrite_simulations){
+    load(file_path)
+    warning('Using simulations that are already saved. Current will be ignored')
+  }else{
+    df_mds_parameters = data.frame(scenario_id=character(0), s=numeric(0), k=character(0),l=numeric(0))
+  }
+  
+  #In case a simulation breaks in the middle we delete all the simulations
+  processed_scenarios = df_scenarios$id[!is.na(df_scenarios$processed_at)]
+  ids_prcoessed = which(df_mds_parameters$scenario_id %in% processed_scenarios)
+  df_mds_parameters = df_mds_parameters[ids_prcoessed, ]
+  save(df_mds_parameters, file=file_path)
+  assign("df_mds_parameters", df_mds_parameters, envir=.GlobalEnv)
+}
+
 create_time_file <- function(file_path, overwrite_simulations){
   
   is_file_created = file.exists(file_path)
@@ -201,6 +219,16 @@ update_scenarios_data <- function(file_path, scenarion_id){
   df_scenarios$processed_at[df_scenarios$id==scenarion_id] = Sys.time()
   assign("df_scenarios", df_scenarios, envir=.GlobalEnv) 
   save(df_scenarios, file=file_path)
+}
+
+
+update_mds_parameters_data <- function(file_path, scenario_id, s, k, l){
+  
+  temp_df = data.frame(scenario_id=scenario_id, s=s, k=k, l=l)
+  df_mds_parameters = rbind(df_mds_parameters, temp_df)
+  
+  assign("df_mds_parameters", df_mds_parameters, envir=.GlobalEnv) 
+  save(df_mds_parameters, file=file_path)
 }
 
 
@@ -281,12 +309,13 @@ get_simulations <-function(
   time_filename = "df_time.RData"
   correlation_filename = "df_correlation.RData"
   eigenvalue_filename = "df_eigenvalue.RData"
-  mds_parameters_filename = "mds_parameters.RData"
+  mds_parameters_filename = "df_mds_parameters.RData"
   
   create_scenarios_file(file_path=file.path(path, scenarios_filename), scenarios=scenarios, overwrite_simulations=overwrite_simulations)
   create_time_file(file_path=file.path(path, time_filename), overwrite_simulations=overwrite_simulations)
   create_correlation_file(file_path=file.path(path, correlation_filename), overwrite_simulations=overwrite_simulations)
   create_eigenvalue_file(file_path=file.path(path, eigenvalue_filename), overwrite_simulations=overwrite_simulations)
+  create_mds_parameters_file(file_path=file.path(path, mds_parameters_filename), overwrite_simulations=overwrite_simulations)
   
   methods_names = sapply(as.list(substitute(mds_methods_vector))[-1], deparse)
   total_methods = length(mds_methods_vector)
@@ -294,8 +323,6 @@ get_simulations <-function(
   total_scenarios = dim(df_missing_scenarios)[1]
   
   if(total_scenarios == 0) {stop("All scenarios are alredy simulated")}
-  
-  are_mds_parameters_saved = FALSE
   
   for(i_scenario in 1:total_scenarios){
     if(verbose){
@@ -310,12 +337,6 @@ get_simulations <-function(
     s = ifelse(!is.na(n_sampling_points), n_sampling_points, current_scenario$n_main_dimensions + 1)
     k = ifelse(!is.na(num_mds_dimesions), num_mds_dimesions, pmax(current_scenario$n_main_dimensions, 1))
     l = largest_matrix_efficient_mds
-    
-    if(!are_mds_parameters_saved){
-      mds_parameters = list(s=s, k=k, l=l)
-      save(mds_parameters, file = file.path(path, mds_parameters_filename))
-      are_mds_parameters_saved = TRUE
-    }
     
     batch_scenario_ids = c()
     batch_num_sims = c()
@@ -360,6 +381,7 @@ get_simulations <-function(
                             n_main_dimensions=batch_n_main_dimensions, correlation_vector=batch_correlation_vector)
     update_eigenvalue_data(file_path=file.path(path, eigenvalue_filename), scenario_id=batch_scenario_ids,
                             num_sim=batch_num_sims, method_name=batch_method_names, eigenvalue_vector=batch_eigenvalue_vector)
+    update_mds_parameters_data(file_path=file.path(path, mds_parameters_filename), scenario_id=current_scenario$id, s=s, k=k, l=l)
     update_scenarios_data(file_path=file.path(path, scenarios_filename), scenarion_id=current_scenario$id)
   }
 }
