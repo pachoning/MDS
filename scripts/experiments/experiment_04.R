@@ -4,8 +4,9 @@ results_folder_name = 'experiment_04'
 sample_size = c(1000)
 n_cols = c(10, 100)
 
-distribution_parameters = list(list(sd=c(NA)), list(sd=c(15)), list(sd=c(15,15)), list(sd=c(15,10)), 
-                               list(sd=c(15, 10, 5)), list(sd=c(15, 10, 5, 5)))
+distribution_parameters = list(list(sd=c(NA)), list(sd=2), list(sd=2:3), list(sd=2:4), 
+                               list(sd=2:5), list(sd=2:6), list(sd=2:7),list(sd=2:8), list(sd=2:9), 
+                               list(sd=2:10), list(sd=2:11))
 
 scenarios = list(sample_size=sample_size, n_cols=n_cols, distribution_parameters=distribution_parameters)
 
