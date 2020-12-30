@@ -20,5 +20,3 @@ fas_results = fast_mds(x=x,l=l, s=s, k=k)
 fast_proc = perform_procrustes(x=fas_results$points, target=x, matrix_to_transform=fas_results$points, 
                                  translation=FALSE, dilation=FALSE)
 cor(fast_proc[,1], x[, 1])
-
-
