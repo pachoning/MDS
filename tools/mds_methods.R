@@ -156,7 +156,8 @@ fast_mds <- function(x,l,s,k,largest_matrix_efficient_procrustes=5000){
 
 get_partitions_for_divide_conquer <- function(n, l, s, k){
   
-  p = ceiling(n/(l-(s+2)))
+  l_lower = (1-0.35)*l
+  p = ceiling(n/l_lower)
   index_partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
   
   if(mean(table(index_partition)) < k+2) stop("Too many columns and too few observations to perform Divide and Conquer MDS")
