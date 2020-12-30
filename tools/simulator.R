@@ -27,7 +27,7 @@ validate_scenarios <- function(df, what){
 #'@param sample_size List of all sample sizes
 #'@param distribution_parameters List of all (mean, sd) 
 #'@return Returns a data frame that contains all the scenarios
-generate_df_scenarios <- function(scenarios, start_simulation_id){
+generate_df_scenarios <- function(scenarios, experiment_label){
   
   df = expand.grid(scenarios)
   df$id = stringi::stri_rand_strings(n=nrow(df), length=15)
@@ -37,6 +37,7 @@ generate_df_scenarios <- function(scenarios, start_simulation_id){
   df$n_main_dimensions = NA
   df$processed_at = as.POSIXct(NA)
   df$computer_id = Sys.info()["nodename"]
+  df$experiment_label = experiment_label
   
   validate_scenarios(df=df, what="keys")
   
@@ -173,7 +174,7 @@ create_time_file <- function(file_path, overwrite_simulations){
 #'@param sample_size List of all sample sizes
 #'@param distribution_parameters List of all (mean, sd) 
 #'@return Store and return a data frame with all the scenarios
-create_scenarios_file <- function(file_path, scenarios, overwrite_simulations){
+create_scenarios_file <- function(file_path, scenarios, experiment_label, overwrite_simulations){
   
   is_file_created = file.exists(file_path)
   if(is_file_created & !overwrite_simulations){
@@ -182,7 +183,7 @@ create_scenarios_file <- function(file_path, scenarios, overwrite_simulations){
     validate_scenarios(df=df_scenarios, what=c("content", "keys"))
   }else{
     folder_path = dirname(dirname(file_path))
-    df_scenarios = generate_df_scenarios(scenarios=scenarios)
+    df_scenarios = generate_df_scenarios(scenarios=scenarios, experiment_label=experiment_label)
     save(df_scenarios, file=file_path)
   }
   assign("df_scenarios", df_scenarios, envir=.GlobalEnv)
@@ -282,6 +283,7 @@ validate_input <- function(list_inputs){
 }
 
 get_simulations <-function(
+  experiment_label,
   scenarios, 
   path,
   mds_methods_vector,
@@ -311,7 +313,8 @@ get_simulations <-function(
   eigenvalue_filename = "df_eigenvalue.RData"
   mds_parameters_filename = "df_mds_parameters.RData"
   
-  create_scenarios_file(file_path=file.path(path, scenarios_filename), scenarios=scenarios, overwrite_simulations=overwrite_simulations)
+  create_scenarios_file(file_path=file.path(path, scenarios_filename), scenarios=scenarios, 
+                        experiment_label=experiment_label, overwrite_simulations=overwrite_simulations)
   create_time_file(file_path=file.path(path, time_filename), overwrite_simulations=overwrite_simulations)
   create_correlation_file(file_path=file.path(path, correlation_filename), overwrite_simulations=overwrite_simulations)
   create_eigenvalue_file(file_path=file.path(path, eigenvalue_filename), overwrite_simulations=overwrite_simulations)
