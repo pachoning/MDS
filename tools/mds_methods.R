@@ -33,7 +33,7 @@ classical_mds <- function(x, k, return_distance_matrix=FALSE){
 #'@param s Number of sampling points. It should be 1 + estimated datsa dimension.
 #'@param k Number of principal coordinates.
 #'@return Returns p (number of partitions).
-get_partitions_for_mds <- function(n, l, s, k){
+get_partitions_for_fast <- function(n, l, s, k){
   
   p = ceiling(l/s)
   num_obs_group = ceiling(n/p)
@@ -89,7 +89,7 @@ fast_mds <- function(x,l,s,k,largest_matrix_efficient_procrustes=5000){
     
     # Otherwise, call it recursively
   }else{
-    index_partition = get_partitions_for_mds(n=nrow(x), l=l, s=s, k=k)
+    index_partition = get_partitions_for_fast(n=nrow(x), l=l, s=s, k=k)
     p = length(unique(index_partition))
     points = list()
     eigen = c()
