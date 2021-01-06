@@ -3,7 +3,7 @@ library(tidyverse)
 
 n_sim = 100
 sample_size = 1000
-n_cols = 15
+n_cols = 10
 sd_sim = 10
 l = 100
 s = 2*n_cols
@@ -37,6 +37,11 @@ for(increment in increment_vector){
 }
 
 df = df %>% filter(!is.na(simulation_id))
+df$s = s
+df$sample_size = sample_size
+df$k = k
+df$l = l
+df$l_lower = (1-df$decreasement)*df$l
 
 df_group = df %>% 
   group_by(decreasement) %>% 
@@ -45,13 +50,14 @@ df_group = df %>%
 
 df_group %>% 
   ggplot(aes(x=decreasement, y=time)) +
-  geom_line()
+  geom_line() +
+  ggtitle('method=divide_conquer; points=1000; cols=10; l=100; k=10;')
 
 
 decr = df_group$decreasement[which.min(df_group$time)]
 
 View(df[df$decreasement == decr, ])
+head(df[df$decreasement == decr, ])
 
-View(df)
-#----- What is the minimum number of points to perfrom MDS in an efficient way?
-results = divide_conquer_mds(x=x, l=l, s=s, k=k, increment=increment)
+df_num_partitions = df
+save(df_num_partitions, file="decisions/df_num_partitions.RData")
