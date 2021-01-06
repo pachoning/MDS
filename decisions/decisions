@@ -1,0 +1,5 @@
+- sampling_points (s):
+  - We will choose s=2*num_main_dimensions
+  - see: 
+    - decisions/sampling_points.png
+    - decisions/df_sampling_points.RData
