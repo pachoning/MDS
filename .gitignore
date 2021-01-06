@@ -1,17 +1,8 @@
-TFM/.DS_Store
-TFM/code/to be deleted/
-TFM/code/validations/
-TFM/tools/to be deleted/
-*.Rproj
-*.DS_Store
-.Rproj.user
 .Rhistory
-*.RData
-.Ruserdata
-/data
-/thesis/*.log
-*.log
-Bioinformatica/
+.Rproj.user/
+MDS.Rproj
+data/
+plots/
+decisions/*.RData
+decisions/*.png
 scripts/.Rapp.history
-TFM/scripts/.Rapp.history
-TFM/scripts/to be deleted/
