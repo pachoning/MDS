@@ -16,11 +16,11 @@ df_join_scenarios_time = df_time_full %>%
          n_cols = as.factor(n_cols))
 
 df_join_scenarios_time %>% 
-  group_by(method_name, n_main_dimensions, sample_size) %>% 
-  summarise(mean_time = median(elapsed_time))%>%
-  ggplot(aes(x=n_main_dimensions, y=mean_time, color=method_name, group=method_name)) +
+  group_by(method_name, n_main_dimensions, sample_size, n_cols) %>% 
+  summarise(time = median(elapsed_time))%>%
+  ggplot(aes(x=n_main_dimensions, y=time, color=method_name, group=method_name)) +
   geom_line() +
-  facet_wrap(. ~ sample_size, scales = "free")
+  facet_wrap(. ~ sample_size + n_cols, scales = "free")
  
 
 df_correlation_full %>% View

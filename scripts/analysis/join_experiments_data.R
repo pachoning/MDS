@@ -1,9 +1,11 @@
 library(tidyverse)
 library(stringi)
 
-data_folder = file.path(getwd(), 'data')
-experiments_folder = file.path(data_folder, 'experiments')
-excluded_experiments = 'experiment_03'
+data_folder = file.path(getwd(), "data")
+experiments_folder = file.path(data_folder, "experiments")
+excluded_experiments = c("experiment_01", "experiment_02", "experiment_03", 
+                         "experiment_04", "experiment_05", "experiment_06", 
+                         "experiment_07", "experiment_08")
 
 all_files = list.files(experiments_folder)
 all_experiments = all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
@@ -48,6 +50,7 @@ setdiff(unique(df_correlation_full$scenario_id), df_scenarios_full$id)
 setdiff(unique(df_time_full$scenario_id), unique(df_correlation_full$scenario_id))
 setdiff(unique(df_correlation_full$scenario_id), unique(df_time_full$scenario_id))
 
-save(df_scenarios_full, file=file.path(data_folder, 'df_scenarios_full.RData'))
-save(df_time_full, file=file.path(data_folder, 'df_time_full.RData'))
-save(df_correlation_full, file=file.path(data_folder, 'df_correlation_full.RData'))
+save(df_scenarios_full, file=file.path(data_folder, "df_scenarios_full.RData"))
+save(df_time_full, file=file.path(data_folder, "df_time_full.RData"))
+save(df_correlation_full, file=file.path(data_folder, "df_correlation_full.RData"))
+
