@@ -36,21 +36,19 @@ classical_mds <- function(x, k, return_distance_matrix=FALSE){
 get_partitions_for_fast <- function(n, l, s, k){
   
   p = ceiling(l/s)
-  num_obs_group = ceiling(n/p)
   
-  if(num_obs_group < k+2){stop("Too many columns and too few observations to perform Fast MDS")}
+  if(ceiling(n/p) < k+2){stop("Too many columns and too few observations to perform Fast MDS")}
   
-  while(p>0 & num_obs_group < k + 2){
-    p = p -1
-    num_obs_group = ceiling(n/p)
+  partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
+  p = max(partition)
+  
+  while(p<=n & min(table(partition))<k){
+    p = p + 1
+    partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
   }
   
-  partition = sort(rep(x=1:p, length.out=n, each=num_obs_group))
-  last_partition_value = max(partition)
-  last_group_idx = which(partition == last_partition_value)
-  
-  if(length(last_group_idx) <= k){
-    partition[last_group_idx] = last_partition_value-1
+  if(min(table(partition)) < k){
+    stop("Partitions for fast suffer from lacking of data")
   }
   
   return(partition)
@@ -156,8 +154,7 @@ fast_mds <- function(x, l, s, k, largest_matrix_efficient_procrustes=5000){
 
 get_partitions_for_divide_conquer <- function(n, l, s, k){
   
-  l_lower = l
-  p = ceiling(n/l_lower)
+  p = ceiling(n/(l-s))
   
   min_sample_size = max(k+2, s)
   
@@ -166,20 +163,17 @@ get_partitions_for_divide_conquer <- function(n, l, s, k){
   
   if(mean(table(index_partition)) < min_sample_size) stop("Too many columns and too few observations to perform Divide and Conquer MDS")
   
-  n_iter = 1
-  while((min(table(index_partition)) < min_sample_size) & (n_iter <= 10)){
+  while((min(table(index_partition)) < min_sample_size) & (p<=n)){
     p = p + 1
     index_partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
-    n_iter = n_iter + 1
   }
   
   if(min(table(index_partition)) < min_sample_size){
-    stop("Partitions suffer from lacking of data")
+    stop("Partitions for divide and conquer suffer from lacking of data")
   }
   
   return(index_partition)
 }
-
 
 
 #'@title Divide and Conquer MDS
@@ -270,7 +264,7 @@ gower_interpolation_mds <- function(x, l, k, ...){
   p = ceiling(nrow_x/l)
   if(p<1) p = 1
   
-  if( p>1 ){
+  if(p>1){
     # Do MDS with the first group and then use the Gower interpolation formula
     sample_distribution = sort(sample(x=p, size=nrow_x, replace=TRUE))
     sample_distribution = sort(sample_distribution)
