@@ -1,14 +1,17 @@
 source("tools/divide_change_partitions.R")
 library(tidyverse)
 
+increment_vector = seq(0, 0.9, 0.01)
+n_cols = c(5, 6)
 n_sim = 100
 sample_size = 1000
-n_cols = 10
+
 sd_sim = 10
 l = 100
-s = 2*n_cols
-k = n_cols
-increment_vector = seq(0, 0.9, 0.01)
+
+#s = 2*n_cols
+#k = n_cols
+
 df = data.frame(simulation_id=rep(NA, n_sim*length(increment_vector)), 
                 num_partitions=rep(NA, n_sim*length(increment_vector)), 
                 elapsed_time=rep(NA, n_sim*length(increment_vector)),
@@ -58,6 +61,14 @@ decr = df_group$decreasement[which.min(df_group$time)]
 
 View(df[df$decreasement == decr, ])
 head(df[df$decreasement == decr, ])
+View(df)
+mean(df$elapsed_time[df$decreasement == decr])
+decr_4_n_cols = max(df$decreasement[df$mean_num_points >= 4*n_cols & df$mean_num_points < 5*n_cols])
+cond = df$decreasement == decr_4_n_cols
+View(df[cond, ])
+mean(df$elapsed_time[cond])
+sum(cond)
+
 
 df_num_partitions = df
 save(df_num_partitions, file="decisions/df_num_partitions.RData")
