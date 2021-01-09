@@ -286,21 +286,21 @@ get_simulations <-function(
   experiment_label,
   scenarios, 
   path,
-  mds_methods_vector,
+  mds_methods_names,
   n_simulations,
   overwrite_simulations=FALSE,
-  n_sampling_points = NA,
-  largest_matrix_efficient_mds = NA,
-  largest_matrix_efficient_procrustes = NA,
-  num_mds_dimesions = NA,
-  verbose = FALSE
+  n_sampling_points=NA,
+  largest_matrix_efficient_mds=NA,
+  largest_matrix_efficient_procrustes=NA,
+  num_mds_dimesions=NA,
+  verbose=FALSE
 ){
   
   if(!dir.exists(path)){
     dir.create(path)
   }
   
-  validate_input(list(scenarios=scenarios, path=path, mds_methods=mds_methods_vector, 
+  validate_input(list(scenarios=scenarios, path=path, mds_methods=mds_methods_names, 
                       n_simulations=n_simulations, largest_matrix_efficient_mds=largest_matrix_efficient_mds,
                       largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes))
   
@@ -320,8 +320,7 @@ get_simulations <-function(
   create_eigenvalue_file(file_path=file.path(path, eigenvalue_filename), overwrite_simulations=overwrite_simulations)
   create_mds_parameters_file(file_path=file.path(path, mds_parameters_filename), overwrite_simulations=overwrite_simulations)
   
-  methods_names = sapply(as.list(substitute(mds_methods_vector))[-1], deparse)
-  total_methods = length(mds_methods_vector)
+  total_methods = length(mds_methods_names)
   df_missing_scenarios = df_scenarios[is.na(df_scenarios$processed_at),]
   total_scenarios = dim(df_missing_scenarios)[1]
   
@@ -353,14 +352,28 @@ get_simulations <-function(
       if(verbose & (i_sim == 1 | (i_sim)%%10 == 0)){message(paste0("     Starting simulation: ", i_sim))}
       x = generate_data(scenario=current_scenario)
       i_method = 1
-      for(method in mds_methods_vector){
-        starting_time = proc.time()
-        result = method(x=x, l=l, s=s, k=k)
-        elapsed_time = (proc.time() - starting_time)[3]
+      
+      for(name in mds_methods_names){
+        
+        if(name == "divide_conquer"){
+          starting_time = proc.time()
+          result = divide_conquer_mds(x=x, l=l, s=s, k=k)
+          elapsed_time = (proc.time() - starting_time)[3]
+        }else if(name == "fast"){
+          starting_time = proc.time()
+          result = fast_mds(x=x, l=l, s=s, k=k)
+          elapsed_time = (proc.time() - starting_time)[3]
+        }else if(name == "gower"){
+          starting_time = proc.time()
+          result = gower_interpolation_mds(x=x, l=l, s=s, k=k)
+          elapsed_time = (proc.time() - starting_time)[3]
+        }else{
+          stop(paste0("Method name ", name, " is invalid. Name should be: divide_conquer, fast or gower."))
+        }
         
         batch_scenario_ids = c(batch_scenario_ids, current_scenario$id)
         batch_num_sims = c(batch_num_sims, i_sim)
-        batch_method_names = c(batch_method_names, methods_names[i_method])
+        batch_method_names = c(batch_method_names, mds_methods_names[i_method])
         batch_elapsed_times = c(batch_elapsed_times, elapsed_time)
         batch_n_main_dimensions = c(batch_n_main_dimensions, current_scenario$n_main_dimensions)
 
