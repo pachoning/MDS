@@ -336,7 +336,7 @@ get_simulations <-function(
     current_scenario = df_missing_scenarios[i_scenario, ,drop=FALSE]
     
     # Set the parameter values for the methods
-    s = ifelse(!is.na(n_sampling_points), n_sampling_points, current_scenario$n_main_dimensions + 1)
+    s = ifelse(!is.na(n_sampling_points), n_sampling_points, 2*current_scenario$n_main_dimensions)
     k = ifelse(!is.na(num_mds_dimesions), num_mds_dimesions, pmax(current_scenario$n_main_dimensions, 1))
     l = largest_matrix_efficient_mds
     
