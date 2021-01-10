@@ -15,7 +15,7 @@ classical_mds <- function(x, k, return_distance_matrix=FALSE){
   
   mds = list()
   dist_matrix = dist(x=x)
-  mds_result = cmdscale(d=dist_matrix, k=k,eig=TRUE)
+  mds_result = cmdscale(d=dist_matrix, k=k, eig=TRUE)
   
   mds$points = mds_result$points
   mds$eigen = mds_result$eig
@@ -258,7 +258,7 @@ divide_conquer_mds <- function(x, l, s, k, largest_matrix_efficient_procrustes=5
 #'   \item{points}{MDS}
 #'   \item{eigen}{eigenvalues}
 #' }
-gower_interpolation_mds <- function(x, l, k, ...){
+gower_interpolation_mds <- function(x, l, k){
   
   nrow_x = nrow(x)
   p = ceiling(nrow_x/l)
