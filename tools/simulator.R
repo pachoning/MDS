@@ -195,7 +195,7 @@ get_correlation_main_dimesions <- function(x, y, num_dimesions, largest_matrix_e
   if(num_dimesions==0){
     return(NA)
   }else if(num_dimesions == 1){
-    return(cor(x[, 1], y[, 1]))
+    return(abs(cor(x[, 1], y[, 1])))
   }else{
     
     corr_vector = c()
@@ -203,7 +203,7 @@ get_correlation_main_dimesions <- function(x, y, num_dimesions, largest_matrix_e
     y_main = y[, 1:num_dimesions, drop=FALSE]
     
     x_proc = perform_procrustes(x=x_main, target=y_main, matrix_to_transform=x_main, 
-                                translation=TRUE, dilation=FALSE,
+                                translation=FALSE, dilation=FALSE,
                                 largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
     
     for(i_dim in 1:num_dimesions){
@@ -270,6 +270,7 @@ update_eigenvalue_data <- function(file_path, scenario_id, num_sim, method_name,
   
 }
 
+
 validate_input <- function(list_inputs){
 
   parameter_names = names(list_inputs)
@@ -281,6 +282,7 @@ validate_input <- function(list_inputs){
     }
   }
 }
+
 
 get_simulations <-function(
   experiment_label,
