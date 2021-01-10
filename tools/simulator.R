@@ -338,7 +338,8 @@ get_simulations <-function(
     current_scenario = df_missing_scenarios[i_scenario, ,drop=FALSE]
     
     # Set the parameter values for the methods
-    s = ifelse(!is.na(n_sampling_points), n_sampling_points, 2*current_scenario$n_main_dimensions)
+    s = ifelse(!is.na(n_sampling_points), n_sampling_points, 
+               ifelse(current_scenario$n_main_dimensions>0, 2*current_scenario$n_main_dimensions, min(0.1*current_scenario$sample_size, 10)))
     k = ifelse(!is.na(num_mds_dimesions), num_mds_dimesions, pmax(current_scenario$n_main_dimensions, 1))
     l = largest_matrix_efficient_mds
     
@@ -367,7 +368,7 @@ get_simulations <-function(
           elapsed_time = (proc.time() - starting_time)[3]
         }else if(name == "gower"){
           starting_time = proc.time()
-          result = gower_interpolation_mds(x=x, l=l, s=s, k=k)
+          result = gower_interpolation_mds(x=x, l=l, k=k)
           elapsed_time = (proc.time() - starting_time)[3]
         }else{
           stop(paste0("Method name ", name, " is invalid. Name should be: divide_conquer, fast or gower."))
