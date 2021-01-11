@@ -36,18 +36,18 @@ classical_mds <- function(x, k, return_distance_matrix=FALSE){
 get_partitions_for_fast <- function(n, l, s, k){
   
   p = ceiling(l/s)
-  
-  if(ceiling(n/p) < k+2){stop("Too many columns and too few observations to perform Fast MDS")}
+  min_sample_size = max(k+2, s)
+  if(ceiling(n/p) < min_sample_size){stop("Too many columns and too few observations to perform Fast MDS")}
   
   partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
   p = max(partition)
   
-  while(p<=n & min(table(partition))<k){
+  while(p<=n & min(table(partition))<min_sample_size){
     p = p + 1
     partition = sort(rep(x=1:p, length.out=n, each=ceiling(n/p)))
   }
   
-  if(min(table(partition)) < k){
+  if(min(table(partition)) < min_sample_size){
     stop("Partitions for fast suffer from lacking of data")
   }
   
@@ -229,7 +229,6 @@ divide_conquer_mds <- function(x, l, s, k, largest_matrix_efficient_procrustes=5
         min_len = pmin(min_len, length(list_mds_both$eigen))
         eigen = eigen[1:min_len] + (list_mds_both$eigen[1:min_len]/length(list_mds_both$eigen))
       }
-      
       rn_subsample_previous = sample(x=row_names_current, size=s, replace=FALSE)
       
     }
