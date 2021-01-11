@@ -3,7 +3,7 @@ source("tools/simulator.R")
 results_folder_name = "experiment_04"
 experiment_label = "10^5"
 
-sample_size = c(10*5)
+sample_size = c(10^5)
 n_cols = c(10, 100)
 
 distribution_parameters = list(list(sd=c(NA)), list(sd=15), list(sd=c(15, 15)), 
