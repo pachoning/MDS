@@ -10,8 +10,6 @@ load(file.path(data_path, "df_time_full.RData"))
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "method_name", "sd_main")
 
 # Avoid using scenarions which sample size is 10^6
-
-
 df_scenarios_full_filtered = df_scenarios_full %>% 
   filter(sample_size != 10^6)
 
@@ -32,7 +30,6 @@ df_join_scenarios_time = df_scenarios_full_filtered %>%
 linear_model = lm(log_elapsed_time ~ n_cols + sample_size + n_main_dimensions + method_name, data = df_join_scenarios_time)
 anova(linear_model)
 summary(linear_model)
-
 
 # Print a density plot and save it for each scenario
 total_scenario = nrow(df_scenarios_full_filtered)
