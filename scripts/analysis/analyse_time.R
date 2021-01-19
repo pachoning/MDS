@@ -5,7 +5,6 @@ library(ggplot2)
 data_path = file.path(getwd(), 'data')
 load(file.path(data_path, "df_scenarios_full.RData"))
 load(file.path(data_path, "df_time_full.RData"))
-load(file.path(data_path, "df_correlation_full.RData"))
 
 # ---- Manipulate data
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "method_name", "sd_main")
