@@ -1,20 +1,21 @@
 library(tidyverse)
 library(ggplot2)
 
-# ---- Load data
+# Load data  ----
 data_path = file.path(getwd(), 'data')
 load(file.path(data_path, "df_scenarios_full.RData"))
 load(file.path(data_path, "df_time_full.RData"))
 
-# ---- Manipulate data
-scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "method_name", "sd_main")
+# Manipulate data ----
+scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "sd_main")
 
 # Avoid using scenarions which sample size is 10^6
 df_scenarios_full_filtered = df_scenarios_full %>% 
   filter(sample_size != 10^6)
 
+# Join scenarios and time
 df_join_scenarios_time = df_scenarios_full_filtered %>% 
-  select(-distribution_parameters, -mu, -processed_at, -computer_id) %>% 
+  select_at(c("id", scenario_identifier)) %>% 
   left_join(
     df_time_full,
     by = c("id" = "scenario_id")
@@ -24,8 +25,7 @@ df_join_scenarios_time = df_scenarios_full_filtered %>%
          n_cols = as.factor(n_cols),
          log_elapsed_time = log(elapsed_time))
 
-# ---- Analyse data
-
+# Analyse data  ----
 # Anova
 linear_model = lm(log_elapsed_time ~ n_cols + sample_size + n_main_dimensions + method_name, data = df_join_scenarios_time)
 anova(linear_model)
