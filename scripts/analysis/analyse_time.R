@@ -55,7 +55,7 @@ for(i_scenario in 1:total_scenario){
 
 # Mean/Median/... for each scenario
 main_statistics = df_join_scenarios_time %>% 
-  group_by_at(scenario_identifier) %>% 
+  group_by_at(c(scenario_identifier, "method_name")) %>% 
   summarise(
     mean_time = mean(elapsed_time)
   ) %>% 
