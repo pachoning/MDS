@@ -10,8 +10,7 @@ load(file.path(data_path, "df_time_full.RData"))
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "sd_main")
 
 # Avoid using scenarions which sample size is 10^6
-df_scenarios_full_filtered = df_scenarios_full %>% 
-  filter(sample_size != 10^6)
+df_scenarios_full_filtered = df_scenarios_full
 
 # Join scenarios and time
 df_join_scenarios_time = df_scenarios_full_filtered %>% 
@@ -43,7 +42,7 @@ for(i_scenario in 1:total_scenario){
                      "; __n_main_dim:", current_scenario$n_main_dimensions, 
                      "; __sd_main:",current_scenario$sd_main, ".png")
   
-  p = ggplot(results, aes(elapsed_time, group = method_name, color = method_name)) +
+  p = ggplot(results, aes(log_elapsed_time, group = method_name, color = method_name)) +
     geom_density() + 
     ggtitle(plot_title) +
     theme(plot.title = element_text(hjust = 0.5))
@@ -61,3 +60,7 @@ main_statistics = df_join_scenarios_time %>%
   ) %>% 
   pivot_wider(names_from = method_name, values_from = mean_time)
 main_statistics %>% View
+
+
+
+df_join_scenarios_time %>% filter(sample_size == 10^6) %>% View
