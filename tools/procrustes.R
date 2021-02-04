@@ -1,56 +1,51 @@
-#'@title Procrustes
-#'@description Perfroms Procrustes transformation.
-#'@param x The matrix to be transformed.
-#'@param target The target matrix.
-#'@param k Number of principal coordinates.
-#'@param matrix_to_transform The matrix to apply the transformation.
-#'@param translation Logical value indicating whether X should be translated.
-#'@param dilation logical value indicating whether X should be dilated.
-#'@return Returns Procruster to \emph{matrix_to_transform}.
-perform_procrustes <- function(x, target, matrix_to_transform, translation, dilation, largest_matrix_efficient_procrustes=5000){
+perform_procrustes <- function(x, target, matrix_to_transform, translation = FALSE, dilation = FALSE) {
   
-  p = 1
-  if(nrow(x)>largest_matrix_efficient_procrustes){
-    p = ceiling(nrow(x)/largest_matrix_efficient_procrustes) + 2
+  n_row <- nrow(x)
+  n_col <- ncol(x)
+  
+  if (n_row != nrow(target)) {
+    stop("x and target do not have same number of rows.\n")
   }
   
-  indexes_group = sort(sample(x=p, size=nrow(x), replace=TRUE))
-  
-  # Procrustes parameters
-  rotation_matrix = matrix(data=0, nrow=ncol(x), ncol=ncol(x))
-  translation_matrix = matrix(data=0, nrow=nrow(matrix_to_transform), ncol=ncol(matrix_to_transform))
-  cum_dilation = 0
-  
-  for(i_partition in 1:p){
-    
-    indexes_current_group = which(indexes_group == i_partition)
-    
-    procrustes_result =  MCMCpack::procrustes(
-      X=x[indexes_current_group, ,drop=FALSE], #The matrix to be transformed
-      Xstar=target[indexes_current_group, ,drop=FALSE], # target matrix
-      translation=translation, 
-      dilation=dilation
-    )
-  
-    rotation_matrix = rotation_matrix + procrustes_result$R
-  
-    if(translation){
-      trans = procrustes_result$tt
-    }else{
-      trans = matrix(data=0, nrow=ncol(x), ncol=1)
-    }
-  
-    ones_vector = matrix(data=1, nrow=nrow(matrix_to_transform), ncol=1)
-    translation_matrix = translation_matrix + ones_vector %*% t(trans)
-    
-    if(dilation){
-      dilation_factor = procrustes_result$s
-    }else{
-      dilation_factor = 1
-    }
-    
-    cum_dilation = cum_dilation + dilation_factor
+  if (n_col != ncol(target)) {
+    stop("x and target do not have same number of columns.\n")
   }
-
-  return(cum_dilation/p * matrix_to_transform %*% rotation_matrix/p + translation_matrix/p)
+  
+  if (n_col != ncol(matrix_to_transform)) {
+    stop("x and matrix_to_transform do not have same number of columns.\n")
+  }
+  
+  diag_matrix <- diag(n_row)
+  if (translation) {
+    diag_matrix <- diag(n_row) - 1/n_row * matrix(1, n_row, n_row)
+  }
+  
+  matrix_prod <- t(target) %*% diag_matrix %*% x
+  svd_results <- svd(matrix_prod)
+  rotation_matrix <- svd_results$v %*% t(svd_results$u)
+  
+  dilation_factor <- 1
+  if (dilation) {
+    mat1 <- t(target) %*% diag_matrix %*% x %*% rotation_matrix
+    mat2 <- t(x) %*% diag_matrix %*% x
+    num <- 0
+    denom <- 0
+    
+    for (i in 1:n_col) {
+      num <- num + mat1[i, i]
+      denom <- denom + mat2[i, i]
+    }
+    
+    dilation_factor <- num/denom
+  }
+  
+  translation_vector <- matrix(0, n_col, 1)
+  if (translation) {
+    translation_vector <- 1/n_row * t(target - dilation_factor * x %*% rotation_matrix) %*% matrix(1, n_row, 1)
+  }
+  
+  ones_vector <- matrix(data = 1, nrow = nrow(matrix_to_transform), ncol = 1)
+  translation_matrix <- ones_vector %*% t(translation_vector)
+  
+  return(dilation_factor * matrix_to_transform %*% rotation_matrix + translation_matrix)
 }
