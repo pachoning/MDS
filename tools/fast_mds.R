@@ -1,4 +1,4 @@
-source("tools/classical_mds_method.R")
+source("tools/classical_mds.R")
 source("tools/procrustes.R")
 
 get_partitions_for_fast <- function(n, l, s, k) {

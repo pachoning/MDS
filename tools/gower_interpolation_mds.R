@@ -1,4 +1,4 @@
-source("tools/classical_mds_method.R")
+source("tools/classical_mds.R")
 source("tools/procrustes.R")
 
 gower_interpolation_mds <- function(x, l, k){
