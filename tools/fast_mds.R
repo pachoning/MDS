@@ -41,7 +41,7 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     #n_calls_cmdscale_fast <<- n_calls_cmdscale_fast + 1
     #time_cmdscale_fast[[n_calls_cmdscale_fast]] <<- elapsed_cmdscale_fast[3]
     #n_row_x_fast <<- n_row_x_fast + nrow(x)
-    mds$eigen <- mds$eigen / length(mds$eigen)
+    mds$eigen <- mds$eigen / nrow(x)
     
     if (!has_row_names) {
       row.names(x) <- NULL
