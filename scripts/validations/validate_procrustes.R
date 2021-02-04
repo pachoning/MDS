@@ -14,5 +14,4 @@ proc = perform_procrustes(x=x, target=y, matrix_to_transform=x,
 head(proc)
 head(y)
 cor(proc[,1], y[,1])
-
-
+max(abs(proc - y))
