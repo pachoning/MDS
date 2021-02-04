@@ -10,8 +10,7 @@ load(file.path(data_path, "df_eigenvalues_full.RData"))
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "sd_main")
 
 # Avoid using scenarions which sample size is 10^6
-df_scenarios_full_filtered = df_scenarios_full %>% 
-  filter(sample_size != 10^6)
+df_scenarios_full_filtered = df_scenarios_full
 
 # Join scenarios and eigenvalues
 scenarios_with_main_dimensions = df_scenarios_full_filtered %>% 
@@ -104,9 +103,9 @@ while (i<=total_scenarios) {
                       "; n_main_dim: ", n_main_dimensions, "; sd_main: ", current_scenario$sd_main)
   
   p = eigenvalues_information_i %>% 
-    ggplot(aes(x = method_name, y = error)) + geom_boxplot() + facet_wrap(. ~ dim, ncol = n_main_dimensions) +
+    ggplot(aes(x = method_name, y = error, fill = method_name)) + geom_boxplot() + facet_wrap(. ~ dim, ncol = n_main_dimensions) +
     ggtitle(name_title) +
-    theme(plot.title = element_text(hjust = 0.5))
+    theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position="none")
   
   png(file.path("plots", "eigenvalues", paste0(name_title, ".png")))
   print(p)
