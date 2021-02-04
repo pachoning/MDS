@@ -99,7 +99,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_procrustes <- mapply(FUN = perform_procrustes, 
                              x = mds_division_first, 
                              matrix_to_transform = mds_division_rest,
-                             MoreArgs = list(target = mds_1_sample))
+                             MoreArgs = list(target = mds_1_sample, translation = FALSE, dilation = FALSE))
     
     # Join all the solutions
     mds_solution <- Reduce(rbind, mds_procrustes)

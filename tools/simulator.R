@@ -1,5 +1,8 @@
 source("tools/load_libraries.R")
-source("tools/mds_methods.R")
+source("tools/classical_mds.R")
+source("tools/divide_conquer_mds.R")
+source("tools/fast_mds.R")
+source("tools/gower_interpolation_mds.R")
 source("tools/procrustes.R")
 
 validate_scenarios <- function(df, what){
@@ -354,21 +357,25 @@ get_simulations <-function(
     for(i_sim in 1:n_simulations){
       if(verbose & (i_sim == 1 | (i_sim)%%10 == 0)){message(paste0("     Starting simulation: ", i_sim))}
       x = generate_data(scenario=current_scenario)
+      n_row_x = nrow(x)
       i_method = 1
+      if(verbose & n_row_x > 4000 & i_sim > 1){
+        {message(paste0("     Starting simulation: ", i_sim))}
+      }
       
       for(name in mds_methods_names){
         
         if(name == "divide_conquer"){
           starting_time = proc.time()
-          result = divide_conquer_mds(x=x, l=l, s=s, k=k)
+          result = divide_conquer_mds(x=x, l=l, tie=s, k=k, dist_fn = stats::dist)
           elapsed_time = (proc.time() - starting_time)[3]
         }else if(name == "fast"){
           starting_time = proc.time()
-          result = fast_mds(x=x, l=l, s=s, k=k)
+          result = fast_mds(x=x, l=l, s=s, k=k, dist_fn = stats::dist)
           elapsed_time = (proc.time() - starting_time)[3]
         }else if(name == "gower"){
           starting_time = proc.time()
-          result = gower_interpolation_mds(x=x, l=l, k=k)
+          result = gower_interpolation_mds(x=x, l=l, k=k, dist_fn = stats::dist)
           elapsed_time = (proc.time() - starting_time)[3]
         }else{
           stop(paste0("Method name ", name, " is invalid. Name should be: divide_conquer, fast or gower."))
