@@ -1,8 +1,10 @@
 source("tools/classical_mds.R")
 source("tools/fast_mds.R")
+source("tools/fast_mds_candidate_1.R")
 source("tools/divide_conquer_mds.R")
 source("tools/gower_interpolation_mds.R")
 source("tools/procrustes.R")
+source("tools/load_libraries.R")
 
 # Generate data
 n_rows <- 10000
@@ -30,10 +32,9 @@ sd(divide_results$points[, 1])
 sqrt(divide_results$eigen)
 
 
-
 ##### Results for fast mds
 fast_results <- fast_mds(x = x,l = l, s = s, k = k, dist_fn = stats::dist)
-fast_proc <- perform_procrustes(x =fast_results$points, target = x, matrix_to_transform = fast_results$points, 
+fast_proc <- perform_procrustes(x = fast_results$points, target = x, matrix_to_transform = fast_results$points, 
                                  translation = FALSE, dilation = FALSE)
 
 # Correlation of principal coordinates
@@ -41,7 +42,21 @@ cor(fast_proc[,1], x[, 1])
 
 # Eigenvalues
 sd(fast_results$points[, 1])
+sqrt(fast_cand_1$eigen)
+
+
+##### Results for candidate_1 of mds
+fast_cand_1 <- fast_mds_candidate_1(x = x, l =l, s = s, k = k, dist_fn = stats::dist)
+fast_cand_1_proc <- perform_procrustes(x = fast_cand_1$points, target = x, matrix_to_transform = fast_cand_1$points, 
+                                translation = FALSE, dilation = FALSE)
+# Correlation of principal coordinates
+cor(fast_cand_1_proc[,1], x[, 1])
+
+# Eigenvalues
+sd(fast_cand_1$points[, 1])
 sqrt(fast_results$eigen)
+
+
 
 ##### Results for Gower mds
 gower_results <- gower_interpolation_mds(x = x, l = l, k = k, dist_fn = stats::dist)
