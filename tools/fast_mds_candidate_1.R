@@ -42,6 +42,7 @@ get_partitions_for_fast_candidate_1 <- function(n, l, s, k) {
 fast_mds_candidate_1 <- function(x, l, s, k, dist_fn = stats::dist, ...) {
   
   n <- nrow(x)
+  
   if (n <= l) {
     
     mds <- classical_mds(x = x, k = k, dist_fn = dist_fn, ...)
@@ -52,8 +53,9 @@ fast_mds_candidate_1 <- function(x, l, s, k, dist_fn = stats::dist, ...) {
       
       # Split x
       index_partition <- get_partitions_for_fast_candidate_1(n = n, l = l, s = s, k = k)
-      x_partition <- lapply(index_partition, function(idx, matrix) { matrix[idx, , drop = FALSE]}, matrix = x)
+      x_partition <- lapply(index_partition, function(idx, matrix) { matrix[idx, , drop = FALSE] }, matrix = x)
       num_partition <- length(index_partition)
+      
       
       # Apply MDS to all the partitions
       mds_partition <- lapply(x_partition, fast_mds_candidate_1, l = l, s = s, k = k, dist_fn = dist_fn, ...)
@@ -63,9 +65,19 @@ fast_mds_candidate_1 <- function(x, l, s, k, dist_fn = stats::dist, ...) {
       # take a subsample for each partition
       length_partition <- lapply(index_partition, length)
       sample_partition <- lapply(length_partition, sample, size = s, replace = FALSE)
-      length_sample_partition <- lapply(sample_partition, length)
       x_partition_sample <- mapply(function(matrix, idx) { matrix[idx, , drop = FALSE] }, 
                                    matrix = x_partition, idx = sample_partition, SIMPLIFY = FALSE)
+      
+      
+      # Create two lists: one with initial position inside the matrix and another with end position
+      ini_index <- list()
+      end_index <- list()
+      
+      for(i in 1:num_partition){
+        length_sample_partition_i <- length(sample_partition[[i]])
+        ini_index[[i]] <- (i-1)*length_sample_partition_i + 1
+        end_index[[i]] <- i*length_sample_partition_i
+      }
       
       # Join each sampled data
       x_M <- Reduce(rbind, x_partition_sample)
@@ -75,8 +87,8 @@ fast_mds_candidate_1 <- function(x, l, s, k, dist_fn = stats::dist, ...) {
       mds_M_points <- mds_M$points
       
       # Extract the MDS configuration for the sampling points from mds_M_points 
-      mds_M_sampling_points <- lapply(length_sample_partition, function(matrix, len){matrix[1:len, ,drop = FALSE]}, 
-                                    matrix = mds_M_points)
+      mds_M_sampling_points <- mapply(function(matrix, ini, end) {  matrix[ini:end, , drop = FALSE] }, ini = ini_index, end = end_index, 
+                                      MoreArgs = list(matrix = mds_M_points), SIMPLIFY = FALSE)
 
       # Extract the MDS configuration for the sampling points from mds_partition_points
       mds_partition_sampling_points <- mapply(function(matrix, idx) { matrix[idx, , drop = FALSE] }, 
@@ -93,3 +105,19 @@ fast_mds_candidate_1 <- function(x, l, s, k, dist_fn = stats::dist, ...) {
       return(list(points = mds, eigen = eigen))
   }
 }
+
+
+n_rows <- 10000
+var_vector <- c(5, 5, 1)
+n_cols <- length(var_vector)
+x <- matrix(rnorm(n_rows*n_cols), nrow = n_rows) %*% diag(var_vector)
+dist_fn <- stats::dist
+dim(x)
+var(x)
+cor(x)
+
+s <- 2*n_cols
+k <- n_cols
+l <- 100
+
+
