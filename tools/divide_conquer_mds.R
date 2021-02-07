@@ -2,13 +2,13 @@ source("tools/classical_mds.R")
 source("tools/procrustes.R")
 
 get_partitions_for_divide_conquer <- function(n, l, tie, k) {
-  size_partition <- l-tie
   
-  list_indexes <- list()
+  size_partition <- l-tie
   p <- ceiling(n/size_partition)
   min_sample_size <- max(k, tie)
   partition_sample_size <- l - tie
   last_sample_size <- n - (p-1)*partition_sample_size
+  list_indexes <- list()
   
   if (l-tie <= 0) {
     stop("l must be greater than tie")
@@ -29,7 +29,7 @@ get_partitions_for_divide_conquer <- function(n, l, tie, k) {
     } else if (i < p) {
       ini <- end + 1
       end <- (ini-1) + size_partition
-    } else{
+    } else {
       ini <- end + 1
       end <- n
     }
