@@ -1,8 +1,8 @@
 source("tools/load_libraries.R")
 source("tools/classical_mds.R")
-source("tools/divide_conquer_mds.R")
-source("tools/fast_mds.R")
-source("tools/gower_interpolation_mds.R")
+source("final_methods/divide_conquer_mds.R")
+source("final_methods/fast_mds.R")
+source("final_methods/gower_interpolation_mds.R")
 source("tools/procrustes.R")
 
 validate_scenarios <- function(df, what){
@@ -78,11 +78,6 @@ generate_df_scenarios <- function(scenarios, experiment_label){
 }
 
 
-#'@title Generate data
-#'@description Generate a multi-dimensional Normal Distribution
-#'@param sample_size List of all sample sizes
-#'@param distribution_parameters List of all (mean, sd) 
-#'@return Returns a matrix with sample_size rows and distribution_parameters columns
 generate_data <- function(scenario){
 
   total_columns = scenario$n_cols
@@ -90,7 +85,7 @@ generate_data <- function(scenario){
   mu = unlist(scenario$mu)
   sd = unlist(scenario$sd)
   
-  return(mapply(rnorm, n=sample_size, mean=mu, sd=sd))
+  return(mapply(rnorm, mean = mu, n = sample_size) %*% diag(sd))
 }
 
 
@@ -171,12 +166,6 @@ create_time_file <- function(file_path, overwrite_simulations){
 }
 
 
-#'@title Create scenarios
-#'@description Create a data frame containing all the scenarios
-#'@param file_path Path where file should be stored
-#'@param sample_size List of all sample sizes
-#'@param distribution_parameters List of all (mean, sd) 
-#'@return Store and return a data frame with all the scenarios
 create_scenarios_file <- function(file_path, scenarios, experiment_label, overwrite_simulations){
   
   is_file_created = file.exists(file_path)
