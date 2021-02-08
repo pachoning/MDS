@@ -1,8 +1,11 @@
 source("tools/classical_mds.R")
 source("tools/procrustes.R")
 
-get_partitions_for_gower_interpolation <- function(n, l) {
+get_partitions_for_gower_interpolation <- function(n, l, k) {
   
+  if (l<=k) {
+    stop("l must be greater than k")
+  }
   p <- ceiling(n/l)
   p <- pmax(1, p)
   
@@ -30,7 +33,7 @@ get_partitions_for_gower_interpolation <- function(n, l) {
 gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
   
   n <- nrow(x)
-  idexes_partition <- get_partitions_for_gower_interpolation(n = n, l = l)
+  idexes_partition <- get_partitions_for_gower_interpolation(n = n, l = l, k = k)
   num_partitions <- length(idexes_partition)
   
   
@@ -38,8 +41,8 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     
     # It is possible to run MDS directly
     mds <- classical_mds(x = x, k = k, dist_fn = dist_fn, ...)
-    points <- mds_eig$points
-    eigen <- mds_eig$eigen/n
+    points <- mds$points
+    eigen <- mds$eigen/n
     list_to_return <- list(points = points, eigen = eigen)
     
   } else {
