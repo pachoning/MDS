@@ -59,10 +59,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     
   } else {
     # Generate indexes list. Each element correspond to the index of the partition
-    #init_time <- proc.time()
     idx <- get_partitions_for_divide_conquer(n = n_row_x, l = l, tie = tie, k = k)
-    #elapsed_time <- proc.time() - init_time
-    #message(paste0("Time to create partition: ", elapsed_time[3]))
     num_partitions <- length(idx)
     
     # Get the elements of the first partition and drop from the list
@@ -70,10 +67,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     idx[[1]] <- NULL 
     
     # Partition x
-    #init_time <- proc.time()
     x_partition <- lapply(idx, function(rows, matrix) matrix[rows, , drop = FALSE], matrix = x)
-    #elapsed_time <- proc.time() - init_time
-    #message(paste0("Time to partition x: ", elapsed_time[3]))
     
     # Take a sample from the first partition
     sample_first_partition <- sample(x = idx_1, size = tie, replace = FALSE)
@@ -81,10 +75,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     x_sample_1 <- x_1[sample_first_partition, , drop = FALSE]
     
     # Join each partition with the sample from the first partition
-    #init_time <- proc.time()
     x_join_1 <- lapply(x_partition, function(m_big, m_small) rbind(m_small, m_big), m_small = x_sample_1)
-    #elapsed_time <- proc.time() - init_time
-    #message(paste0("Time to Join x_partiton with first partition: ", elapsed_time[3]))
     
     # Perform MDS for each partition as well as for the first partition
     mds_1 <- classical_mds(x = x_1, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE, ...)
@@ -92,10 +83,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_1_eigen <- mds_1$eigen/nrow(x_1)
     mds_1_sample <- mds_1_points[sample_first_partition, ,drop = FALSE]
     
-    #init_time <- proc.time()
     mds_join_1 <- lapply(x_join_1, classical_mds, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE)
-    #elapsed_time <- proc.time() - init_time
-    #message(paste0("Time to perfrom MDS: ", elapsed_time[3]))
     mds_join_1_points <- lapply(mds_join_1, function(x) x$points)
     mds_join_1_eigen <- lapply(mds_join_1, function(x) x$eigen)
     
@@ -103,28 +91,19 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     # For each partition, divide the matrix into two part: 
     ## first corresponding to the sample of the first partition
     # the rest of the matrix corresponding to the observations of each matrix
-    #init_time <- proc.time()
     mds_division <- lapply(mds_join_1_points, divide_matrix, long = tie)
-    #elapsed_time <- proc.time() - init_time
-    #message(paste0("Time to split MDS: ", elapsed_time[3]))
     mds_division_first <- lapply(mds_division, function(x) x$first)
     mds_division_rest <- lapply(mds_division, function(x) x$rest)
     
     # Apply Procrustes for each partition
-    #init_time <- proc.time()
     mds_procrustes <- mapply(FUN = perform_procrustes, 
                              x = mds_division_first, 
                              matrix_to_transform = mds_division_rest,
                              MoreArgs = list(target = mds_1_sample, translation = FALSE, dilation = FALSE))
     
-    #elapsed_time <- proc.time() - init_time
-    #message(paste0("Time to apply Procrustes: ", elapsed_time[3]))
     # Join all the solutions
-    #init_time <- proc.time()
     mds_solution <- Reduce(rbind, mds_procrustes)
     mds_solution <- Reduce(rbind, list(mds_1_points, mds_solution))
-    #elapsed_time <- proc.time() - init_time
-    #message(paste0("Time to join all the solutions: ", elapsed_time[3]))
     
     # Get eigenvalues
     eigen <- mapply(function(x, y) x/length(y), x = mds_join_1_eigen, y = idx)
