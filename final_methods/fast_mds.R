@@ -56,7 +56,6 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     x_partition <- lapply(index_partition, function(idx, matrix) { matrix[idx, , drop = FALSE] }, matrix = x)
     num_partition <- length(index_partition)
     
-    
     # Apply MDS to all the partitions
     mds_partition <- lapply(x_partition, fast_mds, l = l, s = s, k = k, dist_fn = dist_fn, ...)
     mds_partition_points <- lapply(mds_partition, function(x) x$points)
@@ -73,7 +72,7 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     ini_index <- list()
     end_index <- list()
     
-    for(i in 1:num_partition){
+    for (i in 1:num_partition) {
       length_sample_partition_i <- length(sample_partition[[i]])
       ini_index[[i]] <- (i-1)*length_sample_partition_i + 1
       end_index[[i]] <- i*length_sample_partition_i
