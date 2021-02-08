@@ -26,19 +26,3 @@ for (i_sim in 1:n_sim) {
 
 mean(time_gower_mds)
 mean(time_gower_candidate_1)
-
-
-
-
-x <- matrix(rnorm(num_rows*num_cols), ncol = num_cols)
-init_time <- proc.time()
-res <- divide_conquer_mds(x = x, l = l, tie = tie, k = k, dist_fn = stats::dist)
-elapsed_time <- proc.time() - init_time
-message(paste0("------------ Total time: ", elapsed_time[3]))
-
-init_time <- proc.time()
-res <- fast_mds(x = x, l = l, s = tie, k, dist_fn = stats::dist)
-elapsed_time <- proc.time() - init_time
-message(paste0("------------ Total time: ", elapsed_time[3]))
-
-
