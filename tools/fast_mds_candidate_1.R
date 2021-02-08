@@ -87,7 +87,8 @@ fast_mds_candidate_1 <- function(x, l, s, k, dist_fn = stats::dist, ...) {
       mds_M_points <- mds_M$points
       
       # Extract the MDS configuration for the sampling points from mds_M_points 
-      mds_M_sampling_points <- mapply(function(matrix, ini, end) {  matrix[ini:end, , drop = FALSE] }, ini = ini_index, end = end_index, 
+      mds_M_sampling_points <- mapply(function(matrix, ini, end) {  matrix[ini:end, , drop = FALSE] }, 
+                                      ini = ini_index, end = end_index, 
                                       MoreArgs = list(matrix = mds_M_points), SIMPLIFY = FALSE)
 
       # Extract the MDS configuration for the sampling points from mds_partition_points
@@ -105,19 +106,3 @@ fast_mds_candidate_1 <- function(x, l, s, k, dist_fn = stats::dist, ...) {
       return(list(points = mds, eigen = eigen))
   }
 }
-
-
-n_rows <- 10000
-var_vector <- c(5, 5, 1)
-n_cols <- length(var_vector)
-x <- matrix(rnorm(n_rows*n_cols), nrow = n_rows) %*% diag(var_vector)
-dist_fn <- stats::dist
-dim(x)
-var(x)
-cor(x)
-
-s <- 2*n_cols
-k <- n_cols
-l <- 100
-
-
