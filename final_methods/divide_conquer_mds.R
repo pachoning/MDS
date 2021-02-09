@@ -87,9 +87,8 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_join_1_points <- lapply(mds_join_1, function(x) x$points)
     mds_join_1_eigen <- lapply(mds_join_1, function(x) x$eigen)
     
-    
     # For each partition, divide the matrix into two part: 
-    ## first corresponding to the sample of the first partition
+    # first corresponding to the sample of the first partition
     # the rest of the matrix corresponding to the observations of each matrix
     mds_division <- lapply(mds_join_1_points, divide_matrix, long = tie)
     mds_division_first <- lapply(mds_division, function(x) x$first)
@@ -108,7 +107,6 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     # Get eigenvalues
     eigen <- mapply(function(x, y) x/length(y), x = mds_join_1_eigen, y = idx, SIMPLIFY = FALSE)
     eigen <- Reduce(`+`, eigen)
-    
     eigen <- Reduce(`+`, list(mds_1_eigen, eigen))
     eigen <- eigen/num_partitions
     
