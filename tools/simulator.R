@@ -344,14 +344,12 @@ get_simulations <-function(
     batch_eigenvalue_vector = list()
     
     for(i_sim in 1:n_simulations){
-      if(verbose & (i_sim == 1 | (i_sim)%%10 == 0) & n_row_x <= 4000){
-        message(paste0("     Starting simulation: ", i_sim))
-      }
       x = generate_data(scenario=current_scenario)
       n_row_x = nrow(x)
       i_method = 1
-      if(verbose & n_row_x > 4000){
-        {message(paste0("     Starting simulation: ", i_sim))}
+      
+      if(verbose & (((i_sim == 1 | (i_sim)%%10 == 0) & n_row_x <= 4000) | (n_row_x > 4000))){
+        message(paste0("     Starting simulation: ", i_sim))
       }
       
       for(name in mds_methods_names){
