@@ -6,8 +6,9 @@ experiment_label = "10^6"
 sample_size = c(10^6)
 n_cols = c(10, 100)
 
-distribution_parameters = list(list(sd=c(NA)), list(sd=15), list(sd=c(15, 15)), 
-                               list(sd=c(15, 10)), list(sd=c(15, 15, 15, 15)))
+distribution_parameters = list(list(sd=15), list(sd=rep(15, 2)), list(sd=rep(15, 3)), list(sd=rep(15, 4)),
+                               list(sd=rep(15, 5)), list(sd=rep(15, 6)), list(sd=rep(15, 7)), 
+                               list(sd=rep(15, 8)), list(sd=rep(15, 9)), list(sd=rep(15, 10)))
 
 scenarios = list(sample_size=sample_size, n_cols=n_cols, distribution_parameters=distribution_parameters)
 
