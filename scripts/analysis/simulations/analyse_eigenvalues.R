@@ -9,12 +9,10 @@ load(file.path(data_path, "df_eigenvalues_full.RData"))
 # Manipulate data ----
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "sd_main")
 
-# Avoid using scenarions which sample size is 10^6
-df_scenarios_full_filtered = df_scenarios_full
-
 # Join scenarios and eigenvalues
-scenarios_with_main_dimensions = df_scenarios_full_filtered %>% 
-  filter(n_main_dimensions > 0)
+scenarios_with_main_dimensions = df_scenarios_full %>% 
+  filter(n_main_dimensions > 0,  !is.na(processed_at))
+
 total_scenarios = nrow(scenarios_with_main_dimensions)
 
 df_join_scenarios_eigenvalues = scenarios_with_main_dimensions %>% 
@@ -34,7 +32,7 @@ while (i <= total_scenarios) {
   
   sd_sim = map2(.x = eigen_data$sd, .y = eigen_data$n_main_dimensions, .f = ~ .x[1:.y]) %>% unlist() %>% 
     matrix(., nrow = length(eigen_data$sd), byrow = TRUE) %>% as.data.frame() %>% 
-    set_names(nm = paste0("dim_", 1:n_main_dimension_scenario))
+    set_names(nm = paste0("dim_", sprintf("%02d", 1:n_main_dimension_scenario)))
   
   sd_sim$scenario_id = scenario_id
   sd_sim$num_sim = eigen_data$num_sim
@@ -42,7 +40,7 @@ while (i <= total_scenarios) {
   
   eigenvalues_sim = map2(.x = eigen_data$eigenvalue_vector, .y = eigen_data$n_main_dimensions, .f = ~ .x[1:.y]) %>% 
     unlist() %>% matrix(., nrow = length(eigen_data$sd), byrow = TRUE) %>% sqrt() %>% as.data.frame() %>%
-    set_names(nm = paste0("dim_", 1:n_main_dimension_scenario))
+    set_names(nm = paste0("dim_", sprintf("%02d", 1:n_main_dimension_scenario)))
   
   eigenvalues_sim$scenario_id = scenario_id
   eigenvalues_sim$num_sim = eigen_data$num_sim
@@ -78,19 +76,6 @@ eigenvalues_information = df_join_scenarios_eigenvalues %>%
   )
 
 # Analyse data  ----
-# MSE
-mse_data = eigenvalues_information %>% 
-  group_by_at(c(scenario_identifier, "id", "method_name", "dim")) %>% 
-  summarise(
-    bias_estimator = mean(eigenvalue) - max(sd),
-    var_estimator = var(eigenvalue),
-    mse_estimator = bias_estimator^2 + var_estimator
-  ) %>% 
-  arrange_at(c(scenario_identifier, "id"))
-  
-mse_data %>% View
-mse_data %>% ggplot(aes(x = id, color = method_name, y = mse_estimator, group = method_name)) + geom_line()
-
 # Boxplot for the error
 i = 1
 while (i<=total_scenarios) {
@@ -112,3 +97,76 @@ while (i<=total_scenarios) {
   dev.off()
   i = i + 1
 }
+
+
+# Bias
+eigenvalues_information %>%
+  filter(sample_size < 10^5) %>%
+  group_by(sample_size, method_name, dim) %>%
+  summarise(
+    bias = mean(eigenvalue) - max(sd)
+  ) %>% 
+  ggplot(aes(x = sample_size, y = bias, group = method_name, color = method_name)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  facet_wrap( ~ dim, ncol = 2) +
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/bias_small.png", 
+         dpi=300, dev='png', height=8, width=6.5, units="in")
+
+
+
+eigenvalues_information %>%
+  filter(sample_size >= 10^5) %>%
+  group_by(sample_size, method_name, dim) %>%
+  summarise(
+    bias = mean(eigenvalue) - max(sd)
+  ) %>% 
+  ggplot(aes(x = sample_size, y = bias, group = method_name, color = method_name)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  facet_wrap( ~ dim, ncol = 2) +
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/bias_big.png", 
+         dpi=300, dev='png', height=8, width=6.5, units="in")
+
+
+# MSE
+eigenvalues_information %>% 
+  filter(sample_size < 10^5) %>% 
+  group_by(sample_size, method_name, dim) %>% 
+  summarise(
+    mse = mean(error^2),
+    rmse = sqrt(mse)
+  ) %>% 
+  ggplot(aes(x = sample_size, y = mse, group = method_name, color = method_name)) +
+  geom_point() +
+  facet_wrap( ~ dim, ncol = 2) +
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/mse_small.png", 
+         dpi=300, dev='png', height=8, width=6.5, units="in")
+
+eigenvalues_information %>% 
+  filter(sample_size >= 10^5) %>% 
+  group_by(sample_size, method_name, dim) %>% 
+  summarise(
+    mse = mean(error^2),
+    rmse = sqrt(mse)
+  ) %>% 
+  ggplot(aes(x = sample_size, y = mse, group = method_name, color = method_name)) +
+  geom_point() +
+  facet_wrap( ~ dim, ncol = 2) +
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/mse_big.png", 
+         dpi=300, dev='png', height=8, width=6.5, units="in")
+
+# Error for a particular scenario
+eigenvalues_information %>% 
+  filter(id == "g2zlgOM0E367iH8") %>%
+  ggplot(aes(x = method_name, y = error, color = method_name, group = method_name)) +
+  geom_boxplot() + 
+  facet_wrap( ~ dim, ncol = 2, scales = "free") +
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/eigen_1000000_100_10.png", 
+         dpi=300, dev='png', height=8, width=6.5, units="in")

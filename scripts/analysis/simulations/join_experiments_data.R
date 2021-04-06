@@ -3,11 +3,10 @@ library(stringi)
 
 data_folder = file.path(getwd(), "data")
 experiments_folder = file.path(data_folder, "experiments")
-excluded_experiments = NA
 
 all_files = list.files(experiments_folder)
 all_experiments = all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
-experiments_to_retrieve = setdiff(all_experiments, excluded_experiments)
+experiments_to_retrieve = all_experiments
 total_experiments_to_retrieve = length(experiments_to_retrieve)
 
 df_scenarios_full = c()
@@ -43,6 +42,14 @@ while (i_experiment <= total_experiments_to_retrieve) {
   
 }
 
+# Filtering information from scenarios not processet yet
+df_scenarios_full = df_scenarios_full %>% filter(!is.na(processed_at))
+scenarios_processed = unique(df_scenarios_full$id)
+df_time_full = df_time_full %>% filter(scenario_id %in% scenarios_processed)
+df_correlation_full = df_correlation_full %>% filter(scenario_id %in% scenarios_processed)
+df_eigenvalues_full = df_eigenvalues_full %>% filter(scenario_id %in% scenarios_processed)
+
+
 # Add some fields to the data
 df_scenarios_full = df_scenarios_full %>% 
   mutate(
@@ -62,3 +69,4 @@ save(df_scenarios_full, file=file.path(data_folder, "df_scenarios_full.RData"))
 save(df_time_full, file=file.path(data_folder, "df_time_full.RData"))
 save(df_correlation_full, file=file.path(data_folder, "df_correlation_full.RData"))
 save(df_eigenvalues_full, file=file.path(data_folder, "df_eigenvalues_full.RData"))
+
