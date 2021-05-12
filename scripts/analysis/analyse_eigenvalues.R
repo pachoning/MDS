@@ -101,11 +101,26 @@ while (i<=total_scenarios) {
 
 # Bias
 eigenvalues_information %>%
+  group_by(sample_size, method_name, dim) %>%
+  summarise(
+    bias = mean(eigenvalue) - max(sd)
+  ) %>% 
+  mutate(sample_size = as.factor(sample_size)) %>% 
+  ggplot(aes(x = sample_size, y = bias, group = method_name, color = method_name)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  facet_wrap( ~ dim, ncol = 2) +
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/bias_all.png", 
+         dpi=300, dev='png', height=8, width=10, units="in")
+
+eigenvalues_information %>%
   filter(sample_size < 10^5) %>%
   group_by(sample_size, method_name, dim) %>%
   summarise(
     bias = mean(eigenvalue) - max(sd)
   ) %>% 
+  mutate(sample_size = as.factor(sample_size)) %>% 
   ggplot(aes(x = sample_size, y = bias, group = method_name, color = method_name)) +
   geom_point() +
   geom_hline(yintercept = 0, linetype = "dashed") +
@@ -114,14 +129,13 @@ eigenvalues_information %>%
   ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/bias_small.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
-
-
 eigenvalues_information %>%
   filter(sample_size >= 10^5) %>%
   group_by(sample_size, method_name, dim) %>%
   summarise(
     bias = mean(eigenvalue) - max(sd)
   ) %>% 
+  mutate(sample_size = as.factor(sample_size)) %>% 
   ggplot(aes(x = sample_size, y = bias, group = method_name, color = method_name)) +
   geom_point() +
   geom_hline(yintercept = 0, linetype = "dashed") +
@@ -130,8 +144,21 @@ eigenvalues_information %>%
   ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/bias_big.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
-
 # MSE
+eigenvalues_information %>% 
+  group_by(sample_size, method_name, dim) %>% 
+  summarise(
+    mse = mean(error^2),
+    rmse = sqrt(mse)
+  ) %>% 
+  mutate(sample_size = as.factor(sample_size)) %>% 
+  ggplot(aes(x = sample_size, y = mse, group = method_name, color = method_name)) +
+  geom_point() +
+  facet_wrap( ~ dim, ncol = 2) +
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/mse_all.png", 
+         dpi=300, dev='png', height=8, width=10, units="in")
+
 eigenvalues_information %>% 
   filter(sample_size < 10^5) %>% 
   group_by(sample_size, method_name, dim) %>% 
@@ -139,6 +166,7 @@ eigenvalues_information %>%
     mse = mean(error^2),
     rmse = sqrt(mse)
   ) %>% 
+  mutate(sample_size = as.factor(sample_size)) %>% 
   ggplot(aes(x = sample_size, y = mse, group = method_name, color = method_name)) +
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
@@ -153,6 +181,7 @@ eigenvalues_information %>%
     mse = mean(error^2),
     rmse = sqrt(mse)
   ) %>% 
+  mutate(sample_size = as.factor(sample_size)) %>% 
   ggplot(aes(x = sample_size, y = mse, group = method_name, color = method_name)) +
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
@@ -162,11 +191,16 @@ eigenvalues_information %>%
 
 # Error for a particular scenario
 eigenvalues_information %>% 
-  filter(id == "g2zlgOM0E367iH8") %>%
-  ggplot(aes(x = method_name, y = error, color = method_name, group = method_name)) +
+  filter(sample_size == 10^6, n_main_dimensions == 10, n_cols == 100) %>% 
+  ggplot(aes(x = method_name, y = error, fill = method_name)) +
   geom_boxplot() + 
-  facet_wrap( ~ dim, ncol = 2, scales = "free") +
-  theme(panel.spacing.y=unit(0.5, "lines")) +
+  facet_wrap( ~ dim, ncol = 5) +
+  theme(
+    panel.spacing.y=unit(0.5, "lines"), 
+    axis.title.x=element_blank(),
+    axis.text.x=element_blank(),
+    axis.ticks.x=element_blank()
+  ) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/eigen_1000000_100_10.png", 
-         dpi=300, dev='png', height=8, width=6.5, units="in")
+         dpi=300, dev='png', height=8, width=10, units="in")

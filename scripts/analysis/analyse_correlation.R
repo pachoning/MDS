@@ -81,6 +81,17 @@ summary(linear_model_method_sample_size)
 
 # Plot of the correlation of the first dimension
 df_join_scenarios_correlation %>% 
+  group_by(method_name, sample_size, dim) %>%
+  summarise(mean_correlation = mean(correlation)) %>%
+  mutate(sample_size = as.factor(sample_size)) %>% 
+  ggplot(aes(x = sample_size, y = mean_correlation, color = method_name, group = method_name)) +
+  geom_point() +
+  facet_wrap( ~ dim, ncol = 2) +
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/correlation_all.png", 
+         dpi=300, dev='png', height=8, width=10, units="in")
+
+df_join_scenarios_correlation %>% 
   filter(id %in% scenarios_with_main_dimesions$id, sample_size<10^5) %>% 
   group_by(method_name, sample_size, dim) %>%
   summarise(mean_correlation = mean(correlation)) %>%
@@ -118,4 +129,4 @@ df_join_scenarios_correlation %>%
     axis.ticks.x=element_blank()
   ) +
   ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/correlation_1000000_100_10.png", 
-         dpi=300, dev='png', height=8, width=6.5, units="in")
+         dpi=300, dev='png', height=8, width=10, units="in")
