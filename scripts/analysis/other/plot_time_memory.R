@@ -9,9 +9,7 @@ df_info_process_filter %>%
   xlab("Sample Size") +
   ylab("Time (sec.)") +
   ggtitle("cmdscale() time") +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/elapsed_time_mds.png", 
-         dpi=300, dev='png', height=8, width=6.5, units="in")
-
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/elapsed_time_mds.png")
 
 df_info_process_filter %>% 
   mutate(memory_distance = memory_distance/1000000) %>% 
@@ -21,5 +19,4 @@ df_info_process_filter %>%
   xlab("Sample Size") +
   ylab("Memoey (MB)") +
   ggtitle("dist() memory") +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/memory_distance.png", 
-         dpi=300, dev='png', height=8, width=6.5, units="in")
+  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/memory_distance.png", )
