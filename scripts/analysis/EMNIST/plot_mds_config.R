@@ -5,6 +5,7 @@ library(tidyverse)
 load("data/EMNIST/divide.RData")
 load("data/EMNIST/fast.RData")
 load("data/EMNIST/gower.RData")
+load("data/EMNIST/all_data.RData")
 
 # Variables ----
 target_filter <- as.character(0:4)
