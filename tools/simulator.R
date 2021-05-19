@@ -25,11 +25,7 @@ validate_scenarios <- function(df, what){
 }
 
 
-#'@title Describe scenarios
-#'@description Lists all the scenarios to be simulated
-#'@param sample_size List of all sample sizes
-#'@param distribution_parameters List of all (mean, sd) 
-#'@return Returns a data frame that contains all the scenarios
+
 generate_df_scenarios <- function(scenarios, experiment_label){
   
   df = expand.grid(scenarios)
@@ -101,9 +97,6 @@ create_correlation_file <- function(file_path, overwrite_simulations){
   }
   
   #In case a simulation breaks in the middle we delete all the simulations
-  processed_scenarios = df_scenarios$id[!is.na(df_scenarios$processed_at)]
-  ids_prcoessed = which(df_correlation$scenario_id %in% processed_scenarios)
-  df_correlation = df_correlation[ids_prcoessed, ]
   save(df_correlation, file=file_path)
   assign("df_correlation", df_correlation, envir=.GlobalEnv)
   
@@ -120,9 +113,6 @@ create_eigenvalue_file <- function(file_path, overwrite_simulations){
   }
   
   #In case a simulation breaks in the middle we delete all the simulations
-  processed_scenarios = df_scenarios$id[!is.na(df_scenarios$processed_at)]
-  ids_prcoessed = which(df_eigenvalue$scenario_id %in% processed_scenarios)
-  df_eigenvalue = df_eigenvalue[ids_prcoessed, ]
   save(df_eigenvalue, file=file_path)
   assign("df_eigenvalue", df_eigenvalue, envir=.GlobalEnv)
 }
@@ -155,11 +145,7 @@ create_time_file <- function(file_path, overwrite_simulations){
   }else{
     df_time = data.frame(scenario_id=character(0), num_sim=numeric(0), method_name=character(0), elapsed_time=numeric(0))
   }
-  
-  #In case a simulation breaks in the middle we delete all the simulations
-  processed_scenarios = df_scenarios$id[!is.na(df_scenarios$processed_at)]
-  ids_prcoessed = which(df_time$scenario_id %in% processed_scenarios)
-  df_time = df_time[ids_prcoessed, ]
+
   save(df_time, file=file_path)
   assign("df_time", df_time, envir=.GlobalEnv)
   
@@ -276,6 +262,15 @@ validate_input <- function(list_inputs){
 }
 
 
+get_initial_number_simulations <- function(df_time, scenario_id, n_simulations) {
+  initial_simulation = 1
+  if(scenario_id %in% df_time$scenario_id) {
+    initial_simulation = min(max(df_time$num_sim[df_time$scenario_id == scenario_id]) + 1, n_simulations)
+  }
+  return(initial_simulation)
+}
+
+
 get_simulations <-function(
   experiment_label,
   scenarios, 
@@ -325,30 +320,32 @@ get_simulations <-function(
       message("--------------------")
       message(paste0("Starting scenario: ", i_scenario))
     }
-    i_sim_method = 1
     
     current_scenario = df_missing_scenarios[i_scenario, ,drop=FALSE]
-    
+    initial_simulation = get_initial_number_simulations(df_time = df_time, scenario_id = current_scenario$id, 
+                                                        n_simulations = n_simulations)
+
     # Set the parameter values for the methods
     s = ifelse(!is.na(n_sampling_points), n_sampling_points, 
                ifelse(current_scenario$n_main_dimensions>0, 2*current_scenario$n_main_dimensions, min(0.1*current_scenario$sample_size, 10)))
     k = ifelse(!is.na(num_mds_dimesions), num_mds_dimesions, pmax(current_scenario$n_main_dimensions, 1))
     l = largest_matrix_efficient_mds
     
-    batch_scenario_ids = c()
-    batch_num_sims = c()
-    batch_method_names = c()
-    batch_elapsed_times = c()
-    batch_n_main_dimensions = c()
-    batch_correlation_vector = list()
-    batch_eigenvalue_vector = list()
     
-    for(i_sim in 1:n_simulations){
+    for(i_sim in initial_simulation:n_simulations){
+      batch_scenario_ids = c()
+      batch_num_sims = c()
+      batch_method_names = c()
+      batch_elapsed_times = c()
+      batch_n_main_dimensions = c()
+      batch_correlation_vector = list()
+      batch_eigenvalue_vector = list()
+      
       x = generate_data(scenario=current_scenario)
       n_row_x = nrow(x)
       i_method = 1
       
-      if(verbose & (((i_sim == 1 | (i_sim)%%10 == 0) & n_row_x <= 4000) | (n_row_x > 4000))){
+      if(verbose){
         message(paste0("     Starting simulation: ", i_sim))
       }
       
@@ -381,21 +378,23 @@ get_simulations <-function(
                                                             largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
 
         eigenvalue_vector = result$eigen
-        batch_correlation_vector[[i_sim_method]] = correlation_vector
-        batch_eigenvalue_vector[[i_sim_method]] = eigenvalue_vector
+        batch_correlation_vector[[i_method]] = correlation_vector
+        batch_eigenvalue_vector[[i_method]] = eigenvalue_vector
         i_method = i_method + 1
-        i_sim_method = i_sim_method + 1
         
       }
+      
+      update_time_data(file_path=file.path(path, time_filename), scenario_id=batch_scenario_ids, 
+                       num_sim=batch_num_sims, method_name=batch_method_names, elapsed_time=batch_elapsed_times)
+      update_correlation_data(file_path=file.path(path, correlation_filename), scenario_id=batch_scenario_ids,
+                              num_sim=batch_num_sims, method_name=batch_method_names, 
+                              n_main_dimensions=batch_n_main_dimensions, correlation_vector=batch_correlation_vector)
+      update_eigenvalue_data(file_path=file.path(path, eigenvalue_filename), scenario_id=batch_scenario_ids,
+                             num_sim=batch_num_sims, method_name=batch_method_names, eigenvalue_vector=batch_eigenvalue_vector)
+      
+      
     }
     
-    update_time_data(file_path=file.path(path, time_filename), scenario_id=batch_scenario_ids, 
-                     num_sim=batch_num_sims, method_name=batch_method_names, elapsed_time=batch_elapsed_times)
-    update_correlation_data(file_path=file.path(path, correlation_filename), scenario_id=batch_scenario_ids,
-                            num_sim=batch_num_sims, method_name=batch_method_names, 
-                            n_main_dimensions=batch_n_main_dimensions, correlation_vector=batch_correlation_vector)
-    update_eigenvalue_data(file_path=file.path(path, eigenvalue_filename), scenario_id=batch_scenario_ids,
-                            num_sim=batch_num_sims, method_name=batch_method_names, eigenvalue_vector=batch_eigenvalue_vector)
     update_mds_parameters_data(file_path=file.path(path, mds_parameters_filename), scenario_id=current_scenario$id, s=s, k=k, l=l)
     update_scenarios_data(file_path=file.path(path, scenarios_filename), scenarion_id=current_scenario$id)
   }
