@@ -105,6 +105,8 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     
     # Build the list to be returned
     mds <- Reduce(rbind, procrustes)
+    mds <- apply(mds, MARGIN = 2, FUN = function(y) y - mean(y))
+    mds <- mds %*% eigen(cov(mds))$vectors
     eigen <- Reduce(`+`, mds_partition_eigen)/num_partition
     
     return(list(points = mds, eigen = eigen))

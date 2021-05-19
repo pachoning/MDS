@@ -93,6 +93,8 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     idexes_order <- Reduce(c, idexes_partition)
     idexes_order <- Reduce(c, list(ind_1, idexes_order))
     cum_mds <- cum_mds[order(idexes_order), , drop = FALSE]
+    cum_mds <- apply(cum_mds, MARGIN = 2, FUN = function(y) y - mean(y)) 
+    cum_mds <- cum_mds %*% eigen(cov(cum_mds))$vectors
     
     # List to return
     list_to_return <- list(points = cum_mds, eigen = eigen)

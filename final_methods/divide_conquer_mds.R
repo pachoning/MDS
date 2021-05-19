@@ -83,7 +83,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_1_eigen <- mds_1$eigen/nrow(x_1)
     mds_1_sample <- mds_1_points[sample_first_partition, ,drop = FALSE]
     
-    mds_join_1 <- lapply(x_join_1, classical_mds, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE)
+    mds_join_1 <- lapply(x_join_1, classical_mds, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE, ...)
     mds_join_1_points <- lapply(mds_join_1, function(x) x$points)
     mds_join_1_eigen <- lapply(mds_join_1, function(x) x$eigen)
     
@@ -98,12 +98,15 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_procrustes <- mapply(FUN = perform_procrustes, 
                              x = mds_division_first, 
                              matrix_to_transform = mds_division_rest,
-                             MoreArgs = list(target = mds_1_sample, translation = FALSE, dilation = FALSE))
+                             MoreArgs = list(target = mds_1_sample, translation = FALSE, dilation = FALSE),
+                             SIMPLIFY = FALSE)
     
     # Join all the solutions
     mds_solution <- Reduce(rbind, mds_procrustes)
     mds_solution <- Reduce(rbind, list(mds_1_points, mds_solution))
-    
+    mds_solution <- apply(mds_solution, MARGIN = 2, FUN = function(y) y - mean(y))
+    mds_solution <- mds_solution %*% eigen(cov(mds_solution))$vectors
+
     # Get eigenvalues
     eigen <- mapply(function(x, y) x/length(y), x = mds_join_1_eigen, y = idx, SIMPLIFY = FALSE)
     eigen <- Reduce(`+`, eigen)
