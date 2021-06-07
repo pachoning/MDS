@@ -79,8 +79,8 @@ df_summary_sample_size %>%
   ggplot(aes(x = sample_size, y = mean_log_elapsed_time, group = method_name, color = method_name)) +
   geom_point(size = 2) +
   geom_line() +
-  theme(panel.spacing.y=unit(0.5, "lines"))+
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/mean_log_time_all.png", 
+  theme(panel.spacing.y=unit(0.5, "lines")) +
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/mean_log_time_all.png", 
          dpi=300, dev='png', height=8, width=10, units="in")
 
 
@@ -95,7 +95,7 @@ df_summary_sample_size %>%
     #axis.text.x=element_blank(),
     axis.ticks.x=element_blank()
   ) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/time_small.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/time_small.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
 
@@ -110,7 +110,7 @@ df_summary_sample_size %>%
     #axis.text.x=element_blank(),
     axis.ticks.x=element_blank()
   ) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/time_big.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/time_big.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
 
@@ -121,11 +121,3 @@ df_join_scenarios_time %>%
   summarise(p1 = quantile(elapsed_time, probs = 0.05/2),
             p2 = quantile(elapsed_time, probs = 1-0.05/2))
 
-
-df_join_scenarios_time %>% 
-  filter(sample_size == 10^6, n_main_dimensions == 10, n_cols == 100) %>% 
-  ggplot(aes(x = log_elapsed_time, group = method_name, color = method_name)) +
-  geom_density() +
-  scale_x_continuous(breaks = c(-1000)) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/time_1000000_100_10.png", 
-         dpi=300, dev='png', height=8, width=10, units="in")

@@ -111,7 +111,7 @@ eigenvalues_information %>%
   geom_hline(yintercept = 0, linetype = "dashed") +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/bias_all.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/bias_all.png", 
          dpi=300, dev='png', height=8, width=10, units="in")
 
 eigenvalues_information %>%
@@ -126,7 +126,7 @@ eigenvalues_information %>%
   geom_hline(yintercept = 0, linetype = "dashed") +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/bias_small.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/bias_small.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
 eigenvalues_information %>%
@@ -141,7 +141,7 @@ eigenvalues_information %>%
   geom_hline(yintercept = 0, linetype = "dashed") +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/bias_big.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/bias_big.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
 # MSE
@@ -156,7 +156,7 @@ eigenvalues_information %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/mse_all.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/mse_all.png", 
          dpi=300, dev='png', height=8, width=10, units="in")
 
 eigenvalues_information %>% 
@@ -171,7 +171,7 @@ eigenvalues_information %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/mse_small.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/mse_small.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
 eigenvalues_information %>% 
@@ -186,7 +186,7 @@ eigenvalues_information %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/mse_big.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/mse_big.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
 # Error for a particular scenario
@@ -202,5 +202,5 @@ eigenvalues_information %>%
     axis.ticks.x=element_blank()
   ) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/eigen_1000000_100_10.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/error_1000000_100_10.png", 
          dpi=300, dev='png', height=8, width=10, units="in")

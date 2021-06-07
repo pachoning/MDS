@@ -88,7 +88,7 @@ df_join_scenarios_correlation %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/correlation_all.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/correlation_all.png", 
          dpi=300, dev='png', height=8, width=10, units="in")
 
 df_join_scenarios_correlation %>% 
@@ -100,7 +100,7 @@ df_join_scenarios_correlation %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/correlation_small.png", 
+  ggsave(" ~/Documents/phd/papers/mds_for_big_data/images/correlation_small.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
 df_join_scenarios_correlation %>% 
@@ -112,7 +112,7 @@ df_join_scenarios_correlation %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines")) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/correlation_big.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/correlation_big.png", 
          dpi=300, dev='png', height=8, width=6.5, units="in")
 
 
@@ -128,5 +128,5 @@ df_join_scenarios_correlation %>%
     axis.text.x=element_blank(),
     axis.ticks.x=element_blank()
   ) +
-  ggsave("/Users/cristianpachongarcia/Documents/phd/papers/mds_for_big_data/images/correlation_1000000_100_10.png", 
+  ggsave("~/Documents/phd/papers/mds_for_big_data/images/correlation_1000000_100_10.png", 
          dpi=300, dev='png', height=8, width=10, units="in")
