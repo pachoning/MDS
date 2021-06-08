@@ -1,4 +1,8 @@
-library(bigmds)
+source("final_methods/classical_mds.R")
+source("final_methods/divide_conquer_mds.R")
+source("final_methods/fast_mds.R")
+source("final_methods/gower_interpolation_mds.R")
+
 
 # Load data ----
 load("data/EMNIST/all_data.RData")
