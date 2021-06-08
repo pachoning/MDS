@@ -3,15 +3,15 @@ source("tools/procrustes.R")
 source("final_methods/classical_mds.R")
 source("final_methods/fast_mds.R")
 source("final_methods/divide_conquer_mds.R")
-source("tools/gower_interpolation_mds.R")
+source("final_methods/gower_interpolation_mds.R")
 
 
 # Generate data
 n_rows <- 1000
-var_vector <- c(5, 5, 1)
+sd_vector <- c(5, 5, 1)
 mean_vector <- c(0, 0, 0)
-n_cols <- length(var_vector)
-x <- mapply(rnorm, n = n_rows, mean_vector) %*% diag(var_vector)
+n_cols <- length(sd_vector)
+x <- mapply(rnorm, n = n_rows, mean_vector) %*% diag(sd_vector)
 dim(x)
 var(x)
 cor(x)
@@ -43,7 +43,8 @@ sqrt(divide_results$eigen)
 dist(x[1:5, ])
 dist(divide_results$points[1:5, ])
 
-
+# Checking GOF
+divide_results$GOF
 ########################################################################################################################
 ##### Results for fast mds
 fast_results <- fast_mds(x = x,l = l, s = s, k = k, dist_fn = stats::dist)
@@ -66,6 +67,8 @@ sqrt(fast_results$eigen)
 dist(x[1:5, ])
 dist(fast_results$points[1:5, ])
 
+# Checking GOF
+fast_results$GOF
 ########################################################################################################################
 ##### Results for Gower mds
 gower_results <- gower_interpolation_mds(x = x, l = l, k = k, dist_fn = stats::dist)
@@ -88,3 +91,6 @@ sqrt(gower_results$eigen)
 # Cheching distance is preserved
 dist(x[1:5, ])
 dist(gower_results$points[1:5, ])
+
+# Checking GOF
+gower_results$GOF
