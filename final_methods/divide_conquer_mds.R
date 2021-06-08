@@ -1,4 +1,4 @@
-source("tools/classical_mds.R")
+source("final_methods/classical_mds.R")
 source("tools/procrustes.R")
 
 get_partitions_for_divide_conquer <- function(n, l, tie, k) {
@@ -56,6 +56,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
   if (n_row_x <= l) {
     mds_to_return <- classical_mds(x = x, k = k, dist_fn = dist_fn, ...)
     mds_to_return$eigen <- mds_to_return$eigen/nrow(x)
+    mds_to_return$GOF <- mds_to_return$GOF
     
   } else {
     # Generate indexes list. Each element correspond to the index of the partition
@@ -81,11 +82,13 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_1 <- classical_mds(x = x_1, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE, ...)
     mds_1_points <- mds_1$points
     mds_1_eigen <- mds_1$eigen/nrow(x_1)
+    mds1_GOF <- mds_1$GOF
     mds_1_sample <- mds_1_points[sample_first_partition, ,drop = FALSE]
     
     mds_join_1 <- lapply(x_join_1, classical_mds, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE, ...)
     mds_join_1_points <- lapply(mds_join_1, function(x) x$points)
     mds_join_1_eigen <- lapply(mds_join_1, function(x) x$eigen)
+    mds_join_1_GOF <- lapply(mds_join_1, function(x) x$GOF)
     
     # For each partition, divide the matrix into two part: 
     # first corresponding to the sample of the first partition
@@ -113,7 +116,13 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     eigen <- Reduce(`+`, list(mds_1_eigen, eigen))
     eigen <- eigen/num_partitions
     
-    mds_to_return <- list(points = mds_solution, eigen = eigen)
+    # Get GOF
+    GOF_1 <- mds1_GOF*nrow(x_1)
+    GOF_rest <- mapply(function(x, y) x*nrow(y), x = mds_join_1_GOF, y = mds_division_rest, SIMPLIFY = FALSE)
+    GOF <- Reduce(`+`, GOF_rest)
+    GOF <- (GOF + GOF_1)/n_row_x
+    
+    mds_to_return <- list(points = mds_solution, eigen = eigen, GOF = GOF)
   }
   
   return(mds_to_return)

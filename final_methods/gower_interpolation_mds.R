@@ -1,4 +1,4 @@
-source("tools/classical_mds.R")
+source("final_methods/classical_mds.R")
 source("tools/procrustes.R")
 
 get_partitions_for_gower_interpolation <- function(n, l, k) {
@@ -43,7 +43,8 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     mds <- classical_mds(x = x, k = k, dist_fn = dist_fn, ...)
     points <- mds$points
     eigen <- mds$eigen/n
-    list_to_return <- list(points = points, eigen = eigen)
+    GOF <- mds$GOF
+    list_to_return <- list(points = points, eigen = eigen, GOF = GOF)
     
   } else {
     
@@ -59,6 +60,7 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     
     M <- mds_eig$points
     eigen <- mds_eig$eigen / nrow(M)
+    GOF <- mds_eig$GOF
     
     # Calculations needed to do Gower interpolation
     delta_matrix <- distance_matrix^2
@@ -97,9 +99,8 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     cum_mds <- cum_mds %*% eigen(cov(cum_mds))$vectors
     
     # List to return
-    list_to_return <- list(points = cum_mds, eigen = eigen)
+    list_to_return <- list(points = cum_mds, eigen = eigen, GOF = GOF)
   }
   
   return(list_to_return)
-  
 }

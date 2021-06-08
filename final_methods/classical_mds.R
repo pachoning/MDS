@@ -10,6 +10,7 @@ classical_mds <- function(x, k, dist_fn, return_distance_matrix = FALSE, ...) {
   
   mds$points <- mds_result$points
   mds$eigen <- mds_result$eig[1:k]
+  mds$GOF <- mds_result$GOF
   
   if (return_distance_matrix) {
     mds$distance <- as.matrix(dist_matrix)

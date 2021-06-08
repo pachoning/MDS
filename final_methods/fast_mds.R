@@ -1,4 +1,4 @@
-source("tools/classical_mds.R")
+source("final_methods/classical_mds.R")
 source("tools/procrustes.R")
 
 get_partitions_for_fast <- function(n, l, s, k) {
@@ -65,6 +65,7 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     mds_partition <- lapply(x_partition, fast_mds, l = l, s = s, k = k, dist_fn = dist_fn, ...)
     mds_partition_points <- lapply(mds_partition, function(x) x$points)
     mds_partition_eigen <- lapply(mds_partition, function(x) x$eigen)
+    mds_GOF <- lapply(mds_partition, function(x) x$GOF)
     
     # take a subsample for each partition
     length_partition <- lapply(index_partition, length)
@@ -109,6 +110,10 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     mds <- mds %*% eigen(cov(mds))$vectors
     eigen <- Reduce(`+`, mds_partition_eigen)/num_partition
     
-    return(list(points = mds, eigen = eigen))
+    # Build GOF metric
+    GOF <- mapply(function(x, y) x*nrow(y), x = mds_GOF, y = x_partition, SIMPLIFY = FALSE)
+    GOF <- Reduce(`+`, GOF)/n
+    
+    return(list(points = mds, eigen = eigen, GOF = GOF))
   }
 }
