@@ -3,8 +3,8 @@ source("tools/simulator.R")
 results_folder_name = "experiment_99"
 experiment_label = "faster_divide_conquer"
 
-sample_size = c(100000)
-n_cols = c(100)
+sample_size = c(1000)
+n_cols = c(10)
 
 distribution_parameters = list(list(var=c(15, 15, 15, 15)))
 

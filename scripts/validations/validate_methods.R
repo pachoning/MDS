@@ -8,10 +8,10 @@ source("final_methods/gower_interpolation_mds.R")
 
 # Generate data
 n_rows <- 1000
-sd_vector <- c(5, 5, 1)
+var_vector <- c(5, 5, 1)
 mean_vector <- c(0, 0, 0)
-n_cols <- length(sd_vector)
-x <- mapply(rnorm, n = n_rows, mean_vector) %*% diag(sd_vector)
+n_cols <- length(var_vector)
+x <- mapply(rnorm, n = n_rows, mean_vector) %*% diag(sqrt(var_vector))
 dim(x)
 var(x)
 cor(x)
@@ -28,7 +28,7 @@ divide_proc <- perform_procrustes(x = divide_results$points, target = x, matrix_
                                  translation = FALSE, dilation = FALSE)
 
 # Checking it is a MDS solution
-cov(divide_results$points)
+var(divide_results$points)
 cor(divide_results$points)
 apply(divide_results$points, 2, mean)
 
@@ -36,8 +36,8 @@ apply(divide_results$points, 2, mean)
 cor(divide_proc[,1], x[, 1])
 
 # Eigenvalues
-sd(divide_results$points[, 1])
-sqrt(divide_results$eigen)
+var(divide_results$points)
+divide_results$eigen
 
 # Cheching distance is preserved
 dist(x[1:5, ])
@@ -60,8 +60,8 @@ apply(fast_results$points, 2, mean)
 cor(fast_proc[,1], x[, 1])
 
 # Eigenvalues
-sd(fast_results$points[, 1])
-sqrt(fast_results$eigen)
+var(fast_results$points)
+fast_results$eigen
 
 # Cheching distance is preserved
 dist(x[1:5, ])
@@ -85,8 +85,8 @@ apply(gower_results$points, 2, mean)
 cor(gower_proc[,1], x[, 1])
 
 # Eigenvalues
-sd(gower_results$points[, 1])
-sqrt(gower_results$eigen)
+var(gower_results$points)
+gower_results$eigen
 
 # Cheching distance is preserved
 dist(x[1:5, ])

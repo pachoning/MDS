@@ -81,7 +81,7 @@ generate_data <- function(scenario){
   mu = unlist(scenario$mu)
   var = unlist(scenario$var)
   
-  return(mapply(rnorm, mean = mu, n = sample_size) %*% diag(var))
+  return(mapply(rnorm, mean = mu, n = sample_size) %*% diag(sqrt(var)))
 }
 
 
