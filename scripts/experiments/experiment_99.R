@@ -6,7 +6,7 @@ experiment_label = "faster_divide_conquer"
 sample_size = c(100000)
 n_cols = c(100)
 
-distribution_parameters = list(list(sd=c(15, 15, 15, 15)))
+distribution_parameters = list(list(var=c(15, 15, 15, 15)))
 
 scenarios = list(sample_size=sample_size, n_cols=n_cols, distribution_parameters=distribution_parameters)
 

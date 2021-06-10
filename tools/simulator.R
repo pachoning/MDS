@@ -7,7 +7,7 @@ source("tools/procrustes.R")
 
 validate_scenarios <- function(df, what){
   if("keys" %in% what){
-    expected_keys = c("sample_size", "n_cols", "distribution_parameters", "mu", "sd", "processed_at")
+    expected_keys = c("sample_size", "n_cols", "distribution_parameters", "mu", "var", "processed_at")
     key_names = colnames(df)
     for(ek in expected_keys){
       if(!ek %in% key_names) {stop(paste0(ek, " should be a key in scenarios"))}
@@ -19,7 +19,7 @@ validate_scenarios <- function(df, what){
     for(i in 1:total_scenarios){
       current_scenario = df[i, ]
       if(current_scenario$n_cols < length(current_scenario$mu)) {stop("There is one scenario with more mean values than columns")}
-      if(current_scenario$n_cols < length(current_scenario$sd)) {stop("There is one scenario with more sd values than columns")}
+      if(current_scenario$n_cols < length(current_scenario$var)) {stop("There is one scenario with more var values than columns")}
     }
   }
 }
@@ -32,7 +32,7 @@ generate_df_scenarios <- function(scenarios, experiment_label){
   df$id = stringi::stri_rand_strings(n=nrow(df), length=15)
   df = df[, ncol(df):1]
   df$mu = NA
-  df$sd = NA
+  df$var = NA
   df$n_main_dimensions = NA
   df$processed_at = as.POSIXct(NA)
   df$computer_id = Sys.info()["nodename"]
@@ -49,7 +49,7 @@ generate_df_scenarios <- function(scenarios, experiment_label){
     distribution_parameters = current_scenario$distribution_parameters[[1]]
 
     mu = unlist(distribution_parameters$mu)
-    sd = unlist(distribution_parameters$sd)
+    var = unlist(distribution_parameters$var)
     
     if(any(is.na(mu) | is.null(mu))){
       mu = rep(0, times=n_cols)
@@ -58,15 +58,15 @@ generate_df_scenarios <- function(scenarios, experiment_label){
     }
 
     
-    if(any(is.na(sd) | is.null(sd))){
-      sd = rep(1, times=n_cols)
-    }else if(length(sd) <= n_cols){
-      n_main_dimensions = length(sd)
-      sd = c(sd, rep(1, times=n_cols-length(sd)))
+    if(any(is.na(var) | is.null(var))){
+      var = rep(1, times=n_cols)
+    }else if(length(var) <= n_cols){
+      n_main_dimensions = length(var)
+      var = c(var, rep(1, times=n_cols-length(var)))
     }
     
     df$mu[i] = list(mu)
-    df$sd[i] = list(sd)
+    df$var[i] = list(var)
     df$n_main_dimensions[i] = n_main_dimensions
   }
   validate_scenarios(df=df, what="content")
@@ -79,9 +79,9 @@ generate_data <- function(scenario){
   total_columns = scenario$n_cols
   sample_size = scenario$sample_size
   mu = unlist(scenario$mu)
-  sd = unlist(scenario$sd)
+  var = unlist(scenario$var)
   
-  return(mapply(rnorm, mean = mu, n = sample_size) %*% diag(sd))
+  return(mapply(rnorm, mean = mu, n = sample_size) %*% diag(var))
 }
 
 

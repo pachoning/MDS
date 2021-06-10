@@ -8,7 +8,7 @@ load(file.path(data_path, "df_scenarios_full.RData"))
 load(file.path(data_path, "df_time_full.RData"))
 
 # Manipulate data ----
-scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "sd_main")
+scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main")
 
 # Avoid using scenarions which sample size is 10^6
 df_scenarios_full_filtered = df_scenarios_full %>% filter(!is.na(processed_at))
@@ -38,10 +38,10 @@ for(i_scenario in 1:total_scenario){
   results = df_join_scenarios_time[df_join_scenarios_time$id == current_scenario$id, ]
   
   plot_title = paste0("sample_size: ", current_scenario$sample_size, "; n_cols: ", current_scenario$n_cols, 
-                      "; n_main_dim: ", current_scenario$n_main_dimensions, "; sd_main: ", current_scenario$sd_main)
+                      "; n_main_dim: ", current_scenario$n_main_dimensions, "; var_main: ", current_scenario$var_main)
   plot_name = paste0("sample_size:", current_scenario$sample_size, "__n_cols:", current_scenario$n_cols, 
                      "; __n_main_dim:", current_scenario$n_main_dimensions, 
-                     "; __sd_main:",current_scenario$sd_main, ".png")
+                     "; __var_main:",current_scenario$var_main, ".png")
   
   p = ggplot(results, aes(elapsed_time, group = method_name, color = method_name)) +
     geom_density() + 

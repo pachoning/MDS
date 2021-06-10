@@ -7,7 +7,7 @@ load(file.path(data_path, "df_scenarios_full.RData"))
 load(file.path(data_path, "df_correlation_full.RData"))
 
 # Manipulate data ----
-scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "sd_main")
+scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main")
 
 # Avoid using scenarions which sample size is 10^6
 scenarios_with_main_dimesions = df_scenarios_full %>% filter(n_main_dimensions > 0, !is.na(processed_at))
@@ -39,7 +39,7 @@ while(i <= total_scenarios){
   correlation_data = df_join_scenarios_correlation[df_join_scenarios_correlation$id == scenario_id, ]
   
   name_title = paste0("sample_size: ", current_scenario$sample_size, "; n_cols: ", current_scenario$n_cols, 
-                      "; n_main_dim: ", current_scenario$n_main_dimensions, "; sd_main: ", current_scenario$sd_main)
+                      "; n_main_dim: ", current_scenario$n_main_dimensions, "; var_main: ", current_scenario$var_main)
   
   p = correlation_data %>% 
     ggplot(aes(x = method_name, y = correlation)) + 

@@ -53,8 +53,8 @@ df_eigenvalues_full = df_eigenvalues_full %>% filter(scenario_id %in% scenarios_
 # Add some fields to the data
 df_scenarios_full = df_scenarios_full %>% 
   mutate(
-    sd_main = map2_chr(
-      .x = sd, 
+    var_main = map2_chr(
+      .x = var, 
       .y = n_main_dimensions, 
       .f=~ifelse(.y == 0, "No_main_dimensions", paste0(.x[1:.y], collapse = "_"))
     )
