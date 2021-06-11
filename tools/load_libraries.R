@@ -12,4 +12,4 @@ load_libraries <- function(packages_list){
   
 }
 
-load_libraries(packages_list=c("MCMCpack", "pdist", "sets", "stringi"))
+load_libraries(packages_list=c("pdist", "sets", "stringi"))
