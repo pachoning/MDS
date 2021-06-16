@@ -181,7 +181,7 @@ get_correlation_main_dimesions <- function(x, y, num_dimesions, largest_matrix_e
     y_main = y[, 1:num_dimesions, drop=FALSE]
     
     x_proc = perform_procrustes(x=x_main, target=y_main, matrix_to_transform=x_main, 
-                                translation=FALSE, dilation=FALSE,
+                                translation=FALSE,
                                 largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
     
     for(i_dim in 1:num_dimesions){
