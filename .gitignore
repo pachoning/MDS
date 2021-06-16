@@ -7,3 +7,4 @@ plots/
 decisions/*.RData
 decisions/*.png
 scripts/.Rapp.history
+images/
