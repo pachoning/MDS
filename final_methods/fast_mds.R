@@ -102,7 +102,7 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     
     # Apply Procrustes
     procrustes <- mapply(perform_procrustes, x = mds_partition_sampling_points, target = mds_M_sampling_points, 
-                         matrix_to_transform = mds_partition_points, translation = FALSE, dilation = FALSE, SIMPLIFY = FALSE)
+                         matrix_to_transform = mds_partition_points, translation = FALSE, SIMPLIFY = FALSE)
     
     # Build the list to be returned
     mds <- Reduce(rbind, procrustes)

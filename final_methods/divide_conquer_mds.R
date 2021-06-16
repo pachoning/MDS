@@ -101,7 +101,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_procrustes <- mapply(FUN = perform_procrustes, 
                              x = mds_division_first, 
                              matrix_to_transform = mds_division_rest,
-                             MoreArgs = list(target = mds_1_sample, translation = FALSE, dilation = FALSE),
+                             MoreArgs = list(target = mds_1_sample, translation = FALSE),
                              SIMPLIFY = FALSE)
     
     # Join all the solutions
