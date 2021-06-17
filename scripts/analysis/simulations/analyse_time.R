@@ -59,3 +59,13 @@ df_join_scenarios_time %>%
   pivot_wider(
     names_from = statistic,
     values_from = value)
+
+df_join_scenarios_time %>% 
+  filter(sample_size == 10^5, n_cols == 100, n_main_dimensions == 10) %>% 
+  group_by(algorithm) %>% 
+  summarise(
+    statistic = quant_char,
+    value = c(quantile(elapsed_time, quant), mean(elapsed_time))) %>% 
+  pivot_wider(
+    names_from = statistic,
+    values_from = value)
