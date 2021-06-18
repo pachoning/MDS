@@ -3,12 +3,7 @@ source("tools/procrustes.R")
 
 get_partitions_for_fast <- function(n, l, s, k) {
 
-  if (n/l<1.1) {
-    p <- 2
-  } else {
-    p <- ceiling(l/s)
-  }
-
+  p <- ceiling(l/s)
   min_sample_size <- max(k+2, s)
   size_partition <- floor(n/p)
   last_sample_size <- n - (p-1)*size_partition
@@ -24,21 +19,9 @@ get_partitions_for_fast <- function(n, l, s, k) {
     p <- p - 1
   }
   
-  for(i in 1:p) {
-    if (i == 1) {
-      ini <- 1
-      end <- size_partition
-    } else if (i < p) {
-      ini <- end + 1
-      end <- (ini - 1) + size_partition
-    } else {
-      ini <- end + 1
-      end <- n
-    }
-    
-    list_indexes[[i]] <- ini:end
-  }
-  
+  permutation <- sample(x = p, size = n, replace = TRUE)
+  list_indexes <- lapply(1:p, function(x, y) which(x == y), y =  permutation)
+
   return(list_indexes)
 }
 
@@ -75,14 +58,13 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     
     
     # Create two lists: one with initial position inside the matrix and another with end position
-    ini_index <- list()
-    end_index <- list()
+    ini_index <- mapply(function(i, partition) (i-1)*length(partition) + 1,
+                        i = 1:num_partition, partition = sample_partition,
+                        SIMPLIFY = FALSE)
+    end_index <- mapply(function(i, partition) i*length(partition),
+                        i = 1:num_partition, partition = sample_partition,
+                        SIMPLIFY = FALSE)
     
-    for (i in 1:num_partition) {
-      length_sample_partition_i <- length(sample_partition[[i]])
-      ini_index[[i]] <- (i-1)*length_sample_partition_i + 1
-      end_index[[i]] <- i*length_sample_partition_i
-    }
     
     # Join each sampled data
     x_M <- Reduce(rbind, x_partition_sample)
@@ -105,7 +87,10 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
                          matrix_to_transform = mds_partition_points, translation = FALSE, SIMPLIFY = FALSE)
     
     # Build the list to be returned
+    idx_order <- Reduce(c, index_partition)
+    idx_order <- order(idx_order)
     mds <- Reduce(rbind, procrustes)
+    mds <- mds[idx_order, ,drop = FALSE]
     mds <- apply(mds, MARGIN = 2, FUN = function(y) y - mean(y))
     mds <- mds %*% eigen(cov(mds))$vectors
     eigen <- Reduce(`+`, mds_partition_eigen)/num_partition
