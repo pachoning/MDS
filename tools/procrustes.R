@@ -26,6 +26,32 @@ get_procrustes_parameters <- function(x, target, translation = FALSE) {
   return(list(rotation_matrix = rotation_matrix, translation_vector = translation_vector))
 }
 
+perform_procrustes <- function(x, target, matrix_to_transform, translation = FALSE, dilation = FALSE) {
+  
+  n_row = nrow(x)
+  n_col = ncol(x)
+  
+  if (n_row != nrow(target)) {
+    stop("x and target do not have same number of rows.\n")
+  }
+  
+  if (n_col != ncol(target)) {
+    stop("x and target do not have same number of columns.\n")
+  }
+  
+  if (n_col != ncol(matrix_to_transform)) {
+    stop("x and matrix_to_transform do not have same number of columns.\n")
+  }
+  
+  procrustes_parameters = get_procrustes_parameters(x = x, target = target, translation = translation)
+  
+  ones_vector = matrix(data = 1, nrow=nrow(matrix_to_transform), ncol = 1)
+  translation_matrix = matrix(data = 0, nrow = nrow(matrix_to_transform), ncol = ncol(matrix_to_transform))
+  translation_matrix = translation_matrix + ones_vector %*% t(procrustes_parameters$translation_vector)
+  
+  return(matrix_to_transform %*%  procrustes_parameters$rotation_matrix + translation_matrix)
+}
+
 #procrustes_based_distance <- function(x, target, list_dilation_factor, list_rotation_matrix, list_translation_vector) {
 #  
 #  ones_vector = matrix(data = 1, nrow = nrow(target), ncol = 1)
@@ -169,3 +195,8 @@ get_procrustes_parameters <- function(x, target, translation = FALSE) {
 #
 #  return(procrustes_parameters$dilation_factor * matrix_to_transform %*%  procrustes_parameters$rotation_matrix + translation_matrix)
 #}
+
+
+
+
+
