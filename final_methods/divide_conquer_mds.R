@@ -22,23 +22,10 @@ get_partitions_for_divide_conquer <- function(n, l, tie, k) {
     p <- p - 1
   }
   
-  for(i in 1:p){
-    if (i == 1) {
-      ini <- 1
-      end <- size_partition
-    } else if (i < p) {
-      ini <- end + 1
-      end <- (ini-1) + size_partition
-    } else {
-      ini <- end + 1
-      end <- n
-    }
-    
-    list_indexes[[i]] <- ini:end
-  }
-  
+  permutation <- sample(x = p, size = n, replace = TRUE)
+  list_indexes <- lapply(1:p, function(x, y) which(x == y), y =  permutation)
   return(list_indexes)
-  
+
 }
 
 
@@ -63,27 +50,25 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     idx <- get_partitions_for_divide_conquer(n = n_row_x, l = l, tie = tie, k = k)
     num_partitions <- length(idx)
     
-    # Get the elements of the first partition and drop from the list
-    idx_1 <- idx[[1]]
-    idx[[1]] <- NULL 
+    # Get elements of the first partition
+    x_1 <- x[idx[[1]], , drop = FALSE]
     
-    # Partition x
-    x_partition <- lapply(idx, function(rows, matrix) matrix[rows, , drop = FALSE], matrix = x)
+    # Get elements of remaining partitions
+    x_rest <- lapply(idx[2:num_partitions], function(rows, matrix) matrix[rows, , drop = FALSE], matrix = x)
     
     # Take a sample from the first partition
-    sample_first_partition <- sample(x = idx_1, size = tie, replace = FALSE)
-    x_1 <- x[idx_1, , drop = FALSE]
-    x_sample_1 <- x_1[sample_first_partition, , drop = FALSE]
+    idx_sample_1 <- sample(x = nrow(x_1), size = tie, replace = FALSE)
+    x_sample_1 <- x_1[idx_sample_1, , drop = FALSE]
     
     # Join each partition with the sample from the first partition
-    x_join_1 <- lapply(x_partition, function(m_big, m_small) rbind(m_small, m_big), m_small = x_sample_1)
+    x_join_1 <- lapply(x_rest, function(m_big, m_small) rbind(m_small, m_big), m_small = x_sample_1)
     
     # Perform MDS for each partition as well as for the first partition
     mds_1 <- classical_mds(x = x_1, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE, ...)
     mds_1_points <- mds_1$points
     mds_1_eigen <- mds_1$eigen/nrow(x_1)
     mds1_GOF <- mds_1$GOF
-    mds_1_sample <- mds_1_points[sample_first_partition, ,drop = FALSE]
+    mds_1_sample <- mds_1_points[idx_sample_1, ,drop = FALSE]
     
     mds_join_1 <- lapply(x_join_1, classical_mds, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE, ...)
     mds_join_1_points <- lapply(mds_join_1, function(x) x$points)
@@ -108,10 +93,13 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_solution <- Reduce(rbind, mds_procrustes)
     mds_solution <- Reduce(rbind, list(mds_1_points, mds_solution))
     mds_solution <- apply(mds_solution, MARGIN = 2, FUN = function(y) y - mean(y))
+    idx_order <- Reduce(c, idx)
+    idx_order <- order(idx_order)
+    mds_solution <- mds_solution[idx_order, , drop = FALSE]
     mds_solution <- mds_solution %*% eigen(cov(mds_solution))$vectors
 
     # Get eigenvalues
-    eigen <- mapply(function(x, y) x/length(y), x = mds_join_1_eigen, y = idx, SIMPLIFY = FALSE)
+    eigen <- mapply(function(x, y) x/length(y), x = mds_join_1_eigen, y = idx[2:num_partitions], SIMPLIFY = FALSE)
     eigen <- Reduce(`+`, eigen)
     eigen <- Reduce(`+`, list(mds_1_eigen, eigen))
     eigen <- eigen/num_partitions
