@@ -39,6 +39,17 @@ df_mds_fast_sample <- df_mds_fast[idx_sample, ]
 df_mds_gower_sample <- df_mds_gower[idx_sample, ]
 
 
+# Some validations ----
+# Check the correlation and the mean
+cor(df_mds_divide[, c(1,2), drop = FALSE])
+apply(df_mds_divide[, c(1,2), drop = FALSE], MARGIN = 2, mean)
+
+cor(df_mds_fast[, c(1,2), drop = FALSE])
+apply(df_mds_fast[, c(1,2), drop = FALSE], MARGIN = 2, mean)
+
+cor(df_mds_gower[, c(1,2), drop = FALSE])
+apply(df_mds_gower[, c(1,2), drop = FALSE], MARGIN = 2, mean)
+
 # Plots ----
 # Embeddings
 df_mds_divide_sample %>% 
