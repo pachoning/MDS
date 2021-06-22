@@ -111,9 +111,11 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
                   X_1__S_inv = X_1__S_inv)
 
     # Get cummulative MDS
-    cum_mds <- Reduce(rbind, MDS)
-    cum_mds <- Reduce(rbind, list(X_1, cum_mds))
-    
+    #cum_mds <- Reduce(rbind, MDS)
+    #cum_mds <- Reduce(rbind, list(X_1, cum_mds))
+    cum_mds <- do.call(rbind, MDS)
+    cum_mds <- rbind(X_1, cum_mds)
+      
     # Reorder the rows
     idexes_order <- Reduce(c, idexes_partition)
     cum_mds <- cum_mds[order(idexes_order), , drop = FALSE]
