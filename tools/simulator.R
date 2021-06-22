@@ -168,7 +168,7 @@ create_scenarios_file <- function(file_path, scenarios, experiment_label, overwr
 }
 
 
-get_correlation_main_dimesions <- function(x, y, num_dimesions, largest_matrix_efficient_procrustes){
+get_correlation_main_dimesions <- function(x, y, num_dimesions){
   
   if(num_dimesions==0){
     return(NA)
@@ -181,8 +181,7 @@ get_correlation_main_dimesions <- function(x, y, num_dimesions, largest_matrix_e
     y_main = y[, 1:num_dimesions, drop=FALSE]
     
     x_proc = perform_procrustes(x=x_main, target=y_main, matrix_to_transform=x_main, 
-                                translation=FALSE,
-                                largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
+                                translation=FALSE)
     
     for(i_dim in 1:num_dimesions){
       current_corr = cor(x_proc[, i_dim], y_main[, i_dim])
@@ -280,7 +279,6 @@ get_simulations <-function(
   overwrite_simulations=FALSE,
   n_sampling_points=NA,
   largest_matrix_efficient_mds=NA,
-  largest_matrix_efficient_procrustes=NA,
   num_mds_dimesions=NA,
   verbose=FALSE
 ){
@@ -290,8 +288,7 @@ get_simulations <-function(
   }
   
   validate_input(list(scenarios=scenarios, path=path, mds_methods=mds_methods_names, 
-                      n_simulations=n_simulations, largest_matrix_efficient_mds=largest_matrix_efficient_mds,
-                      largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes))
+                      n_simulations=n_simulations, largest_matrix_efficient_mds=largest_matrix_efficient_mds))
   
   input_parameters = as.list(match.call())
   save(input_parameters, file=file.path(path, 'input_parameters.RData'))
@@ -374,8 +371,7 @@ get_simulations <-function(
         batch_n_main_dimensions = c(batch_n_main_dimensions, current_scenario$n_main_dimensions)
 
         correlation_vector = get_correlation_main_dimesions(x=x, y=result$points, 
-                                                            num_dimesions=k,
-                                                            largest_matrix_efficient_procrustes=largest_matrix_efficient_procrustes)
+                                                            num_dimesions=k)
 
         eigenvalue_vector = result$eigen
         batch_correlation_vector[[i_method]] = correlation_vector
