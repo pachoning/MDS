@@ -9,8 +9,20 @@ get_partitions_for_gower_interpolation <- function(n, l, k) {
   p <- ceiling(n/l)
   p <- pmax(1, p)
   
-  permutation <- sample(x = p, size = n, replace = TRUE)
-  list_index <- lapply(1:p, function(x, y) which(x == y), y =  permutation)
+  permutation <- sample(x = n, size = n, replace = FALSE)
+  
+  if (p>1) {
+    p <- ceiling(n/l)
+    fix_elements <- permutation[1:(l*(p-1))]
+    residual_elements <- permutation[(l*(p-1) + 1):n]
+    list_index <- split(x = fix_elements, f = 1:(p-1))
+    names(list_index) <- NULL
+    list_index[[p]] <- residual_elements
+
+  } else {
+    list_index <- list(permutation)
+  }
+  
   return(list_index)
 }
 
@@ -47,11 +59,11 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     
     # Calculations needed to do Gower interpolation
     delta_matrix <- distance_matrix^2
-    In <- diag(n_1)
-    ones_vector <- rep(1, n_1)
-    J <- In - 1 / n_1 * ones_vector %*% t(ones_vector)
-    G <- -1 / 2 * J %*% delta_matrix %*% t(J) 
-    g_vector <- diag(G)
+    I_l <- diag(n_1)
+    ones_vector <- matrix(data = 1, nrow = n_1, ncol = 1)
+    P <- I_l - 1 / n_1 * ones_vector %*% t(ones_vector)
+    Q_1 <- -1 / 2 * P %*% delta_matrix %*% t(P) 
+    q_1_vector <- diag(Q_1)
     S <- 1 / (nrow(M)-1) * t(M) %*% M
     S_inv <- solve(S)
     
@@ -71,7 +83,7 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
                           x = 1)
     
     # Get MDS for all the partitions
-    MDS <- mapply(function(A, ones_vector) { 1 / (2 * n_1) * (ones_vector %*% t(g_vector) - A) %*% M %*% S_inv  }, 
+    MDS <- mapply(function(A, ones_vector) { 1 / (2 * n_1) * (ones_vector %*% t(q_1_vector) - A) %*% M %*% S_inv  }, 
                   A = A, ones_vector = ones_vector, SIMPLIFY = FALSE)
     
     # Get cummulative MDS

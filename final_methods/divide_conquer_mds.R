@@ -3,12 +3,6 @@ source("tools/procrustes.R")
 
 get_partitions_for_divide_conquer <- function(n, l, tie, k) {
   
-  size_partition <- l-tie
-  p <- ceiling(n/size_partition)
-  min_sample_size <- max(k, tie)
-  partition_sample_size <- l - tie
-  last_sample_size <- n - (p-1)*partition_sample_size
-  
   if (l-tie <= 0) {
     stop("l must be greater than tie")
   } else if(l-tie <= tie) {
@@ -17,12 +11,22 @@ get_partitions_for_divide_conquer <- function(n, l, tie, k) {
     stop("l-tie must be greater than k")
   }
   
-  if (last_sample_size < min_sample_size & last_sample_size > 0) {
-    p <- p - 1
-  }
+  permutation <- sample(x = n, size = n, replace = FALSE)
   
-  permutation <- sample(x = p, size = n, replace = TRUE)
-  list_indexes <- lapply(1:p, function(x, y) which(x == y), y =  permutation)
+  if (n<=l) {
+    list_indexes <- list(permutation)
+  } else {
+    p <- 1 + ceiling((n-l)/(l-tie))
+    last_partition_sample_size <- n - (l + (p-2) * (l-tie))
+    first_parition <- permutation[1:l]
+    last_partition <- permutation[(n-last_partition_sample_size+1):n]
+    list_indexes <- split(x = permutation[(l+1):(n-last_partition_sample_size)], f = 1:(p-2))
+    names(list_indexes) <- NULL
+    list_indexes[[p-1]] <- list_indexes[[1]]
+    list_indexes[[p]] <- last_partition
+    list_indexes[[1]] <- first_parition
+  }
+
   return(list_indexes)
 
 }
