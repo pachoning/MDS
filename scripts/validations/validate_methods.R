@@ -24,8 +24,9 @@ l <- 200
 ########################################################################################################################
 ##### Results for divide and conquer mds
 divide_results <- divide_conquer_mds(x = x,l = l, tie = tie, k = k, dist_fn = stats::dist)
-divide_proc <- perform_procrustes(x = divide_results$points, target = x, matrix_to_transform = divide_results$points, 
-                                 translation = FALSE)
+divide_proc <- perform_procrustes(x = divide_results$points, target = x, 
+                                  matrix_to_transform = divide_results$points,
+                                  translation = FALSE)
 
 # Checking it is a MDS solution
 var(divide_results$points)
@@ -47,9 +48,9 @@ dist(divide_results$points[1:5, ])
 divide_results$GOF
 ########################################################################################################################
 ##### Results for fast mds
-fast_results <- fast_mds(x = x,l = l, s = s, k = k, dist_fn = stats::dist)
-fast_proc <- perform_procrustes(x = fast_results$points, target = x, matrix_to_transform = fast_results$points, 
-                                 translation = FALSE)
+fast_results <- fast_mds(x = x, l = l, s = s, k = k, dist_fn = stats::dist)
+fast_proc <- perform_procrustes(x = fast_results$points, target = x, matrix_to_transform = fast_results$points,
+                                translation = FALSE)
 
 # Checking it is a MDS solution
 cov(fast_results$points)
@@ -72,8 +73,9 @@ fast_results$GOF
 ########################################################################################################################
 ##### Results for Gower mds
 gower_results <- gower_interpolation_mds(x = x, l = l, k = k, dist_fn = stats::dist)
-gower_proc <- perform_procrustes(x = gower_results$points, target = x, matrix_to_transform = gower_results$points, 
-                                translation = FALSE)
+gower_proc <- perform_procrustes(x = gower_results$points, target = x, 
+                                 matrix_to_transform = gower_results$points, 
+                                 translation = FALSE)
 
 # Checking it is a MDS solution
 cov(gower_results$points)
