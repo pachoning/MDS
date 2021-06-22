@@ -6,17 +6,24 @@ library(ggridges)
 data_path = file.path(getwd(), 'data')
 load(file.path(data_path, "df_scenarios_full.RData"))
 load(file.path(data_path, "df_time_full.RData"))
+load(file.path(data_path, "df_mds_paramenters_full.RData"))
 load(file.path(data_path, "df_conversion.RData"))
 
 # Manipulate data ----
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main")
+experiment_labels = c("pedro", "pedro2", "pedro3", "pedro4", "pedro5", "pedro6")
 
 # Avoid using scenarions which sample size is 10^6
-df_scenarios_full_filtered = df_scenarios_full %>% filter(!is.na(processed_at))
+df_scenarios_full_filtered = df_scenarios_full %>% 
+  left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
+  filter(!is.na(processed_at), experiment_label %in% experiment_labels)
+
+df_scenarios_full_filtered %>% View
 
 # Join scenarios and time
 df_join_scenarios_time = df_scenarios_full_filtered %>% 
-  select_at(c("id", scenario_identifier)) %>% 
+  filter(id == "vZJXZN5hn4OPsuH") %>% 
+  select_at(c("id", scenario_identifier, "experiment_label", "l")) %>% 
   left_join(
     df_time_full,
     by = c("id" = "scenario_id")
@@ -26,15 +33,21 @@ df_join_scenarios_time = df_scenarios_full_filtered %>%
          log_elapsed_time = log(elapsed_time)) %>% 
   left_join(df_conversion)
 
+
+df_join_scenarios_time %>% View
+
 # Analyse data  ----
 # Plots by sample size
 df_summary_sample_size = df_join_scenarios_time %>%
-  group_by(sample_size, algorithm) %>%
+  group_by(sample_size, experiment_label, l, n_cols, algorithm) %>%
   summarise(
     mean_elapsed_time = mean(elapsed_time), 
-    log_mean_elapsed_time = log(mean_elapsed_time),
     mean_log_elapsed_time = mean(log_elapsed_time)
-  )
+  ) %>% 
+  arrange(experiment_label)
+
+
+df_summary_sample_size %>% View()
 
 df_summary_sample_size %>% 
   mutate(sample_size = as.factor(sample_size)) %>% 

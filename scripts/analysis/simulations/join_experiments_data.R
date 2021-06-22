@@ -13,6 +13,7 @@ df_scenarios_full = c()
 df_time_full = c()
 df_correlation_full = c()
 df_eigenvalues_full = c()
+df_mds_paramenters_full = c()
 
 i_experiment = 1
 while (i_experiment <= total_experiments_to_retrieve) {
@@ -35,6 +36,10 @@ while (i_experiment <= total_experiments_to_retrieve) {
       load(file.path(current_experiment, file))
       df_eigenvalues_full = rbind(df_eigenvalues_full, df_eigenvalue)
       rm(df_eigenvalue)
+    } else if (stringi::stri_detect_regex(str=file, pattern="df_mds_parameters.RData")) {
+      load(file.path(current_experiment, file))
+      df_mds_paramenters_full = rbind(df_mds_paramenters_full, df_mds_parameters)
+      rm(df_mds_parameters)
     }
   }
   
@@ -48,7 +53,7 @@ scenarios_processed = unique(df_scenarios_full$id)
 df_time_full = df_time_full %>% filter(scenario_id %in% scenarios_processed)
 df_correlation_full = df_correlation_full %>% filter(scenario_id %in% scenarios_processed)
 df_eigenvalues_full = df_eigenvalues_full %>% filter(scenario_id %in% scenarios_processed)
-
+df_mds_paramenters_full = df_mds_paramenters_full %>% filter(scenario_id %in% scenarios_processed)
 
 # Add some fields to the data
 df_scenarios_full = df_scenarios_full %>% 
@@ -64,9 +69,10 @@ df_scenarios_full = df_scenarios_full %>%
 setdiff(df_scenarios_full$id, unique(df_time_full$scenario_id))
 setdiff(df_scenarios_full$id, unique(df_correlation_full$scenario_id))
 setdiff(df_scenarios_full$id, unique(df_eigenvalues_full$scenario_id))
+setdiff(df_scenarios_full$id, unique(df_mds_paramenters_full$scenario_id))
 
 save(df_scenarios_full, file=file.path(data_folder, "df_scenarios_full.RData"))
 save(df_time_full, file=file.path(data_folder, "df_time_full.RData"))
 save(df_correlation_full, file=file.path(data_folder, "df_correlation_full.RData"))
 save(df_eigenvalues_full, file=file.path(data_folder, "df_eigenvalues_full.RData"))
-
+save(df_mds_paramenters_full, file=file.path(data_folder, "df_mds_paramenters_full.RData"))
