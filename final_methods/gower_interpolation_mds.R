@@ -26,6 +26,21 @@ get_partitions_for_gower_interpolation <- function(n, l, k) {
   return(list_index)
 }
 
+gower_interpolation_formula <- function(A, constant, q_product_all, q_product_last, X_1__S_inv) {
+  
+  if (nrow(A) == nrow(q_product_all)) {
+    q_product <- q_product_all
+  } else if (nrow(A) == nrow(q_product_last)) {
+    q_product <- q_product_last
+  } else {
+   stop("Error in dimensions")
+  }
+  
+  new_points <- constant * (q_product - A) %*% X_1__S_inv
+  return(new_points)
+
+}
+
 
 gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
   
@@ -49,12 +64,12 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     n_1 <- length(idexes_partition[[1]])
 
     # Obtain MDS for the first group
-    x_1 <- x[idexes_partition[[1]], ,drop = FALSE]
-    mds_eig <- classical_mds(x = x_1, k = k, dist_fn = dist_fn, return_distance_matrix = TRUE, ...)
+    data_1 <- x[idexes_partition[[1]], ,drop = FALSE]
+    mds_eig <- classical_mds(x = data_1, k = k, dist_fn = dist_fn, return_distance_matrix = TRUE, ...)
     distance_matrix <- mds_eig$distance
     
-    M <- mds_eig$points
-    eigen <- mds_eig$eigen / nrow(M)
+    X_1 <- mds_eig$points
+    eigen <- mds_eig$eigen / nrow(X_1)
     GOF <- mds_eig$GOF
     
     # Calculations needed to do Gower interpolation
@@ -64,7 +79,7 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     P <- I_l - 1 / n_1 * ones_vector %*% t(ones_vector)
     Q_1 <- -1 / 2 * P %*% delta_matrix %*% t(P) 
     q_1_vector <- diag(Q_1)
-    S <- 1 / (nrow(M)-1) * t(M) %*% M
+    S <- 1 / (nrow(X_1)-1) * t(X_1) %*% X_1
     S_inv <- solve(S)
     
     # Get x for each partition
@@ -73,22 +88,31 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
                       matrix = x)
     
     # Obtain the distance matrix with respect the first partition
-    distance_matrix_filter <- lapply(x_other, function(X, Y){ pdist::pdist(X, Y) }, Y = x_1)
+    distance_matrix_filter <- lapply(x_other, function(X, Y){ pdist::pdist(X, Y) }, Y = data_1)
     distance_matrix_filter <- lapply(distance_matrix_filter, as.matrix)
     
     # A matrix
     A <- lapply(distance_matrix_filter, function(x){ x^2 })
-    ones_vector <- lapply(idexes_partition[2:num_partitions], 
-                          function(times, x){ rep(x, length(times)) }, 
-                          x = 1)
+    ones_vector_all <- matrix(data = 1, nrow = l, ncol = 1)
+    ones_vector_last <- matrix(data = 1, nrow = length(idexes_partition[[num_partitions]]), ncol = 1)
     
-    # Get MDS for all the partitions
-    MDS <- mapply(function(A, ones_vector) { 1 / (2 * n_1) * (ones_vector %*% t(q_1_vector) - A) %*% M %*% S_inv  }, 
-                  A = A, ones_vector = ones_vector, SIMPLIFY = FALSE)
     
+    # Get MDS for all the partitions. The first step is to calculate as many things as possible
+    # before performing a lapply
+    X_1__S_inv <- X_1 %*% S_inv
+    ones_vector_all__q_1_vector <- ones_vector_all %*% t(q_1_vector)
+    ones_vector_last__q_1_vector <- ones_vector_last %*% t(q_1_vector)
+    constant <- 1/(2*n_1)
+    
+    MDS <- lapply(A, gower_interpolation_formula, 
+                  constant = constant,
+                  q_product_all = ones_vector_all__q_1_vector,
+                  q_product_last = ones_vector_last__q_1_vector,
+                  X_1__S_inv = X_1__S_inv)
+
     # Get cummulative MDS
     cum_mds <- Reduce(rbind, MDS)
-    cum_mds <- Reduce(rbind, list(M, cum_mds))
+    cum_mds <- Reduce(rbind, list(X_1, cum_mds))
     
     # Reorder the rows
     idexes_order <- Reduce(c, idexes_partition)
