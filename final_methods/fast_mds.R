@@ -2,30 +2,31 @@ source("final_methods/classical_mds.R")
 source("tools/procrustes.R")
 
 get_partitions_for_fast <- function(n, l, s, k) {
-
-  p <- ceiling(l/s)
-  min_sample_size <- max(k+2, s)
-  size_partition <- floor(n/p)
-  last_sample_size <- n - (p-1)*size_partition
-  list_indexes <- list()
   
-  if (size_partition < s) {
+  if (n < s) {
     stop("nrow(x) must be greater than s")
-  } else if (size_partition < k) {
+  } else if (n*s/l < k) {
     stop("nrow(x)*s/l must be greater than k")
   }
+  
+  p <- floor(l/s)
+  min_sample_size <- max(k+2, s)
+  size_partition <- floor(n/p)
+  last_sample_size <- n - (p-1) * size_partition
   
   if (last_sample_size < min_sample_size & last_sample_size > 0) {
     p <- p - 1
   }
   
-  permutation <- sample(x = p, size = n, replace = TRUE)
-  list_indexes <- lapply(1:p, function(x, y) which(x == y), y =  permutation)
-
+  permutation <- sample(x = n, size = n, replace = FALSE)
+  permutation_all <- permutation[1:((p-1)*size_partition)]
+  permutation_last <- permutation[((p-1)*size_partition+1):n]
+  list_indexes <- split(x = permutation_all, f = 1:(p-1))
+  names(list_indexes) <- NULL
+  list_indexes[[p]] <- permutation_last
+  
   return(list_indexes)
 }
-
-
 
 fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
   
@@ -67,8 +68,9 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     
     
     # Join each sampled data
-    x_M <- Reduce(rbind, x_partition_sample)
-    
+    #x_M <- Reduce(rbind, x_partition_sample)
+    x_M <- do.call(rbind, x_partition_sample)
+
     # Apply MDS to the subsampling points
     mds_M <- classical_mds(x = x_M, k = k, dist_fn = stats::dist, ...)
     mds_M_points <- mds_M$points
@@ -89,7 +91,8 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     # Build the list to be returned
     idx_order <- Reduce(c, index_partition)
     idx_order <- order(idx_order)
-    mds <- Reduce(rbind, procrustes)
+    mds <-do.call(rbind, procrustes)
+    #mds <- Reduce(rbind, procrustes)
     mds <- mds[idx_order, ,drop = FALSE]
     mds <- apply(mds, MARGIN = 2, FUN = function(y) y - mean(y))
     mds <- mds %*% eigen(cov(mds))$vectors

@@ -16,8 +16,15 @@ get_partitions_for_divide_conquer <- function(n, l, tie, k) {
   if (n<=l) {
     list_indexes <- list(permutation)
   } else {
+    min_sample_size <- max(k+2, tie)
     p <- 1 + ceiling((n-l)/(l-tie))
     last_partition_sample_size <- n - (l + (p-2) * (l-tie))
+
+    if (last_partition_sample_size < min_sample_size & last_partition_sample_size > 0) {
+      p <- p - 1
+      last_partition_sample_size <- n - (l + (p-2) * (l-tie))
+    }
+
     first_parition <- permutation[1:l]
     last_partition <- permutation[(n-last_partition_sample_size+1):n]
     list_indexes <- split(x = permutation[(l+1):(n-last_partition_sample_size)], f = 1:(p-2))
@@ -93,8 +100,10 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
                              SIMPLIFY = FALSE)
     
     # Join all the solutions
-    mds_solution <- Reduce(rbind, mds_procrustes)
-    mds_solution <- Reduce(rbind, list(mds_1_points, mds_solution))
+    #mds_solution <- Reduce(rbind, mds_procrustes)
+    #mds_solution <- Reduce(rbind, list(mds_1_points, mds_solution))
+    mds_solution <- do.call(rbind, mds_procrustes)
+    mds_solution <- rbind(mds_1_points, mds_solution)
     mds_solution <- apply(mds_solution, MARGIN = 2, FUN = function(y) y - mean(y))
     idx_order <- Reduce(c, idx)
     idx_order <- order(idx_order)
