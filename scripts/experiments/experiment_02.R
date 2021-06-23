@@ -21,7 +21,6 @@ get_simulations(
   overwrite_simulations=FALSE,
   n_sampling_points=NA,
   largest_matrix_efficient_mds=200,
-  largest_matrix_efficient_procrustes=5000,
   num_mds_dimesions=NA,
   verbose=TRUE
 )
