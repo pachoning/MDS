@@ -39,11 +39,29 @@ get_partitions_for_divide_conquer <- function(n, l, tie, k) {
 }
 
 
-divide_matrix <- function(x, long) {
-  n_row <- nrow(x)
-  x_first <- x[1:long, , drop = FALSE]
-  x_rest <- x[(long+1):n_row, , drop = FALSE]
-  return(list(first = x_first, rest = x_rest))
+divide_matrix <- function(x, long, idx) {
+  if (idx == 1) {
+    return(list(first = NA, rest = x))
+  } else {
+    n_row <- nrow(x)
+    x_first <- x[1:long, , drop = FALSE]
+    x_rest <- x[(long+1):n_row, , drop = FALSE]
+    return(list(first = x_first, rest = x_rest))
+  }
+}
+
+multidimensional_procrustes <- function(x, target, matrix_to_transform, translation = FALSE, ...) {
+  
+  if (any(is.na(x)) | any(is.na(target)) | any(is.na(matrix_to_transform))) {
+    return(NA)
+  } else {
+    return(perform_procrustes(x = x, 
+                              target = target, 
+                              matrix_to_transform = matrix_to_transform,
+                              translation = translation,
+                              ...))
+  }
+  
 }
 
 divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
@@ -51,7 +69,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
   n_row_x <- nrow(x)
   
   if (n_row_x <= l) {
-    mds_to_return <- classical_mds(x = x, k = k, dist_fn = dist_fn, ...)
+    mds_to_return <- classical_mds(x = x, k = k, dist_fn = dist_fn)
     mds_to_return$eigen <- mds_to_return$eigen/nrow(x)
     mds_to_return$GOF <- mds_to_return$GOF
     
@@ -60,50 +78,59 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     idx <- get_partitions_for_divide_conquer(n = n_row_x, l = l, tie = tie, k = k)
     num_partitions <- length(idx)
     
-    # Get elements of the first partition
-    x_1 <- x[idx[[1]], , drop = FALSE]
-    
-    # Get elements of remaining partitions
-    x_rest <- lapply(idx[2:num_partitions], function(rows, matrix) matrix[rows, , drop = FALSE], matrix = x)
+    # Get partitions
+    x_partition <- parallel::mclapply(idx, function(rows, matrix) matrix[rows, , drop = FALSE], matrix = x)
+    num_rows_partition <- parallel::mclapply(x_partition, nrow)
     
     # Take a sample from the first partition
-    idx_sample_1 <- sample(x = nrow(x_1), size = tie, replace = FALSE)
-    x_sample_1 <- x_1[idx_sample_1, , drop = FALSE]
+    idx_sample_1 <- sample(x = num_rows_partition[[1]], size = tie, replace = FALSE)
+    x_sample_1 <- x_partition[[1]][idx_sample_1, , drop = FALSE]
     
-    # Join each partition with the sample from the first partition
-    x_join_1 <- lapply(x_rest, function(m_big, m_small) rbind(m_small, m_big), m_small = x_sample_1)
+    # Join each partition with the sample from the first partition except from the first partition
+    x_join <- parallel::mclapply(
+      x_partition,
+      function(m_big, m_small) rbind(m_small, m_big),
+      m_small = x_sample_1)
+    
+    num_rows_x_join <- parallel::mclapply(x_join, nrow)
+    x_join[[1]] <- x_join[[1]][(length(idx_sample_1)+1):num_rows_x_join[[1]], , drop = FALSE]
+    
     
     # Perform MDS for each partition as well as for the first partition
-    mds_1 <- classical_mds(x = x_1, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE, ...)
-    mds_1_points <- mds_1$points
-    mds_1_eigen <- mds_1$eigen/nrow(x_1)
-    mds1_GOF <- mds_1$GOF
-    mds_1_sample <- mds_1_points[idx_sample_1, ,drop = FALSE]
-    
-    mds_join_1 <- lapply(x_join_1, classical_mds, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE, ...)
-    mds_join_1_points <- lapply(mds_join_1, function(x) x$points)
-    mds_join_1_eigen <- lapply(mds_join_1, function(x) x$eigen)
-    mds_join_1_GOF <- lapply(mds_join_1, function(x) x$GOF)
+    mds <- parallel::mclapply(x_join, classical_mds, k = k, dist_fn = dist_fn, return_distance_matrix = FALSE)
+    mds_points <- parallel::mclapply(mds, FUN = function(x) x$points) 
+    mds_eigen <- parallel::mclapply(mds, FUN = function(x) x$eigen) 
+    mds_GOF <- parallel::mclapply(mds, FUN = function(x) x$GOF) 
     
     # For each partition, divide the matrix into two part: 
     # first corresponding to the sample of the first partition
     # the rest of the matrix corresponding to the observations of each matrix
-    mds_division <- lapply(mds_join_1_points, divide_matrix, long = tie)
-    mds_division_first <- lapply(mds_division, function(x) x$first)
-    mds_division_rest <- lapply(mds_division, function(x) x$rest)
+    # Do not divide the first matrix
+    mds_division <- parallel::mcmapply(
+      divide_matrix,
+      x = mds_points,
+      idx = 1:num_partitions,
+      MoreArgs = list(long = tie),
+      SIMPLIFY = FALSE
+    )
+    
+    mds_division_first <- parallel::mclapply(mds_division, function(x) x$first)
+    mds_division_rest <- parallel::mclapply(mds_division, function(x) x$rest)
+    
+    # Get MDS for the sampling poinrs of the first partition
+    mds_1_sample <- mds_division_rest[[1]][idx_sample_1, , drop = FALSE]
     
     # Apply Procrustes for each partition
-    mds_procrustes <- mapply(FUN = perform_procrustes, 
-                             x = mds_division_first, 
-                             matrix_to_transform = mds_division_rest,
-                             MoreArgs = list(target = mds_1_sample, translation = FALSE),
-                             SIMPLIFY = FALSE)
+    mds_procrustes <- parallel::mcmapply(FUN = multidimensional_procrustes, 
+                                         x = mds_division_first, 
+                                         matrix_to_transform = mds_division_rest,
+                                         MoreArgs = list(target = mds_1_sample, translation = FALSE),
+                                         SIMPLIFY = FALSE)
+    
+    mds_procrustes[[1]] <- mds_division_rest[[1]]
     
     # Join all the solutions
-    #mds_solution <- Reduce(rbind, mds_procrustes)
-    #mds_solution <- Reduce(rbind, list(mds_1_points, mds_solution))
     mds_solution <- do.call(rbind, mds_procrustes)
-    mds_solution <- rbind(mds_1_points, mds_solution)
     mds_solution <- apply(mds_solution, MARGIN = 2, FUN = function(y) y - mean(y))
     idx_order <- Reduce(c, idx)
     idx_order <- order(idx_order)
@@ -111,16 +138,14 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_solution <- mds_solution %*% eigen(cov(mds_solution))$vectors
 
     # Get eigenvalues
-    eigen <- mapply(function(x, y) x/length(y), x = mds_join_1_eigen, y = idx[2:num_partitions], SIMPLIFY = FALSE)
+    eigen <- parallel::mcmapply(function(x, y) x/length(y), x = mds_eigen, y = idx, SIMPLIFY = FALSE)
     eigen <- Reduce(`+`, eigen)
-    eigen <- Reduce(`+`, list(mds_1_eigen, eigen))
     eigen <- eigen/num_partitions
     
     # Get GOF
-    GOF_1 <- mds1_GOF*nrow(x_1)
-    GOF_rest <- mapply(function(x, y) x*nrow(y), x = mds_join_1_GOF, y = mds_division_rest, SIMPLIFY = FALSE)
-    GOF <- Reduce(`+`, GOF_rest)
-    GOF <- (GOF + GOF_1)/n_row_x
+    GOF <- parallel::mcmapply(function(x, y) x*length(y), x = mds_GOF, y = idx, SIMPLIFY = FALSE)
+    GOF <- Reduce(`+`, GOF)
+    GOF <- GOF/n_row_x
     
     mds_to_return <- list(points = mds_solution, eigen = eigen, GOF = GOF)
   }
