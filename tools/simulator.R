@@ -1,8 +1,3 @@
-source("tools/load_libraries.R")
-source("tools/classical_mds.R")
-source("final_methods/divide_conquer_mds.R")
-source("final_methods/fast_mds.R")
-source("final_methods/gower_interpolation_mds.R")
 source("tools/procrustes.R")
 
 validate_scenarios <- function(df, what){
@@ -23,8 +18,6 @@ validate_scenarios <- function(df, what){
     }
   }
 }
-
-
 
 generate_df_scenarios <- function(scenarios, experiment_label){
   
@@ -92,8 +85,11 @@ create_correlation_file <- function(file_path, overwrite_simulations){
     load(file_path)
     warning('Using simulations that are already saved. Current will be ignored')
   }else{
-    df_correlation = data.frame(scenario_id=character(0), num_sim=numeric(0), method_name=character(0),
-                                n_main_dimensions=numeric(0), correlation_vector=numeric(0))
+    df_correlation = data.frame(scenario_id=character(0),
+                                num_sim=numeric(0),
+                                method_name=character(0),
+                                n_main_dimensions=numeric(0), 
+                                correlation_vector=numeric(0))
   }
   
   #In case a simulation breaks in the middle we delete all the simulations
@@ -109,7 +105,10 @@ create_eigenvalue_file <- function(file_path, overwrite_simulations){
     load(file_path)
     warning('Using simulations that are already saved. Current will be ignored')
   }else{
-    df_eigenvalue = data.frame(scenario_id=character(0), num_sim=numeric(0), method_name=character(0),eigenvalue_vector=numeric(0))
+    df_eigenvalue = data.frame(scenario_id=character(0),
+                               num_sim=numeric(0),
+                               method_name=character(0),
+                               eigenvalue_vector=numeric(0))
   }
   
   #In case a simulation breaks in the middle we delete all the simulations
@@ -125,7 +124,10 @@ create_mds_parameters_file <- function(file_path, overwrite_simulations){
     load(file_path)
     warning('Using simulations that are already saved. Current will be ignored')
   }else{
-    df_mds_parameters = data.frame(scenario_id=character(0), s=numeric(0), k=character(0),l=numeric(0))
+    df_mds_parameters = data.frame(scenario_id = character(0),
+                                   s = numeric(0),
+                                   k = character(0),
+                                   l = numeric(0))
   }
   
   #In case a simulation breaks in the middle we delete all the simulations
@@ -143,7 +145,10 @@ create_time_file <- function(file_path, overwrite_simulations){
     load(file_path)
     warning('Using simulations that are already saved. Current will be ignored')
   }else{
-    df_time = data.frame(scenario_id=character(0), num_sim=numeric(0), method_name=character(0), elapsed_time=numeric(0))
+    df_time = data.frame(scenario_id = character(0),
+                         num_sim = numeric(0),
+                         method_name = character(0),
+                         elapsed_time = numeric(0))
   }
 
   save(df_time, file=file_path)
@@ -221,8 +226,10 @@ update_time_data <- function(file_path, scenario_id, num_sim, method_name, elaps
 
 update_correlation_data <- function(file_path, scenario_id, num_sim, method_name, n_main_dimensions, correlation_vector){
   
-  temp_df = data.frame(scenario_id=scenario_id, num_sim=num_sim, method_name=method_name, 
-                       n_main_dimensions=n_main_dimensions)
+  temp_df = data.frame(scenario_id = scenario_id,
+                       num_sim = num_sim,
+                       method_name = method_name, 
+                       n_main_dimensions = n_main_dimensions)
   
   temp_df$correlation_vector = correlation_vector
   
@@ -236,7 +243,9 @@ update_correlation_data <- function(file_path, scenario_id, num_sim, method_name
 
 update_eigenvalue_data <- function(file_path, scenario_id, num_sim, method_name, eigenvalue_vector){
   
-  temp_df = data.frame(scenario_id=scenario_id, num_sim=num_sim, method_name=method_name)
+  temp_df = data.frame(scenario_id = scenario_id,
+                       num_sim = num_sim,
+                       method_name = method_name)
   
   temp_df$eigenvalue_vector = eigenvalue_vector
   
@@ -274,7 +283,7 @@ get_simulations <-function(
   experiment_label,
   scenarios, 
   path,
-  mds_methods_names,
+  algorithms,
   n_simulations,
   overwrite_simulations=FALSE,
   n_sampling_points=NA,
@@ -283,12 +292,13 @@ get_simulations <-function(
   verbose=FALSE
 ){
   
-  if(!dir.exists(path)){
+  if(!dir.exists(path)) {
     dir.create(path)
   }
   
-  validate_input(list(scenarios=scenarios, path=path, mds_methods=mds_methods_names, 
-                      n_simulations=n_simulations, largest_matrix_efficient_mds=largest_matrix_efficient_mds))
+  validate_input(list(scenarios = scenarios, 
+                      path = path, n_simulations = n_simulations,
+                      largest_matrix_efficient_mds = largest_matrix_efficient_mds))
   
   input_parameters = as.list(match.call())
   save(input_parameters, file=file.path(path, 'input_parameters.RData'))
@@ -299,14 +309,24 @@ get_simulations <-function(
   eigenvalue_filename = "df_eigenvalue.RData"
   mds_parameters_filename = "df_mds_parameters.RData"
   
-  create_scenarios_file(file_path=file.path(path, scenarios_filename), scenarios=scenarios, 
-                        experiment_label=experiment_label, overwrite_simulations=overwrite_simulations)
-  create_time_file(file_path=file.path(path, time_filename), overwrite_simulations=overwrite_simulations)
-  create_correlation_file(file_path=file.path(path, correlation_filename), overwrite_simulations=overwrite_simulations)
-  create_eigenvalue_file(file_path=file.path(path, eigenvalue_filename), overwrite_simulations=overwrite_simulations)
-  create_mds_parameters_file(file_path=file.path(path, mds_parameters_filename), overwrite_simulations=overwrite_simulations)
+  create_scenarios_file(file_path = file.path(path, scenarios_filename), 
+                        scenarios = scenarios, 
+                        experiment_label = experiment_label,
+                        overwrite_simulations = overwrite_simulations)
   
-  total_methods = length(mds_methods_names)
+  create_time_file(file_path = file.path(path, time_filename),
+                   overwrite_simulations = overwrite_simulations)
+  
+  create_correlation_file(file_path = file.path(path, correlation_filename), 
+                          overwrite_simulations = overwrite_simulations)
+  
+  create_eigenvalue_file(file_path = file.path(path, eigenvalue_filename), 
+                         overwrite_simulations = overwrite_simulations)
+  
+  create_mds_parameters_file(file_path = file.path(path, mds_parameters_filename), 
+                             overwrite_simulations = overwrite_simulations)
+  
+  total_methods = length(algorithms)
   df_missing_scenarios = df_scenarios[is.na(df_scenarios$processed_at),]
   total_scenarios = dim(df_missing_scenarios)[1]
   
@@ -323,11 +343,17 @@ get_simulations <-function(
                                                         n_simulations = n_simulations)
 
     # Set the parameter values for the methods
-    s = ifelse(!is.na(n_sampling_points), n_sampling_points, 
-               ifelse(current_scenario$n_main_dimensions>0, 2*current_scenario$n_main_dimensions, min(0.1*current_scenario$sample_size, 10)))
-    k = ifelse(!is.na(num_mds_dimesions), num_mds_dimesions, pmax(current_scenario$n_main_dimensions, 1))
-    l = largest_matrix_efficient_mds
+    s = ifelse(!is.na(n_sampling_points), 
+               n_sampling_points, 
+               ifelse(current_scenario$n_main_dimensions>0, 
+                      2*current_scenario$n_main_dimensions, 
+                      min(0.1*current_scenario$sample_size, 10)))
+   
+    k = ifelse(!is.na(num_mds_dimesions), 
+               num_mds_dimesions, 
+               pmax(current_scenario$n_main_dimensions, 1))
     
+    l = largest_matrix_efficient_mds
     
     for(i_sim in initial_simulation:n_simulations){
       batch_scenario_ids = c()
@@ -346,27 +372,17 @@ get_simulations <-function(
         message(paste0("     Starting simulation: ", i_sim))
       }
       
-      for(name in mds_methods_names){
+      i_algoritm = 1
+      while (i_algoritm <= total_methods) {
         
-        if(name == "divide_conquer"){
-          starting_time = proc.time()
-          result = divide_conquer_mds(x=x, l=l, tie=s, k=k, dist_fn = stats::dist)
-          elapsed_time = (proc.time() - starting_time)[3]
-        }else if(name == "fast"){
-          starting_time = proc.time()
-          result = fast_mds(x=x, l=l, s=s, k=k, dist_fn = stats::dist)
-          elapsed_time = (proc.time() - starting_time)[3]
-        }else if(name == "gower"){
-          starting_time = proc.time()
-          result = gower_interpolation_mds(x=x, l=l, k=k, dist_fn = stats::dist)
-          elapsed_time = (proc.time() - starting_time)[3]
-        }else{
-          stop(paste0("Method name ", name, " is invalid. Name should be: divide_conquer, fast or gower."))
-        }
+        name = names(algorithms)[i_algoritm]
+        starting_time = proc.time()
+        result = algorithms[[i_algoritm]](x = x, l = l, tie = s, k = k, dist_fn = stats::dist, s = s)
+        elapsed_time = (proc.time() - starting_time)[3]
         
         batch_scenario_ids = c(batch_scenario_ids, current_scenario$id)
         batch_num_sims = c(batch_num_sims, i_sim)
-        batch_method_names = c(batch_method_names, mds_methods_names[i_method])
+        batch_method_names = c(batch_method_names, name)
         batch_elapsed_times = c(batch_elapsed_times, elapsed_time)
         batch_n_main_dimensions = c(batch_n_main_dimensions, current_scenario$n_main_dimensions)
 
@@ -374,24 +390,40 @@ get_simulations <-function(
                                                             num_dimesions=k)
 
         eigenvalue_vector = result$eigen
-        batch_correlation_vector[[i_method]] = correlation_vector
-        batch_eigenvalue_vector[[i_method]] = eigenvalue_vector
-        i_method = i_method + 1
+        batch_correlation_vector[[i_algoritm]] = correlation_vector
+        batch_eigenvalue_vector[[i_algoritm]] = eigenvalue_vector
+        i_algoritm = i_algoritm + 1
         
       }
       
-      update_time_data(file_path=file.path(path, time_filename), scenario_id=batch_scenario_ids, 
-                       num_sim=batch_num_sims, method_name=batch_method_names, elapsed_time=batch_elapsed_times)
-      update_correlation_data(file_path=file.path(path, correlation_filename), scenario_id=batch_scenario_ids,
-                              num_sim=batch_num_sims, method_name=batch_method_names, 
-                              n_main_dimensions=batch_n_main_dimensions, correlation_vector=batch_correlation_vector)
-      update_eigenvalue_data(file_path=file.path(path, eigenvalue_filename), scenario_id=batch_scenario_ids,
-                             num_sim=batch_num_sims, method_name=batch_method_names, eigenvalue_vector=batch_eigenvalue_vector)
+      update_time_data(file_path = file.path(path, time_filename), 
+                       scenario_id = batch_scenario_ids, 
+                       num_sim = batch_num_sims, 
+                       method_name = batch_method_names, 
+                       elapsed_time=batch_elapsed_times)
       
+      update_correlation_data(file_path = file.path(path, correlation_filename), 
+                              scenario_id = batch_scenario_ids,
+                              num_sim = batch_num_sims, 
+                              method_name = batch_method_names, 
+                              n_main_dimensions = batch_n_main_dimensions, 
+                              correlation_vector = batch_correlation_vector)
       
+      update_eigenvalue_data(file_path = file.path(path, eigenvalue_filename), 
+                             scenario_id = batch_scenario_ids,
+                             num_sim = batch_num_sims, 
+                             method_name = batch_method_names,
+                             eigenvalue_vector = batch_eigenvalue_vector)
+
     }
     
-    update_mds_parameters_data(file_path=file.path(path, mds_parameters_filename), scenario_id=current_scenario$id, s=s, k=k, l=l)
-    update_scenarios_data(file_path=file.path(path, scenarios_filename), scenarion_id=current_scenario$id)
+    update_mds_parameters_data(file_path = file.path(path, mds_parameters_filename), 
+                               scenario_id = current_scenario$id, 
+                               s = s, 
+                               k = k, 
+                               l = l)
+    
+    update_scenarios_data(file_path = file.path(path, scenarios_filename), 
+                          scenarion_id = current_scenario$id)
   }
 }
