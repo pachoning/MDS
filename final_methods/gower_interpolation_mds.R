@@ -52,7 +52,8 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
   if (num_partitions <= 1) {
     
     # It is possible to run MDS directly
-    mds <- classical_mds(x = x, k = k, dist_fn = dist_fn, ...)
+    #mds <- classical_mds(x = x, k = k, dist_fn = dist_fn, ...)
+    mds <- classical_mds(x = x, k = k, dist_fn = dist_fn)
     points <- mds$points
     eigen <- mds$eigen/n
     GOF <- mds$GOF
@@ -65,7 +66,8 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
 
     # Obtain MDS for the first group
     data_1 <- x[idexes_partition[[1]], ,drop = FALSE]
-    mds_eig <- classical_mds(x = data_1, k = k, dist_fn = dist_fn, return_distance_matrix = TRUE, ...)
+    #mds_eig <- classical_mds(x = data_1, k = k, dist_fn = dist_fn, return_distance_matrix = TRUE, ...)
+    mds_eig <- classical_mds(x = data_1, k = k, dist_fn = dist_fn, return_distance_matrix = TRUE)
     distance_matrix <- mds_eig$distance
     
     X_1 <- mds_eig$points
@@ -83,16 +85,16 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     S_inv <- solve(S)
     
     # Get x for each partition
-    x_other <- lapply(idexes_partition[2:num_partitions],
-                      function(matrix, idx) { matrix[idx, , drop = FALSE] },
-                      matrix = x)
-    
+    x_other <- parallel::mclapply(idexes_partition[2:num_partitions],
+                                  function(matrix, idx) { matrix[idx, , drop = FALSE] },
+                                  matrix = x)
+
     # Obtain the distance matrix with respect the first partition
-    distance_matrix_filter <- lapply(x_other, function(X, Y){ pdist::pdist(X, Y) }, Y = data_1)
-    distance_matrix_filter <- lapply(distance_matrix_filter, as.matrix)
+    distance_matrix_filter <- parallel::mclapply(x_other, function(X, Y){ pdist::pdist(X, Y) }, Y = data_1)
+    distance_matrix_filter <- parallel::mclapply(distance_matrix_filter, as.matrix)
     
     # A matrix
-    A <- lapply(distance_matrix_filter, function(x){ x^2 })
+    A <- parallel::mclapply(distance_matrix_filter, function(x){ x^2 })
     ones_vector_all <- matrix(data = 1, nrow = l, ncol = 1)
     ones_vector_last <- matrix(data = 1, nrow = length(idexes_partition[[num_partitions]]), ncol = 1)
     
@@ -104,11 +106,11 @@ gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, ...) {
     ones_vector_last__q_1_vector <- ones_vector_last %*% t(q_1_vector)
     constant <- 1/(2*n_1)
     
-    MDS <- lapply(A, gower_interpolation_formula, 
-                  constant = constant,
-                  q_product_all = ones_vector_all__q_1_vector,
-                  q_product_last = ones_vector_last__q_1_vector,
-                  X_1__S_inv = X_1__S_inv)
+    MDS <- parallel::mclapply(A, gower_interpolation_formula, 
+                              constant = constant,
+                              q_product_all = ones_vector_all__q_1_vector,
+                              q_product_last = ones_vector_last__q_1_vector,
+                              X_1__S_inv = X_1__S_inv)
 
     # Get cummulative MDS
     #cum_mds <- Reduce(rbind, MDS)
