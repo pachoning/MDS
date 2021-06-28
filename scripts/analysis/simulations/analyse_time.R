@@ -11,18 +11,15 @@ load(file.path(data_path, "df_conversion.RData"))
 
 # Manipulate data ----
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main")
-experiment_labels = c("pedro", "pedro2", "pedro3", "pedro4", "pedro5", "pedro6")
+experiment_labels = c("using_do_call")
 
 # Avoid using scenarions which sample size is 10^6
 df_scenarios_full_filtered = df_scenarios_full %>% 
   left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
   filter(!is.na(processed_at), experiment_label %in% experiment_labels)
 
-df_scenarios_full_filtered %>% View
-
 # Join scenarios and time
 df_join_scenarios_time = df_scenarios_full_filtered %>% 
-  filter(id == "vZJXZN5hn4OPsuH") %>% 
   select_at(c("id", scenario_identifier, "experiment_label", "l")) %>% 
   left_join(
     df_time_full,

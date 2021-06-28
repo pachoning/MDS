@@ -4,12 +4,14 @@ source("final_methods/fast_mds.R")
 source("final_methods/gower_interpolation_mds.R")
 
 iterations = 3
-s = 10
-n = s^(iterations + 2)
-cols = 4
-x = matrix(data = rnorm(n*cols), ncol = cols)
-l = (n*s^iterations)^(1/(iterations + 1))
 k = 4
+s = 2*k
+#n = s^(iterations + 2)
+n = 10^4
+cols = 100
+x = matrix(data = rnorm(n*cols), ncol = cols)
+#l = (n*s^iterations)^(1/(iterations + 1))
+l = 200
 tie = s
 dist_fn = stats::dist
 
@@ -26,3 +28,4 @@ profvis({
 profvis({
   gower_interpolation_mds(x, l, k)
 })
+

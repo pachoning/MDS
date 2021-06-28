@@ -26,7 +26,7 @@ get_procrustes_parameters <- function(x, target, translation = FALSE) {
   return(list(rotation_matrix = rotation_matrix, translation_vector = translation_vector))
 }
 
-perform_procrustes <- function(x, target, matrix_to_transform, translation = FALSE, dilation = FALSE) {
+perform_procrustes <- function(x, target, matrix_to_transform, translation = FALSE) {
   
   n_row = nrow(x)
   n_col = ncol(x)
