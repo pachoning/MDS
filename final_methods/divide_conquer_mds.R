@@ -1,7 +1,7 @@
 source("final_methods/classical_mds.R")
 source("tools/procrustes.R")
 
-get_partitions_for_divide_conquer <- function(n, l, tie, k) {
+get_partitions_for_divide_conquer_setpwise <- function(n, l, tie, k) {
   
   if (l-tie <= 0) {
     stop("l must be greater than tie")
@@ -75,7 +75,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     
   } else {
     # Generate indexes list. Each element correspond to the index of the partition
-    idx <- get_partitions_for_divide_conquer(n = n_row_x, l = l, tie = tie, k = k)
+    idx <- get_partitions_for_divide_conquer_setpwise(n = n_row_x, l = l, tie = tie, k = k)
     num_partitions <- length(idx)
     
     # Get partitions
