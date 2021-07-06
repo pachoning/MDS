@@ -369,13 +369,18 @@ get_simulations <-function(
       i_method = 1
       
       if(verbose){
-        message(paste0("     Starting simulation: ", i_sim))
+        message(paste0("\tStarting simulation: ", i_sim))
       }
       
       i_algoritm = 1
       while (i_algoritm <= total_methods) {
         
         name = names(algorithms)[i_algoritm]
+        
+        if(verbose){
+          message(paste0("\t\tStarting algorithm: ", name))
+        }
+        
         starting_time = proc.time()
         result = algorithms[[i_algoritm]](x = x, l = l, tie = s, k = k, dist_fn = stats::dist, s = s)
         elapsed_time = (proc.time() - starting_time)[3]
@@ -386,8 +391,9 @@ get_simulations <-function(
         batch_elapsed_times = c(batch_elapsed_times, elapsed_time)
         batch_n_main_dimensions = c(batch_n_main_dimensions, current_scenario$n_main_dimensions)
 
-        correlation_vector = get_correlation_main_dimesions(x=x, y=result$points, 
-                                                            num_dimesions=k)
+        correlation_vector = get_correlation_main_dimesions(x = x, 
+                                                            y = result$points, 
+                                                            num_dimesions = k)
 
         eigenvalue_vector = result$eigen
         batch_correlation_vector[[i_algoritm]] = correlation_vector
