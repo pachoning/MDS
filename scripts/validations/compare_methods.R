@@ -1,6 +1,7 @@
 library(tidyverse)
 source("tools/load_libraries.R")
 source("tools/procrustes.R")
+source("final_methods/divide_conquer_stepwise_mds.R")
 source("tools/gower_by_row.R")
 source("final_methods/gower_interpolation_mds.R")
 
