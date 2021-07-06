@@ -76,9 +76,9 @@ gower_interpolation_rowwise_mds <- function(x, l, k, dist_fn = stats::dist, ...)
     S_inv <- solve(S)
     
     # Get x for each partition
-    x_other <- lapply(idexes_partition[2:num_partitions],
-                      function(matrix, idx) { matrix[idx, , drop = FALSE] },
-                      matrix = x)
+    x_other <- parallel::mclapply(idexes_partition[2:num_partitions],
+                                  function(matrix, idx) { matrix[idx, , drop = FALSE] },
+                                  matrix = x)
     
     # Obtain the distance matrix with respect the first partition
     distance_matrix_filter <- parallel::mclapply(x_other, function(X, Y){ pdist::pdist(X, Y) }, Y = data_1)
