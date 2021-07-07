@@ -1,18 +1,9 @@
 source("tools/load_libraries.R")
 source("tools/procrustes.R")
 source("final_methods/classical_mds.R")
-
 source("final_methods/divide_conquer_mds.R")
-source("final_methods/divide_conquer_small_mds.R")
-source("final_methods/divide_conquer_stepwise_mds.R")
-
-source("final_methods/fast_mds.R")
-
 source("final_methods/gower_interpolation_mds.R")
-source("final_methods/gower_interpolation_rowwise_mds.R")
-source("final_methods/gower_interpolation_kgropus_mds.R")
-source("final_methods/gower_interpolation_dist_mds.R")
-source("final_methods/gower_interpolation_big_mds.R")
+source("final_methods/fast_mds.R")
 
 # Generate data
 n_rows <- 10^4
@@ -29,12 +20,13 @@ s <- 2*n_cols
 tie <- s
 k <- n_cols
 l <- 1500
-dist_fn = stats::dist
+n_row_partition <- 1
+dist_fn <-  stats::dist
 
 ########################################################################################################################
 ##### Results 
-algorithm <- divide_conquer_stepwise_mds
-results <- algorithm(x = x,l = l, tie = tie, k = k, dist_fn = dist_fn, s = s)
+algorithm <- gower_interpolation_mds
+results <- algorithm(x = x,l = l, tie = tie, k = k, dist_fn = dist_fn, s = s, n_row_partition = n_row_partition)
 procrustes <- perform_procrustes(x = results$points,
                                  target = x, 
                                  matrix_to_transform = results$points,
