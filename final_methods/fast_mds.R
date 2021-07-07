@@ -79,8 +79,7 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
                                         s = s, 
                                         k = k, 
                                         dist_fn = dist_fn,
-                                        mc.cores = 7,
-                                        ...)
+                                        mc.cores = 7)
     
     mds_partition_points <- parallel::mclapply(mds_partition, function(x) x$points, mc.cores = 7)
     mds_partition_eigen <- parallel::mclapply(mds_partition, function(x) x$eigen, mc.cores = 7)
