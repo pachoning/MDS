@@ -59,17 +59,17 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     # Split x
     index_partition <- get_partitions_for_fast(n = n, l = l, s = s, k = k)
     num_partition <- length(index_partition)
-    #x_partition <- parallel::mclapply(index_partition, function(idx, matrix) matrix[idx, , drop = FALSE], matrix = x)
                                       
     # Apply MDS to all the partitions
-    #mds_partition <- parallel::mclapply(index_partition, 
-    #                                    main_fast_mds, 
-    #                                    x = x,
-    #                                    l = l, 
-    #                                    s = s, 
-    #                                    k = k, 
-    #                                    dist_fn = dist_fn, 
-    #                                    ...)
+#    mds_partition <- parallel::mclapply(index_partition, 
+#                                        main_fast_mds,
+#                                        matrix = x,
+#                                        l = l, 
+#                                        s = s, 
+#                                        k = k, 
+#                                        dist_fn = dist_fn,
+#                                        mc.cores = 7,
+#                                        ...)
 
     # Get MDS for each partition recursevely
     mds_partition <- parallel::mclapply(index_partition, 
@@ -78,7 +78,9 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
                                         l = l, 
                                         s = s, 
                                         k = k, 
-                                        dist_fn = dist_fn)
+                                        dist_fn = dist_fn,
+                                        mc.cores = 7,
+                                        ...)
     
     mds_partition_points <- parallel::mclapply(mds_partition, function(x) x$points)
     mds_partition_eigen <- parallel::mclapply(mds_partition, function(x) x$eigen)
