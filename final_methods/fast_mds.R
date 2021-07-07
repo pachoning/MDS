@@ -82,29 +82,32 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
                                         mc.cores = 7,
                                         ...)
     
-    mds_partition_points <- parallel::mclapply(mds_partition, function(x) x$points)
-    mds_partition_eigen <- parallel::mclapply(mds_partition, function(x) x$eigen)
-    mds_GOF <- parallel::mclapply(mds_partition, function(x) x$GOF)
+    mds_partition_points <- parallel::mclapply(mds_partition, function(x) x$points, mc.cores = 7)
+    mds_partition_eigen <- parallel::mclapply(mds_partition, function(x) x$eigen, mc.cores = 7)
+    mds_GOF <- parallel::mclapply(mds_partition, function(x) x$GOF, mc.cores = 7)
     
     # take a sample for each partition
-    length_partition <- parallel::mclapply(index_partition, length)
-    sample_partition <- parallel::mclapply(length_partition, sample, size = s, replace = FALSE)
+    length_partition <- parallel::mclapply(index_partition, length, mc.cores = 7)
+    sample_partition <- parallel::mclapply(length_partition, sample, size = s, replace = FALSE, mc.cores = 7)
     indexes_filtered <- parallel::mcmapply(function(idx, sample) idx[sample],
                                            idx = index_partition,
                                            sample = sample_partition,
-                                           SIMPLIFY = FALSE)
+                                           SIMPLIFY = FALSE,
+                                           mc.cores = 7)
     
-    length_sample <- parallel::mclapply(sample_partition, length)
+    length_sample <- parallel::mclapply(sample_partition, length, mc.cores = 7)
     
     indexes_scaled <- parallel::mcmapply(function(i, long) ((i-1)*long + 1):(i*long),
                                          i = 1:num_partition,
                                          long = length_sample,
-                                         SIMPLIFY = FALSE)
+                                         SIMPLIFY = FALSE,
+                                         mc.cores = 7)
 
     # Join all the points
     x_partition_sample <- parallel::mclapply(indexes_filtered,
                                              function(index_partitions, matrix) { matrix[index_partitions, , drop = FALSE] },
-                                             matrix = x)
+                                             matrix = x,
+                                             mc.cores = 7)
 
     x_M <- do.call(rbind, x_partition_sample)
 
@@ -116,13 +119,15 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     # Extract the MDS configuration for the sampling points from mds_M_points 
     mds_M_sampling_points <- parallel::mclapply(indexes_scaled,
                                                 function(indexes_scaled, matrix) { matrix[indexes_scaled, , drop = FALSE] },
-                                                matrix = mds_M_points)
+                                                matrix = mds_M_points,
+                                                mc.cores = 7)
 
     # Extract the MDS configuration for the sampling points from mds_partition_points
     mds_partition_sampling_points <- parallel::mcmapply(function(matrix, index_partitions, idx) { matrix[idx, , drop = FALSE] },
                                                         matrix = mds_partition_points,
                                                         idx = sample_partition,
-                                                        SIMPLIFY = FALSE)
+                                                        SIMPLIFY = FALSE,
+                                                        mc.cores = 7)
 
     # Apply Procrustes
     procrustes <- parallel::mcmapply(perform_procrustes, 
@@ -130,7 +135,8 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
                                      target = mds_M_sampling_points, 
                                      matrix_to_transform = mds_partition_points, 
                                      translation = FALSE, 
-                                     SIMPLIFY = FALSE)
+                                     SIMPLIFY = FALSE,
+                                     mc.cores = 7)
     
     # Build the list to be returned
     idx_order <- Reduce(c, index_partition)
@@ -142,7 +148,7 @@ fast_mds <- function(x, l, s, k, dist_fn = stats::dist, ...) {
     eigen <- Reduce(`+`, mds_partition_eigen)/num_partition
     
     # Build GOF metric
-    GOF <- parallel::mcmapply(function(x, y) x*length(y), x = mds_GOF, y = index_partition, SIMPLIFY = FALSE)
+    GOF <- parallel::mcmapply(function(x, y) x*length(y), x = mds_GOF, y = index_partition, SIMPLIFY = FALSE, mc.cores = 7)
     GOF <- Reduce(`+`, GOF)/n
     
     return(list(points = mds, eigen = eigen, GOF = GOF))
