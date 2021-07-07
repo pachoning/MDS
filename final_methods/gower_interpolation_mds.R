@@ -60,8 +60,8 @@ gower_mds_main <- function(idx, x, data_1, x_1, n_row_1, q_vector, x_1__s_1__inv
   return(x_2)
 }
 
-
-gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, n_row_partition, ...) {
+#gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, n_row_partition, ...) {
+gower_interpolation_mds <- function(x, l, k, dist_fn = stats::dist, n_row_partition) {
   
   n <- nrow(x)
   indexes_partition <- get_partitions_for_gower_interpolation(n = n, n_obs = n_row_partition, l = l, k = k)
