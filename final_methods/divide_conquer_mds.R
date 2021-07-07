@@ -85,7 +85,7 @@ main_divide_conquer_mds <- function(idx, x, x_sample_1, k, original_mds_sample_1
   return(list(points = mds_procrustes, eigen = mds_eigen, GOF = mds_GOF))
 }
 
-divide_conquer_stepwise_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
+divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
   
   n_row_x <- nrow(x)
   
