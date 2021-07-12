@@ -5,6 +5,7 @@ library(ggplot2)
 data_path = file.path(getwd(), 'data')
 load(file.path(data_path, "df_scenarios_full.RData"))
 load(file.path(data_path, "df_eigenvalues_full.RData"))
+load(file.path(data_path, "df_mds_paramenters_full.RData"))
 load(file.path(data_path, "df_conversion.RData"))
 
 # Manipulate data ----
@@ -17,7 +18,7 @@ scenarios_with_main_dimensions = df_scenarios_full %>%
 total_scenarios = nrow(scenarios_with_main_dimensions)
 
 df_join_scenarios_eigenvalues = scenarios_with_main_dimensions %>% 
-  select_at(c("id", scenario_identifier, "var"))   %>% 
+  select_at(c("id", scenario_identifier, "var", "experiment_label"))   %>% 
   left_join(
     df_eigenvalues_full,
     by = c("id" = "scenario_id")
@@ -68,11 +69,17 @@ df_eigenvalues_long = df_eigenvalues_flat %>%
 
 # Enrich scenarios with eigenvalue information
 eigenvalues_information = df_join_scenarios_eigenvalues %>% 
-  select_at(c("id", scenario_identifier, "num_sim", "method_name")) %>% 
+  select_at(c("id", scenario_identifier, "num_sim", "method_name", "experiment_label")) %>% 
   left_join(df_var_flat_long, by = c("id" = "scenario_id", "num_sim" = "num_sim", "method_name" = "method_name")) %>% 
   left_join(df_eigenvalues_long, by = c("id" = "scenario_id", "num_sim" = "num_sim", "method_name" = "method_name", "dim" = "dim")) %>% 
   left_join(df_conversion) %>% 
+  left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
   mutate(error = eigenvalue - var)
+
+
+experiment_labels = c("using_do_call")
+eigenvalues_information %>% filter(experiment_label %in% experiment_labels) %>% View
+
 
 # Analyse data  ----
 # Bias
