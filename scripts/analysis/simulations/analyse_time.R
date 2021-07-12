@@ -16,7 +16,7 @@ experiment_labels = c("using_do_call")
 # Avoid using scenarions which sample size is 10^6
 df_scenarios_full_filtered = df_scenarios_full %>% 
   left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
-  filter(!is.na(processed_at), experiment_label %in% experiment_labels)
+  filter(!is.na(processed_at), !experiment_label %in% experiment_labels)
 
 # Join scenarios and time
 df_join_scenarios_time = df_scenarios_full_filtered %>% 
@@ -36,12 +36,11 @@ df_join_scenarios_time %>% View
 # Analyse data  ----
 # Plots by sample size
 df_summary_sample_size = df_join_scenarios_time %>%
-  group_by(sample_size, experiment_label, l, n_cols, algorithm) %>%
+  group_by(sample_size, algorithm) %>%
   summarise(
     mean_elapsed_time = mean(elapsed_time), 
     mean_log_elapsed_time = mean(log_elapsed_time)
-  ) %>% 
-  arrange(experiment_label)
+  )
 
 
 df_summary_sample_size %>% View()
@@ -54,6 +53,7 @@ df_summary_sample_size %>%
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
   xlab("Sample Size") + 
   ylab("Mean of Log. Elapsed time") +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#000000")) +
   ggsave(file.path(getwd(), "images", "mean_log_time_all.png"),
          dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
 

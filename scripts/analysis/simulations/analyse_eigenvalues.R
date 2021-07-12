@@ -123,7 +123,7 @@ eigenvalues_information %>%
     axis.text.x=element_blank(),
     axis.ticks.x=element_blank(),
     legend.position="bottom"
-  )+
+  ) +
   scale_fill_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
   ylab("Error") +
   geom_hline(yintercept = 0, linetype = "dashed") +
