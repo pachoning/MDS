@@ -13,7 +13,7 @@ scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main"
 
 # Join scenarios and eigenvalues
 scenarios_with_main_dimensions = df_scenarios_full %>% 
-  filter(n_main_dimensions > 0,  !is.na(processed_at))
+  filter(n_main_dimensions > 0,  !is.na(processed_at), !experiment_label %in% c("using_do_call"))
 
 total_scenarios = nrow(scenarios_with_main_dimensions)
 
@@ -21,8 +21,7 @@ df_join_scenarios_eigenvalues = scenarios_with_main_dimensions %>%
   select_at(c("id", scenario_identifier, "var", "experiment_label"))   %>% 
   left_join(
     df_eigenvalues_full,
-    by = c("id" = "scenario_id")
-  )
+    by = c("id" = "scenario_id"))
 
 # Build data frames that contain eigenvalues and var
 i = 1
@@ -77,10 +76,6 @@ eigenvalues_information = df_join_scenarios_eigenvalues %>%
   mutate(error = eigenvalue - var)
 
 
-experiment_labels = c("using_do_call")
-eigenvalues_information %>% filter(experiment_label %in% experiment_labels) %>% View
-
-
 # Analyse data  ----
 # Bias
 eigenvalues_information %>%
@@ -92,6 +87,7 @@ eigenvalues_information %>%
   geom_hline(yintercept = 0, linetype = "dashed") +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
   xlab("Sample Size") + 
   ylab("Bias") +
   ggsave(file.path(getwd(), "images", "bias_all.png"),
@@ -109,6 +105,7 @@ eigenvalues_information %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
   xlab("Sample Size") + 
   ylab("MSE") +
   ggsave(file.path(getwd(), "images", "mse_all.png"),
@@ -126,7 +123,8 @@ eigenvalues_information %>%
     axis.text.x=element_blank(),
     axis.ticks.x=element_blank(),
     legend.position="bottom"
-  ) +
+  )+
+  scale_fill_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
   ylab("Error") +
   geom_hline(yintercept = 0, linetype = "dashed") +
   ggsave(file.path(getwd(), "images", "error_1000000_100_10.png"),
