@@ -11,22 +11,22 @@ n_cols <- 100
 n_dominant_dimension <- 5
 var_vector <- c(rep(15, n_dominant_dimension), rep(1, n_cols - n_dominant_dimension))
 mean_vector <- rep(0, n_cols)
-x <- mapply(rnorm, n = n_rows, mean_vector) %*% diag(sqrt(var_vector))
+#x <- mapply(rnorm, n = n_rows, mean_vector) %*% diag(sqrt(var_vector))
+x <- matrix(data = rnorm(n_rows * n_cols), nrow = n_rows) %*% diag(sqrt(var_vector))
 dim(x)
 #var(x)
 #cor(x)
 
-s <- 2*n_cols
+s <- 2*n_dominant_dimension
 tie <- s
-k <- n_cols
+k <- n_dominant_dimension
 l <- 1500
-n_row_partition <- 1
 dist_fn <-  stats::dist
 
 ##############################################################################################################
 ##### Results 
-algorithm <- gower_interpolation_mds
-all_n_row_partition <- c(1, seq(from = 100, to = 1500, by = 100), (n_rows - l))
+algorithm <- fast_mds
+results <- algorithm(x = x, l = l, tie = tie, k = k, dist_fn = dist_fn, s = s)
 
 for (n_row_partition in all_n_row_partition) {
   ini_time <- proc.time()
