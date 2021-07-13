@@ -104,7 +104,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     num_partitions <- length(idx)
     length_1 <- length(idx[[1]])
     
-    # Perform MDS fors the first partition
+    # Perform MDS for the first partition
     x_1 <- x[idx[[1]], , drop = FALSE]
     #mds_1 <- classical_mds(x = x_1, k = k, dist_fn = dist_fn, ...)
     mds_1 <- classical_mds(x = x_1, k = k, dist_fn = dist_fn)
