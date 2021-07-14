@@ -6,9 +6,9 @@ source("final_methods/gower_interpolation_mds.R")
 source("final_methods/fast_mds.R")
 
 # Generate data
-n_rows <- 10^5
+n_rows <- 10^6
 n_cols <- 100
-n_dominant_dimension <- 5
+n_dominant_dimension <- 10
 var_vector <- c(rep(15, n_dominant_dimension), rep(1, n_cols - n_dominant_dimension))
 mean_vector <- rep(0, n_cols)
 #x <- mapply(rnorm, n = n_rows, mean_vector) %*% diag(sqrt(var_vector))
@@ -20,26 +20,16 @@ dim(x)
 s <- 2*n_dominant_dimension
 tie <- s
 k <- n_dominant_dimension
-l <- 1500
+l <- 200
 dist_fn <-  stats::dist
+n_cores <- 5
 
 ##############################################################################################################
 ##### Results 
-algorithm <- fast_mds
-results <- algorithm(x = x, l = l, tie = tie, k = k, dist_fn = dist_fn, s = s)
-
-for (n_row_partition in all_n_row_partition) {
-  ini_time <- proc.time()
-  results <- algorithm(x = x, l = l, tie = tie, k = k, dist_fn = dist_fn, s = s, n_row_partition = n_row_partition)
-  final_time <- proc.time()
-  elapsed_time <- final_time - ini_time
-  elapsed_time <- elapsed_time[3]
-  msg <- paste0("For value: ", n_row_partition, " the time has been: ", elapsed_time)
-  message(msg)
-}
-
+algorithm <- gower_interpolation_mds
+results <- algorithm(x = x, l = l, tie = tie, k = k, dist_fn = dist_fn, s = s, n_cores = n_cores)
 procrustes <- perform_procrustes(x = results$points,
-                                 target = x, 
+                                 target = x[, 1:n_dominant_dimension, drop = FALSE], 
                                  matrix_to_transform = results$points,
                                  translation = FALSE)
 
