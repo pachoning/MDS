@@ -7,14 +7,15 @@ data_path = file.path(getwd(), 'data')
 load(file.path(data_path, "df_scenarios_full.RData"))
 load(file.path(data_path, "df_correlation_full.RData"))
 load(file.path(data_path, "df_conversion.RData"))
+load(file.path(data_path, "df_mds_paramenters_full.RData"))
 
 # Manipulate data ----
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main")
 
 # Avoid using scenarions which sample size is 10^6
 scenarios_with_main_dimesions = df_scenarios_full %>% 
-  filter(n_main_dimensions > 0, !is.na(processed_at)) %>% 
-  filter(!experiment_label %in% c("using_do_call"))
+  left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
+  filter(n_main_dimensions > 0, !is.na(processed_at), experiment_label %in% c("l_experiment"))
 
 # Join scenarios and correlation
 df_join_scenarios_correlation = scenarios_with_main_dimesions %>% 
@@ -27,7 +28,6 @@ df_join_scenarios_correlation = scenarios_with_main_dimesions %>%
   group_by(id, method_name, num_sim) %>% 
   mutate(dim = paste0("dim_", sprintf("%02d", 1:n()))) %>% 
   left_join(df_conversion)
-  
 
 # Validations ----
 # Unique combinations
@@ -64,7 +64,7 @@ df_join_scenarios_correlation %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y = unit(0.5, "lines"), legend.position="bottom") +
-  scale_color_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   xlab("Sample Size") + 
   ylab("Mean Correlation") +
   ggsave(file.path(getwd(), "images", "correlation_all.png"),
@@ -83,6 +83,6 @@ df_join_scenarios_correlation %>%
     axis.ticks.x = element_blank(),
     legend.position = "bottom") +
   ylab("Correlation coefficient") +
-  scale_fill_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
+  scale_fill_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   ggsave(file.path(getwd(), "images", "correlation_1000000_100_10.png"),
          dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")

@@ -5,15 +5,16 @@ library(ggplot2)
 data_path = file.path(getwd(), 'data')
 load(file.path(data_path, "df_scenarios_full.RData"))
 load(file.path(data_path, "df_eigenvalues_full.RData"))
-load(file.path(data_path, "df_mds_paramenters_full.RData"))
 load(file.path(data_path, "df_conversion.RData"))
+load(file.path(data_path, "df_mds_paramenters_full.RData"))
 
 # Manipulate data ----
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main")
 
 # Join scenarios and eigenvalues
 scenarios_with_main_dimensions = df_scenarios_full %>% 
-  filter(n_main_dimensions > 0,  !is.na(processed_at), !experiment_label %in% c("using_do_call"))
+  left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
+  filter(n_main_dimensions > 0,  !is.na(processed_at), experiment_label %in% c("l_experiment"))
 
 total_scenarios = nrow(scenarios_with_main_dimensions)
 
@@ -21,7 +22,7 @@ df_join_scenarios_eigenvalues = scenarios_with_main_dimensions %>%
   select_at(c("id", scenario_identifier, "var", "experiment_label"))   %>% 
   left_join(
     df_eigenvalues_full,
-    by = c("id" = "scenario_id"))
+    by = c("id" = "scenario_id")) 
 
 # Build data frames that contain eigenvalues and var
 i = 1
@@ -87,7 +88,7 @@ eigenvalues_information %>%
   geom_hline(yintercept = 0, linetype = "dashed") +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
-  scale_color_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   xlab("Sample Size") + 
   ylab("Bias") +
   ggsave(file.path(getwd(), "images", "bias_all.png"),
@@ -105,7 +106,7 @@ eigenvalues_information %>%
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
-  scale_color_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   xlab("Sample Size") + 
   ylab("MSE") +
   ggsave(file.path(getwd(), "images", "mse_all.png"),
@@ -124,7 +125,7 @@ eigenvalues_information %>%
     axis.ticks.x=element_blank(),
     legend.position="bottom"
   ) +
-  scale_fill_manual(values = c("#0000FF", "#FF0000", "#000000")) + 
+  scale_fill_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   ylab("Error") +
   geom_hline(yintercept = 0, linetype = "dashed") +
   ggsave(file.path(getwd(), "images", "error_1000000_100_10.png"),
