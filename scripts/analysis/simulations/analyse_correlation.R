@@ -19,7 +19,7 @@ scenarios_with_main_dimesions = df_scenarios_full %>%
 
 # Join scenarios and correlation
 df_join_scenarios_correlation = scenarios_with_main_dimesions %>% 
-  select_at(c("id", scenario_identifier, "experiment_label")) %>% 
+  select_at(c("id", scenario_identifier, "experiment_label", "l")) %>% 
   left_join(
     df_correlation_full %>% select(-n_main_dimensions),
     by = c("id" = "scenario_id")
