@@ -366,7 +366,6 @@ get_simulations <-function(
       
       x = generate_data(scenario=current_scenario)
       n_row_x = nrow(x)
-      i_method = 1
       
       if(verbose){
         message(paste0("\tStarting simulation: ", i_sim))
