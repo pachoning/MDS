@@ -85,7 +85,7 @@ main_divide_conquer_mds <- function(idx, x, x_sample_1, k, original_mds_sample_1
   return(list(points = mds_procrustes, eigen = mds_eigen, GOF = mds_GOF))
 }
 
-divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
+divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, n_cores, ...) {
   
   n_row_x <- nrow(x)
   
@@ -124,7 +124,7 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     #                      k = k, 
     #                      original_mds_sample_1 = mds_sample_1, 
     #                      dist_fn = dist_fn,
-    #                     mc.cores = 7,
+    #                     mc.cores = n_cores,
     #                      ...)
     
     mds_others_results <- parallel::mclapply(idx[2:num_partitions],
@@ -134,11 +134,11 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
                                              k = k,
                                              original_mds_sample_1 = mds_sample_1,
                                              dist_fn = dist_fn,
-                                             mc.cores = 7)
+                                             mc.cores = n_cores)
     
     
     # Obtain points
-    mds_others_points <- do.call(rbind, parallel::mclapply(mds_others_results, function(x) x$points, mc.cores = 7))
+    mds_others_points <- do.call(rbind, parallel::mclapply(mds_others_results, function(x) x$points, mc.cores = n_cores))
     mds_matrix[1:length_1, ] <- mds_1_points
     mds_matrix[(length_1 + 1):n_row_x, ] <- mds_others_points
     order_idx <- do.call(c, idx)
@@ -148,13 +148,13 @@ divide_conquer_mds <- function(x, l, tie, k, dist_fn = stats::dist, ...) {
     mds_matrix <- mds_matrix %*% eigen(cov(mds_matrix))$vectors
     
     # Obtain eigenvalues
-    eigen <- parallel::mclapply(mds_others_results, function(x) x$eigen, mc.cores = 7)
+    eigen <- parallel::mclapply(mds_others_results, function(x) x$eigen, mc.cores = n_cores)
     eigen[[num_partitions]] <- mds_1_eigen
     eigen <- Reduce(`+`, eigen)
     eigen <- eigen/num_partitions
     
     # Obtain GOF
-    GOF <- parallel::mclapply(mds_others_results, function(x) x$GOF, mc.cores = 7)
+    GOF <- parallel::mclapply(mds_others_results, function(x) x$GOF, mc.cores = n_cores)
     GOF[[num_partitions]] <- mds_1_GOF
     GOF <- Reduce(`+`, GOF)
     GOF <- GOF/n_row_x
