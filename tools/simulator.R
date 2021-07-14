@@ -285,11 +285,12 @@ get_simulations <-function(
   path,
   algorithms,
   n_simulations,
-  overwrite_simulations=FALSE,
-  n_sampling_points=NA,
-  largest_matrix_efficient_mds=NA,
-  num_mds_dimesions=NA,
-  verbose=FALSE
+  overwrite_simulations = FALSE,
+  n_sampling_points = NA,
+  largest_matrix_efficient_mds = NA,
+  n_cores = n_cores,
+  num_mds_dimesions = NA,
+  verbose = FALSE
 ){
   
   if(!dir.exists(path)) {
@@ -381,7 +382,7 @@ get_simulations <-function(
         }
         
         starting_time = proc.time()
-        result = algorithms[[i_algoritm]](x = x, l = l, tie = s, k = k, dist_fn = stats::dist, s = s)
+        result = algorithms[[i_algoritm]](x = x, l = l, tie = s, k = k, dist_fn = stats::dist, s = s, n_cores = n_cores)
         elapsed_time = (proc.time() - starting_time)[3]
         
         batch_scenario_ids = c(batch_scenario_ids, current_scenario$id)
