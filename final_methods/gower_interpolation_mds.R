@@ -46,7 +46,7 @@ gower_mds_main <- function(idx, x, data_1, x_1, n_row_1, q_vector, x_1__s_1__inv
   n_row_other <- nrow(x_other)
   
   # Get A matrix
-  A <- as.matrix(pdist(x_other, data_1))
+  A <- as.matrix(pdist::pdist(x_other, data_1))
   
   # Get delta matrix
   A_sq <- A^2
