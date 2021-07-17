@@ -1,23 +1,5 @@
 source("tools/procrustes.R")
 
-validate_scenarios <- function(df, what){
-  if("keys" %in% what){
-    expected_keys = c("sample_size", "n_cols", "distribution_parameters", "mu", "var", "processed_at")
-    key_names = colnames(df)
-    for(ek in expected_keys){
-      if(!ek %in% key_names) {stop(paste0(ek, " should be a key in scenarios"))}
-    }
-  }
-  
-  if("content" %in% what){
-    total_scenarios = nrow(df)
-    for(i in 1:total_scenarios){
-      current_scenario = df[i, ]
-      if(current_scenario$n_cols < length(current_scenario$mu)) {stop("There is one scenario with more mean values than columns")}
-      if(current_scenario$n_cols < length(current_scenario$var)) {stop("There is one scenario with more var values than columns")}
-    }
-  }
-}
 
 generate_df_scenarios <- function(scenarios, experiment_label){
   
@@ -31,8 +13,6 @@ generate_df_scenarios <- function(scenarios, experiment_label){
   df$computer_id = Sys.info()["nodename"]
   df$experiment_label = experiment_label
   
-  validate_scenarios(df=df, what="keys")
-  
   total_scenarios = dim(df)[1]
   for(i in 1:total_scenarios){
     
@@ -45,24 +25,23 @@ generate_df_scenarios <- function(scenarios, experiment_label){
     var = unlist(distribution_parameters$var)
     
     if(any(is.na(mu) | is.null(mu))){
-      mu = rep(0, times=n_cols)
+      mu = rep(0, times = n_cols)
     }else if(length(mu) < n_cols){
-      mu = c(mu, rep(0, times=n_cols-length(mu)))
+      mu = c(mu, rep(0, times = n_cols-length(mu)))
     }
-
     
     if(any(is.na(var) | is.null(var))){
-      var = rep(1, times=n_cols)
+      var = rep(1, times = n_cols)
     }else if(length(var) <= n_cols){
       n_main_dimensions = length(var)
-      var = c(var, rep(1, times=n_cols-length(var)))
+      var = c(var, rep(1, times = n_cols-length(var)))
     }
     
     df$mu[i] = list(mu)
     df$var[i] = list(var)
     df$n_main_dimensions[i] = n_main_dimensions
   }
-  validate_scenarios(df=df, what="content")
+  
   return(df)
 }
 
@@ -127,14 +106,15 @@ create_mds_parameters_file <- function(file_path, overwrite_simulations){
     df_mds_parameters = data.frame(scenario_id = character(0),
                                    s = numeric(0),
                                    k = character(0),
+                                   algorithm = character(0),
                                    l = numeric(0))
   }
-  
+
   #In case a simulation breaks in the middle we delete all the simulations
   processed_scenarios = df_scenarios$id[!is.na(df_scenarios$processed_at)]
   ids_prcoessed = which(df_mds_parameters$scenario_id %in% processed_scenarios)
   df_mds_parameters = df_mds_parameters[ids_prcoessed, ]
-  save(df_mds_parameters, file=file_path)
+  save(df_mds_parameters, file = file_path)
   assign("df_mds_parameters", df_mds_parameters, envir=.GlobalEnv)
 }
 
@@ -163,7 +143,6 @@ create_scenarios_file <- function(file_path, scenarios, experiment_label, overwr
   if(is_file_created & !overwrite_simulations){
     warning('Using simulations that are already saved. Current will be ignored')
     load(file_path)
-    validate_scenarios(df=df_scenarios, what=c("content", "keys"))
   }else{
     folder_path = dirname(dirname(file_path))
     df_scenarios = generate_df_scenarios(scenarios=scenarios, experiment_label=experiment_label)
@@ -205,9 +184,9 @@ update_scenarios_data <- function(file_path, scenarion_id){
 }
 
 
-update_mds_parameters_data <- function(file_path, scenario_id, s, k, l){
+update_mds_parameters_data <- function(file_path, scenario_id, s, k, algorithm, l){
   
-  temp_df = data.frame(scenario_id=scenario_id, s=s, k=k, l=l)
+  temp_df = data.frame(scenario_id = scenario_id, s = s, k = k, algorithm = algorithm, l = l)
   df_mds_parameters = rbind(df_mds_parameters, temp_df)
   
   assign("df_mds_parameters", df_mds_parameters, envir=.GlobalEnv) 
@@ -287,8 +266,10 @@ get_simulations <-function(
   n_simulations,
   overwrite_simulations = FALSE,
   n_sampling_points = NA,
-  largest_matrix_efficient_mds = NA,
-  n_cores = n_cores,
+  l_divide = NA,
+  l_gower = NA,
+  l_fast = NA,
+  n_cores = 1,
   num_mds_dimesions = NA,
   verbose = FALSE
 ){
@@ -298,11 +279,8 @@ get_simulations <-function(
   }
   
   validate_input(list(scenarios = scenarios, 
-                      path = path, n_simulations = n_simulations,
-                      largest_matrix_efficient_mds = largest_matrix_efficient_mds))
-  
-  input_parameters = as.list(match.call())
-  save(input_parameters, file=file.path(path, 'input_parameters.RData'))
+                      path = path, 
+                      n_simulations = n_simulations))
   
   scenarios_filename = "df_scenarios.RData"
   time_filename = "df_time.RData"
@@ -354,8 +332,6 @@ get_simulations <-function(
                num_mds_dimesions, 
                pmax(current_scenario$n_main_dimensions, 1))
     
-    l = largest_matrix_efficient_mds
-    
     for(i_sim in initial_simulation:n_simulations){
       batch_scenario_ids = c()
       batch_num_sims = c()
@@ -364,6 +340,10 @@ get_simulations <-function(
       batch_n_main_dimensions = c()
       batch_correlation_vector = list()
       batch_eigenvalue_vector = list()
+      batch_algorithms = c()
+      batch_s = c()
+      batch_k = c()
+      batch_l = c()
       
       x = generate_data(scenario=current_scenario)
       n_row_x = nrow(x)
@@ -372,17 +352,29 @@ get_simulations <-function(
         message(paste0("\tStarting simulation: ", i_sim))
       }
       
-      i_algoritm = 1
-      while (i_algoritm <= total_methods) {
+      i_algorithm = 1
+      while (i_algorithm <= total_methods) {
         
-        name = names(algorithms)[i_algoritm]
+        name = names(algorithms)[i_algorithm]
+        l = NA
+        if(name == "divide") {
+          l = l_divide
+        } else if(name == "gower") {
+          l = l_gower
+        } else if(name == "fast") {
+          l = l_fast
+        }
+        
+        if(is.na(l)) {
+          stop("algorithm list is missing one of the following keys: divide, gower, fast")
+        }
         
         if(verbose){
           message(paste0("\t\tStarting algorithm: ", name))
         }
         
         starting_time = proc.time()
-        result = algorithms[[i_algoritm]](x = x, l = l, tie = s, k = k, dist_fn = stats::dist, s = s, n_cores = n_cores)
+        result = algorithms[[i_algorithm]](x = x, l = l, tie = s, k = k, dist_fn = stats::dist, s = s, n_cores = n_cores)
         elapsed_time = (proc.time() - starting_time)[3]
         
         batch_scenario_ids = c(batch_scenario_ids, current_scenario$id)
@@ -390,15 +382,19 @@ get_simulations <-function(
         batch_method_names = c(batch_method_names, name)
         batch_elapsed_times = c(batch_elapsed_times, elapsed_time)
         batch_n_main_dimensions = c(batch_n_main_dimensions, current_scenario$n_main_dimensions)
+        batch_algorithms = c(batch_algorithms, name)
+        batch_s = c(batch_s, s)
+        batch_k = c(batch_k, k)
+        batch_l = c(batch_l, l)
 
         correlation_vector = get_correlation_main_dimesions(x = x, 
                                                             y = result$points, 
                                                             num_dimesions = k)
 
         eigenvalue_vector = result$eigen
-        batch_correlation_vector[[i_algoritm]] = correlation_vector
-        batch_eigenvalue_vector[[i_algoritm]] = eigenvalue_vector
-        i_algoritm = i_algoritm + 1
+        batch_correlation_vector[[i_algorithm]] = correlation_vector
+        batch_eigenvalue_vector[[i_algorithm]] = eigenvalue_vector
+        i_algorithm = i_algorithm + 1
         
       }
       
@@ -420,14 +416,15 @@ get_simulations <-function(
                              num_sim = batch_num_sims, 
                              method_name = batch_method_names,
                              eigenvalue_vector = batch_eigenvalue_vector)
-
+      
+      update_mds_parameters_data(file_path = file.path(path, mds_parameters_filename), 
+                                 scenario_id = batch_scenario_ids, 
+                                 s = batch_s, 
+                                 k = batch_k, 
+                                 algorithm = batch_algorithms,
+                                 l = batch_l)
+      
     }
-    
-    update_mds_parameters_data(file_path = file.path(path, mds_parameters_filename), 
-                               scenario_id = current_scenario$id, 
-                               s = s, 
-                               k = k, 
-                               l = l)
     
     update_scenarios_data(file_path = file.path(path, scenarios_filename), 
                           scenarion_id = current_scenario$id)
