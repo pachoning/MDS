@@ -15,12 +15,16 @@ train_label <- train %>%
 test_label <- test %>% 
   left_join(mapping, by = c("X1" = "id")) 
 
+
 all_data <- rbind(train_label, test_label) %>% 
   mutate(value = chr(ascii))
 
 all_data_pixels <- all_data[, 2:785]
 colnames(all_data_pixels) <- paste0("X", 1:(28*28))
 target <- all_data$value
+type_data <- c(rep("train", nrow(train_label)),
+               rep("test", nrow(test_label)))
+length(target) == length(type_data)
 
 # Save data ----
-save(all_data_pixels, target, file = "data/EMNIST/all_data.RData")
+save(all_data_pixels, target, type_data, file = "data/EMNIST/all_data.RData")

@@ -8,7 +8,7 @@ load("data/EMNIST/gower.RData")
 load("data/EMNIST/all_data.RData")
 
 # Variables ----
-target_filter <- as.character(0:4)
+target_filter <- c("0", "1", "a", "b", "A", "B")
 sample_size <- NULL
 unique_categories <- df_mds_divide %>% count(target)
 
@@ -26,6 +26,37 @@ if (is.null(sample_size)) {
     summarise(total = sum(total)) %>% 
     pull()
 }
+
+# Analysis ----
+df_aux <- df_mds_fast
+df_aux$type_data <- type_data
+
+df_aux %>% 
+  mutate(category = ifelse(
+    target %in% as.character(0:9),
+    "Number",
+    ifelse(
+      target %in% letters,
+      "Small_letter",
+      ifelse(
+        target %in% toupper(letters),
+        "Upper_letter",
+        "UNK"
+      )
+    )
+  )) %>% 
+  group_by(category, type_data) %>% 
+  summarise(n())
+
+df_aux %>% 
+  group_by(type_data) %>% 
+  summarise(n())
+
+# Correlation and mean of MDS ----
+df_corr <- df_mds_fast
+cor(df_corr[, c(1,2)])
+apply(df_corr[, c(1,2)], MARGIN = 2,mean)
+
 
 # Sampling ----
 idxs <- 1:nrow(df_mds_divide)
@@ -55,17 +86,17 @@ apply(df_mds_gower[, c(1,2), drop = FALSE], MARGIN = 2, mean)
 df_mds_divide_sample %>% 
   ggplot(aes(x = x, y = y, color = target, tit)) + 
   geom_point() +
-  ggtitle("Divide")
-
-df_mds_fast_sample %>% 
-  ggplot(aes(x = x, y = y, color = target, tit)) + 
-  geom_point() +
-  ggtitle("Fast")
+  ggsave(file.path(getwd(), "images", "emnist_divide.png"))
 
 df_mds_gower_sample %>% 
   ggplot(aes(x = x, y = y, color = target, tit)) + 
   geom_point() +
-  ggtitle("Gower")
+  ggsave(file.path(getwd(), "images", "emnist_gower.png"))
+
+df_mds_fast_sample %>% 
+  ggplot(aes(x = x, y = y, color = target, tit)) + 
+  geom_point() +
+  ggsave(file.path(getwd(), "images", "emnist_fast.png"))
 
 # Correlations
 cor(df_mds_divide_sample$x, df_mds_fast_sample$x)
