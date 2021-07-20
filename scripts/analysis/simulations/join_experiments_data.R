@@ -1,16 +1,9 @@
 library(tidyverse)
 library(stringi)
 
-is_processing_l = TRUE
 data_folder = file.path(getwd(), "data")
 output_results = file.path(data_folder, "experiments_processed")
-
-if (is_processing_l) {
-  experiments_folder = file.path(data_folder, "experiments_l")
-} else {
-  experiments_folder = file.path(data_folder, "experiments")
-}
-
+experiments_folder = file.path(data_folder, "experiments")
 
 all_files = list.files(experiments_folder)
 all_experiments = all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
@@ -62,13 +55,10 @@ df_time_full = df_time_full %>% filter(scenario_id %in% scenarios_processed)
 df_correlation_full = df_correlation_full %>% filter(scenario_id %in% scenarios_processed)
 df_eigenvalues_full = df_eigenvalues_full %>% filter(scenario_id %in% scenarios_processed)
 
-if (!is_processing_l) {
-  df_mds_paramenters_full = df_mds_paramenters_full %>% 
-    filter(scenario_id %in% scenarios_processed) %>% 
-    distinct() %>% 
-    pivot_wider(names_from = algorithm, values_from = l)
-}
-
+df_mds_paramenters_full = df_mds_paramenters_full %>% 
+  filter(scenario_id %in% scenarios_processed) %>% 
+  distinct() %>% 
+  pivot_wider(names_prefix = "l_", names_from = algorithm, values_from = l)
 
 # Add some fields to the data
 df_scenarios_full = df_scenarios_full %>% 
@@ -86,8 +76,8 @@ setdiff(df_scenarios_full$id, unique(df_correlation_full$scenario_id))
 setdiff(df_scenarios_full$id, unique(df_eigenvalues_full$scenario_id))
 setdiff(df_scenarios_full$id, unique(df_mds_paramenters_full$scenario_id))
 
-save(df_scenarios_full, file=file.path(output_results, ifelse(is_processing_l, "df_scenarios_full_l.RData", "df_scenarios_full.RData")))
-save(df_time_full, file=file.path(output_results, ifelse(is_processing_l, "df_time_full_l.RData", "df_time_full.RData")))
-save(df_correlation_full, file=file.path(output_results, ifelse(is_processing_l, "df_correlation_full_l.RData", "df_correlation_full.RData")))
-save(df_eigenvalues_full, file=file.path(output_results, ifelse(is_processing_l, "df_eigenvalues_full_l.RData", "df_eigenvalues_full.RData")))
-save(df_mds_paramenters_full, file=file.path(output_results, ifelse(is_processing_l, "df_mds_paramenters_full_l.RData", "df_mds_paramenters_full.RData")))
+save(df_scenarios_full, file=file.path(output_results, "df_scenarios_full.RData"))
+save(df_time_full, file=file.path(output_results, "df_time_full.RData"))
+save(df_correlation_full, file=file.path(output_results, "df_correlation_full.RData"))
+save(df_eigenvalues_full, file=file.path(output_results, "df_eigenvalues_full.RData"))
+save(df_mds_paramenters_full, file=file.path(output_results,"df_mds_paramenters_full.RData"))
