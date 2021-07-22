@@ -21,9 +21,9 @@ path <- file.path(getwd(), "data", "experiments", results_folder_name)
 n_simulations <- 100
 overwrite_simulations <- FALSE
 n_sampling_points <- NA
-l_divide <- 500
-l_gower <- 1500
-l_fast <- 1500
+l_divide <- 400
+l_gower <- 1000
+l_fast <- 100
 n_cores <- 5
 num_mds_dimesions <- NA
 verbose <- TRUE
