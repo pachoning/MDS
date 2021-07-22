@@ -4,9 +4,9 @@ source("final_methods/gower_interpolation_mds.R")
 source("final_methods/fast_mds.R")
 
 results_folder_name <- "experiment_01"
-experiment_label <- "experiment__3*10^3__5*10^3__8*10^3"
+experiment_label <- "experiment__5*10^3__*10^4__2*10^4"
 
-sample_size <- c(3000, 5000, 8000)
+sample_size <- c(5000, 10000, 20000)
 n_cols <- c(10, 100)
 
 distribution_parameters <- list(list(var = 15), list(var = rep(15, 2)), list(var = rep(15, 3)), 
@@ -21,9 +21,9 @@ path <- file.path(getwd(), "data", "experiments", results_folder_name)
 n_simulations <- 100
 overwrite_simulations <- FALSE
 n_sampling_points <- NA
-l_divide <- 500
-l_gower <- 1500
-l_fast <- 1500
+l_divide <- 400
+l_gower <- 1000
+l_fast <- 1000
 n_cores <- 5
 num_mds_dimesions <- NA
 verbose <- TRUE
