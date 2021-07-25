@@ -23,7 +23,7 @@ overwrite_simulations <- FALSE
 n_sampling_points <- NA
 l_divide <- 400
 l_gower <- 1000
-l_fast <- 100
+l_fast <- 1000
 n_cores <- 5
 num_mds_dimesions <- NA
 verbose <- TRUE

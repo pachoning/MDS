@@ -3,7 +3,7 @@ source("final_methods/divide_conquer_mds.R")
 source("final_methods/gower_interpolation_mds.R")
 source("final_methods/fast_mds.R")
 
-results_folder_name <- "experiment_05"
+results_folder_name <- "experiment_07"
 experiment_label = "10^6"
 
 sample_size = c(10^6)
@@ -18,7 +18,7 @@ scenarios <- list(sample_size = sample_size, n_cols = n_cols, distribution_param
 algorithms <- list(divide = divide_conquer_mds, gower = gower_interpolation_mds, fast = fast_mds)
 
 path <- file.path(getwd(), "data", "experiments", results_folder_name)
-n_simulations <- 50
+n_simulations <- 15
 overwrite_simulations <- FALSE
 n_sampling_points <- NA
 l_divide <- 400
