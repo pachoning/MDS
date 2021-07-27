@@ -40,44 +40,48 @@ df_join_scenarios_time %>%
   summarise(max_total = max(total), min_total = min(total))
 
 # Plots ----
-#x_dim = "l_divide"
-#x_title = "\u2113 value"
-#y_title = "Elapsed time (sec.)"
-#output_name = "l_parameter_time.png"
-#width = 10
-#height = 10
-
-x_dim = "log_sample_size"
-x_title = "Log of Sample Size"
-y_title = "Mean of Log Elapsed time (sec.)"
-output_name = "mean_log_time_all.png"
-width = 22
-height = 18
-
-# Time
-df_summary_sample_size = df_join_scenarios_time %>%
-  mutate_(x = x_dim) %>% 
+# Time for l
+df_summary_time_l = df_join_scenarios_time %>%
+  mutate(x = l_divide) %>% 
   group_by(Algorithm, x) %>%
   summarise(
     mean_elapsed_time = mean(elapsed_time), 
     mean_log_elapsed_time = mean(log_elapsed_time)
-  )
+  ) %>% 
+  mutate(x = as.factor(x))
 
-if(x_dim == "l_dive") {
-  df_summary_sample_size$x = as.factor(df_summary_sample_size$x)
-}
+levels(df_summary_time_l$Algorithm) <- c("D&C", "Interp", "Fast")
 
-levels(df_summary_sample_size$Algorithm) <- c("D&C", "Interp", "Fast")
-
-df_summary_sample_size %>% 
+df_summary_time_l %>% 
   ggplot(aes(x = x, y = mean_elapsed_time, group = Algorithm, color = Algorithm)) +
   geom_point(size = 2) +
   geom_line() +
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
-  xlab(x_title) + 
-  ylab(y_title) +
+  xlab("\u2113 value") + 
+  ylab("Elapsed time (sec.)") +
   scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) +
-  ggsave(file.path(getwd(), "images", output_name), dev = 'png', width = width, height = height, units = "cm")
+  ggsave(file.path(getwd(), "images", "l_parameter_time.png"), dev = 'png', width = 10, height = 10, units = "cm")
+
+# Time for sample size
+df_summary_time_sample_size = df_join_scenarios_time %>%
+  mutate(x = log_sample_size) %>% 
+  group_by(Algorithm, x) %>%
+  summarise(
+    mean_elapsed_time = mean(elapsed_time), 
+    mean_log_elapsed_time = mean(log_elapsed_time)
+  ) 
+
+levels(df_summary_time_sample_size$Algorithm) <- c("D&C", "Interp", "Fast")
+
+df_summary_time_sample_size %>% 
+  ggplot(aes(x = x, y = mean_elapsed_time, group = Algorithm, color = Algorithm)) +
+  geom_point(size = 2) +
+  geom_line() +
+  theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
+  xlab("Log of Sample Size") + 
+  ylab("Mean of Log Elapsed time (sec.)") +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) +
+  ggsave(file.path(getwd(), "images",  "mean_log_time_all.png"), dev = 'png', width = 22, height = 18, units = "cm")
 
 # Quantiles: Particular case
 quant = c(0.025, 1-0.025)
