@@ -4,10 +4,11 @@ library(ggplot2)
 
 # Load data ----
 data_path = file.path(getwd(), 'data')
-load(file.path(data_path, "df_scenarios_full.RData"))
-load(file.path(data_path, "df_correlation_full.RData"))
-load(file.path(data_path, "df_conversion.RData"))
-load(file.path(data_path, "df_mds_paramenters_full.RData"))
+simulation_data = file.path(data_path, "experiments_processed")
+load(file.path(simulation_data, "df_scenarios_full.RData"))
+load(file.path(simulation_data, "df_correlation_full.RData"))
+load(file.path(simulation_data, "df_conversion.RData"))
+load(file.path(simulation_data, "df_mds_paramenters_full.RData"))
 
 # Manipulate data ----
 scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main")
@@ -19,7 +20,7 @@ scenarios_with_main_dimesions = df_scenarios_full %>%
 
 # Join scenarios and correlation
 df_join_scenarios_correlation = scenarios_with_main_dimesions %>% 
-  select_at(c("id", scenario_identifier, "experiment_label", "l")) %>% 
+  select_at(c("id", scenario_identifier, "experiment_label", "l_divide", "l_gower", "l_fast")) %>% 
   left_join(
     df_correlation_full %>% select(-n_main_dimensions),
     by = c("id" = "scenario_id")
@@ -55,20 +56,43 @@ df_join_scenarios_correlation %>%
   )
 
 # Plots
+x_dim = "l_divide"
+x_title = "\u2113 value"
+y_title = "Correlation"
+output_name = "l_parameter_correlation.png"
+
+levels(df_join_scenarios_correlation$Algorithm) <- c("D&C", "Interp", "Fast")
+
+# Plot of the correlation for l
+df_join_scenarios_correlation %>% 
+  group_by_("Algorithm", x_dim) %>%
+  summarise(mean_correlation = mean(correlation)) %>%
+  mutate_(x = x_dim) %>%
+  mutate(x = as.factor(x))%>% 
+  ggplot(aes(x = x, y = mean_correlation, color = Algorithm, group = Algorithm)) +
+  geom_line() +
+  geom_point(size = 2) +
+  theme(panel.spacing.y = unit(0.5, "lines"), legend.position="bottom") +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
+  xlab(x_title) + 
+  ylab(y_title) +
+  ggsave(file.path(getwd(), "images", output_name), dev = 'png', width = 10, height = 10, units = "cm")
+
 # Plot of the correlation
 df_join_scenarios_correlation %>% 
-  group_by(algorithm, sample_size, dim) %>%
+  group_by_("algorithm", x_dim, "dim") %>%
   summarise(mean_correlation = mean(correlation)) %>%
-  mutate(sample_size = as.factor(sample_size)) %>% 
-  ggplot(aes(x = sample_size, y = mean_correlation, color = algorithm, group = algorithm)) +
+  mutate_(x = x_dim) %>%
+  mutate(x = as.factor(x))%>% 
+  ggplot(aes(x = x, y = mean_correlation, color = algorithm, group = algorithm)) +
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y = unit(0.5, "lines"), legend.position="bottom") +
   scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
-  xlab("Sample Size") + 
-  ylab("Mean Correlation") +
-  ggsave(file.path(getwd(), "images", "correlation_all.png"),
-         dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
+  xlab(x_title) + 
+  ylab(y_title)+
+  ggsave(file.path(getwd(), "images", output_name), 
+         dev = 'png', height = 8, width = 6, units = "cm")
   
 # Particular cases
 df_join_scenarios_correlation %>% 
@@ -86,3 +110,6 @@ df_join_scenarios_correlation %>%
   scale_fill_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   ggsave(file.path(getwd(), "images", "correlation_1000000_100_10.png"),
          dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
+
+
+
