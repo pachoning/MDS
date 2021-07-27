@@ -1,5 +1,6 @@
 library(bigmds)
 library(tidyverse)
+library(RColorBrewer)
 
 # Load data ----
 load("data/EMNIST/divide.RData")
@@ -82,20 +83,25 @@ cor(df_mds_gower[, c(1,2), drop = FALSE])
 apply(df_mds_gower[, c(1,2), drop = FALSE], MARGIN = 2, mean)
 
 # Plots ----
+color_fig <- c(brewer.pal(5, "Set1"), "black")
+
 # Embeddings
 df_mds_divide_sample %>% 
   ggplot(aes(x = x, y = y, color = target, tit)) + 
-  geom_point() +
+  geom_point() + 
+  scale_color_manual(values =color_fig) +
   ggsave(file.path(getwd(), "images", "emnist_divide.png"))
 
 df_mds_gower_sample %>% 
-  ggplot(aes(x = x, y = y, color = target, tit)) + 
+  ggplot(aes(x = x, y = -y, color = target, tit)) + 
   geom_point() +
+  scale_color_manual(values = color_fig) +
   ggsave(file.path(getwd(), "images", "emnist_gower.png"))
 
 df_mds_fast_sample %>% 
-  ggplot(aes(x = x, y = y, color = target, tit)) + 
+  ggplot(aes(x = -x, y = y, color = target, tit)) + 
   geom_point() +
+  scale_color_manual(values = color_fig) +
   ggsave(file.path(getwd(), "images", "emnist_fast.png"))
 
 # Correlations
