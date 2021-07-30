@@ -2,7 +2,7 @@ source("final_methods/classical_mds.R")
 source("tools/procrustes.R")
 
 get_partitions_for_divide_conquer <- function(n, l, tie, k) {
-  
+
   if (l-tie <= 0) {
     stop("l must be greater than tie")
   } else if(l-tie <= tie) {
