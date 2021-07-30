@@ -27,8 +27,8 @@ df_join_scenarios_time = df_scenarios_full_filtered %>%
   ) %>% 
   mutate(n_main_dimensions=as.factor(n_main_dimensions),
          n_cols = as.factor(n_cols),
-         log_elapsed_time = log(elapsed_time),
-         log_sample_size = log(sample_size, base = 10)) %>% 
+         log_elapsed_time = log10(elapsed_time),
+         log_sample_size = log10(sample_size)) %>% 
   left_join(df_conversion)
 
 # Validations
@@ -74,12 +74,12 @@ df_summary_time_sample_size = df_join_scenarios_time %>%
 levels(df_summary_time_sample_size$Algorithm) <- c("D&C", "Interp", "Fast")
 
 df_summary_time_sample_size %>% 
-  ggplot(aes(x = x, y = mean_elapsed_time, group = Algorithm, color = Algorithm)) +
+  ggplot(aes(x = x, y = mean_log_elapsed_time, group = Algorithm, color = Algorithm)) +
   geom_point(size = 2) +
   geom_line() +
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
-  xlab("Log of Sample Size") + 
-  ylab("Mean of Log Elapsed time (sec.)") +
+  xlab("log10 of sample size") + 
+  ylab("Mean of log10 of elapsed time (seconds)") +
   scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) +
   ggsave(file.path(getwd(), "images",  "mean_log_time_all.png"), dev = 'png', width = 22, height = 18, units = "cm")
 
