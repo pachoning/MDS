@@ -63,7 +63,7 @@ main_divide_conquer_mds <- function(idx, x, x_sample_1, k, original_mds_sample_1
   x_join_sample_1 <- join_matrices(m1 = x_sample_1, m2 = x_filtered)
   
   # Perform MDS
-  #mds_all <- classical_mds(x = x, k = k, dist_fn = dist_fn, ...)
+  #mds_all <- classical_mds(x = x, k = x_join_sample_1, dist_fn = dist_fn, ...)
   mds_all <- classical_mds(x = x_join_sample_1, k = k, dist_fn = dist_fn)
   mds_points <- mds_all$points
   mds_eigen <- mds_all$eigen
