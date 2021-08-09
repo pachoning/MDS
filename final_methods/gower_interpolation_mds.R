@@ -2,14 +2,18 @@ source("final_methods/classical_mds.R")
 source("tools/procrustes.R")
 
 get_partitions_for_gower_interpolation <- function(n, n_obs, l, k) {
-  
+
   if (l<=k) {
     stop("l must be greater than k")
   }
-  
-  p <- 1 + ceiling((n - l)/n_obs)
-  n_last <- n - (l + (p-2)*n_obs)
-  
+
+  if (n<=l) {
+    p <- 1
+  } else {
+    p <- 1 + ceiling((n - l)/n_obs)
+    n_last <- n - (l + (p-2)*n_obs)
+  }
+
   permutation <- sample(x = n, size = n, replace = FALSE)
   
   if (p>1) {
