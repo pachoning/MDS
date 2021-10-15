@@ -269,6 +269,7 @@ get_simulations <-function(
   l_divide = NA,
   l_gower = NA,
   l_fast = NA,
+  l_emmanuel = NA,
   n_cores = 1,
   num_mds_dimesions = NA,
   verbose = FALSE
@@ -363,6 +364,8 @@ get_simulations <-function(
           l = l_gower
         } else if(name == "fast") {
           l = l_fast
+        } else if(name == "emmanuel") {
+          l = l_emmanuel
         }
         
         if(is.na(l)) {

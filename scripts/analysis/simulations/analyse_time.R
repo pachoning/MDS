@@ -16,7 +16,7 @@ scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main"
 # Avoid using scenarions which sample size is 10^6
 df_scenarios_full_filtered = df_scenarios_full %>% 
   left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
-  filter(!is.na(processed_at), !experiment_label %in% c("l_experiment"))
+  filter(!is.na(processed_at), experiment_label %in% c("emmanuel_01"))
 
 # Join scenarios and time
 df_join_scenarios_time = df_scenarios_full_filtered %>% 
@@ -42,7 +42,7 @@ df_join_scenarios_time %>%
 # Plots ----
 # Time for l
 df_summary_time_l = df_join_scenarios_time %>%
-  mutate(x = l_divide) %>% 
+  mutate(x = l_gower) %>% 
   group_by(Algorithm, x) %>%
   summarise(
     mean_elapsed_time = mean(elapsed_time), 
@@ -50,7 +50,7 @@ df_summary_time_l = df_join_scenarios_time %>%
   ) %>% 
   mutate(x = as.factor(x))
 
-levels(df_summary_time_l$Algorithm) <- c("D&C", "Interp", "Fast")
+levels(df_summary_time_l$Algorithm) <- c("D&C", "Interpolation MDS", "Fast", "RMDS (Paradis 2021)")
 
 df_summary_time_l %>% 
   ggplot(aes(x = x, y = mean_elapsed_time, group = Algorithm, color = Algorithm)) +
@@ -64,14 +64,14 @@ df_summary_time_l %>%
 
 # Time for sample size
 df_summary_time_sample_size = df_join_scenarios_time %>%
-  mutate(x = log_sample_size) %>% 
+  mutate(x = sample_size) %>% 
   group_by(Algorithm, x) %>%
   summarise(
     mean_elapsed_time = mean(elapsed_time), 
     mean_log_elapsed_time = mean(log_elapsed_time)
   ) 
 
-levels(df_summary_time_sample_size$Algorithm) <- c("D&C", "Interp", "Fast")
+levels(df_summary_time_sample_size$Algorithm) <- c("D&C", "Interpolation MDS", "Fast", "RMDS (Paradis 2021)")
 
 df_summary_time_sample_size %>% 
   ggplot(aes(x = x, y = mean_log_elapsed_time, group = Algorithm, color = Algorithm)) +
