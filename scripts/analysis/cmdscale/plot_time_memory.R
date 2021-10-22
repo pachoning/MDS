@@ -8,7 +8,8 @@ df_info_process_filter %>%
   geom_point() +
   xlab("Sample Size") +
   ylab("Time (sec.)") +
-  ggsave(file.path(getwd(), "images", "time_cmdscale.png"))
+  ggsave(file.path(getwd(), "images", "time_cmdscale.png"),
+         width = 7, height = 7, units = "in")
 
 df_info_process_filter %>% 
   mutate(memory_distance = memory_distance/1000000) %>% 
@@ -17,4 +18,5 @@ df_info_process_filter %>%
   geom_point() +
   xlab("Sample Size") +
   ylab("Memoey (MB)") +
-  ggsave(file.path(getwd(), "images", "memory_distance.png"))
+  ggsave(file.path(getwd(), "images", "memory_distance.png"),
+         width = 7, height = 7, units = "in")
