@@ -1,9 +1,9 @@
-source("tools/tools_emmanuel.R")
+# source("tools/tools_emmanuel.R")
 
 emmanuel_mds <- function(x, l, k, ...){
   
   n <- nrow(x)
-  k <- 10
+  #k <- 10
   m0 <- l
   
   ## choose one of the two below:
