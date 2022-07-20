@@ -6,7 +6,11 @@ output_results = file.path(data_folder, "experiments_processed")
 experiments_folder = file.path(data_folder, "experiments")
 
 all_files = list.files(experiments_folder)
-all_experiments = all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
+#all_experiments = all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
+all_experiments = c(
+  all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="all_projections_"))],
+  all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="rmds_interpolation_"))]
+)
 experiments_to_retrieve = all_experiments
 total_experiments_to_retrieve = length(experiments_to_retrieve)
 
@@ -19,6 +23,7 @@ df_mds_paramenters_full = c()
 i_experiment = 1
 while (i_experiment <= total_experiments_to_retrieve) {
   current_experiment = file.path(experiments_folder, experiments_to_retrieve[i_experiment])
+  print(current_experiment)
   experiment_files = list.files(current_experiment)
   for (file in experiment_files) {
     if (stringi::stri_detect_regex(str=file, pattern="df_scenarios.RData")) {
@@ -28,6 +33,7 @@ while (i_experiment <= total_experiments_to_retrieve) {
     } else if (stringi::stri_detect_regex(str=file, pattern="df_time.RData")) {
       load(file.path(current_experiment, file))
       df_time_full = rbind(df_time_full, df_time)
+      print('Y2dZz7mVlnZ9E1B' %in% df_time$scenario_id)
       rm(df_time)
     } else if(stringi::stri_detect_regex(str=file, pattern="df_correlation.RData")) {
       load(file.path(current_experiment, file))
@@ -42,6 +48,7 @@ while (i_experiment <= total_experiments_to_retrieve) {
       df_mds_paramenters_full = rbind(df_mds_paramenters_full, df_mds_parameters)
       rm(df_mds_parameters)
     }
+    print('--------------------------------')
   }
   
   i_experiment = i_experiment + 1
