@@ -15,7 +15,7 @@ scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main"
 # Join scenarios and eigenvalues
 scenarios_with_main_dimensions = df_scenarios_full %>% 
   left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
-  filter(n_main_dimensions > 0,  !is.na(processed_at), !experiment_label %in% c("l_experiment"))
+  filter(n_main_dimensions > 0,  !is.na(processed_at), experiment_label %in% c("l_experiment"))
 
 total_scenarios = nrow(scenarios_with_main_dimensions)
 
@@ -78,16 +78,16 @@ eigenvalues_information = df_join_scenarios_eigenvalues %>%
   mutate(error = eigenvalue - var,
          error_2 = error^2)
 
-levels(eigenvalues_information$Algorithm) <- c("D&C", "Interp", "Fast")
+levels(eigenvalues_information$Algorithm) <- c("D&C", "Interp", "Fast", "RMDS")
 
 
 # Plots  ----
 # RMSE Eigenvalues for l parameter
 eigenvalues_information %>%
-  group_by(Algorithm, l_divide) %>%
+  group_by(Algorithm, l_divide)%>%
   summarise(rmse = sqrt(mean(error_2))) %>% 
-  mutate_(x = x_dim) %>% 
-  mutate(x = as.factor(x)) %>% 
+  mutate(x = l_divide) %>% 
+  #mutate(x = as.factor(x)) %>% 
   ggplot(aes(x = x, y = rmse, group = Algorithm, color = Algorithm)) +
   geom_line() +
   geom_point(size = 2) +
@@ -95,7 +95,8 @@ eigenvalues_information %>%
   scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   xlab("\u2113 value") + 
   ylab("RMSE Eigenvalues") +
-  ggsave(file.path(getwd(), "images", "l_parameter_bias.png"), dev = 'png', width = 10, height = 10, units = "cm")
+  xlim(c(0, 1600))
+#+ggsave(file.path(getwd(), "images", "l_parameter_bias.png"), dev = 'png', width = 10, height = 10, units = "cm")
  
 # Bias
 eigenvalues_information %>% 

@@ -16,7 +16,7 @@ scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main"
 # Avoid using scenarions which sample size is 10^6
 df_scenarios_full_filtered = df_scenarios_full %>% 
   left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
-  filter(!is.na(processed_at), experiment_label %in% c("emmanuel_01"))
+  filter(!is.na(processed_at), experiment_label %in% c("l_experiment"))
 
 # Join scenarios and time
 df_join_scenarios_time = df_scenarios_full_filtered %>% 
@@ -47,10 +47,10 @@ df_summary_time_l = df_join_scenarios_time %>%
   summarise(
     mean_elapsed_time = mean(elapsed_time), 
     mean_log_elapsed_time = mean(log_elapsed_time)
-  ) %>% 
-  mutate(x = as.factor(x))
+  )
+  #) %>% mutate(x = as.factor(x))
 
-levels(df_summary_time_l$Algorithm) <- c("D&C", "Interpolation MDS", "Fast", "RMDS (Paradis 2021)")
+levels(df_summary_time_l$Algorithm) <- c("D&C", "Interp", "Fast", "RMDS")
 
 df_summary_time_l %>% 
   ggplot(aes(x = x, y = mean_elapsed_time, group = Algorithm, color = Algorithm)) +
@@ -60,7 +60,8 @@ df_summary_time_l %>%
   xlab("\u2113 value") + 
   ylab("Elapsed time (sec.)") +
   scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) +
-  ggsave(file.path(getwd(), "images", "l_parameter_time.png"), dev = 'png', width = 10, height = 10, units = "cm")
+  xlim(c(0, 1600))
+  #+ ggsave(file.path(getwd(), "images", "l_parameter_time.png"), dev = 'png', width = 10, height = 10, units = "cm")
 
 # Time for sample size
 df_summary_time_sample_size = df_join_scenarios_time %>%
