@@ -4,7 +4,7 @@ source("tools/procrustes.R")
 generate_df_scenarios <- function(scenarios, experiment_label){
   
   df = expand.grid(scenarios)
-  df$id = stringi::stri_rand_strings(n=nrow(df), length=15)
+  df$id = ids::random_id(n=nrow(df))
   df = df[, ncol(df):1]
   df$mu = NA
   df$var = NA
@@ -270,6 +270,7 @@ get_simulations <-function(
   l_gower = NA,
   l_fast = NA,
   l_emmanuel = NA,
+  l_lmds = NA,
   n_cores = 1,
   num_mds_dimesions = NA,
   verbose = FALSE
@@ -366,6 +367,8 @@ get_simulations <-function(
           l = l_fast
         } else if(name == "emmanuel") {
           l = l_emmanuel
+        } else if(name == "lmds") {
+          l = l_lmds
         }
         
         if(is.na(l)) {
