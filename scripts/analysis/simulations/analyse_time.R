@@ -16,7 +16,7 @@ scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main"
 # Avoid using scenarions which sample size is 10^6
 df_scenarios_full_filtered = df_scenarios_full %>% 
   left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
-  filter(!is.na(processed_at), experiment_label %in% c("l_experiment"))
+  filter(!is.na(processed_at), !experiment_label %in% c("l_experiment"))
 
 # Join scenarios and time
 df_join_scenarios_time = df_scenarios_full_filtered %>% 

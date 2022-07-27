@@ -3,7 +3,8 @@ source("tools/simulator.R")
 source("final_methods/gower_interpolation_mds.R")
 source("final_methods/emmanuel_mds.R")
 
-J <- 7
+set.seed(25001000)
+J <- 10
 
 for (j in 1:J) {
   results_folder_name <- paste0("rmds_interpolation_", j)
@@ -21,6 +22,7 @@ for (j in 1:J) {
   n_simulations <- 1
   overwrite_simulations <- TRUE
   n_sampling_points <- NA
+# l_lmds <- 1000
   l_emmanuel <- 1000
   l_gower <- 1000
   n_cores <- 5 #5
@@ -37,11 +39,10 @@ for (j in 1:J) {
     n_sampling_points = n_sampling_points,
     l_gower = l_gower,
     l_emmanuel = l_emmanuel,
+#   l_lmds = l_lmds,
     n_cores = n_cores,
     num_mds_dimesions = num_mds_dimesions,
     verbose = verbose
   )
   
 }
-
-

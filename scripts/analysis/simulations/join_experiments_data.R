@@ -8,8 +8,9 @@ experiments_folder = file.path(data_folder, "experiments")
 all_files = list.files(experiments_folder)
 #all_experiments = all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
 all_experiments = c(
-  #all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="all_projections_"))],
-  all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
+  all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="all_projections_"))],
+  all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="rmds_interpolation_"))]
+  #all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
 )
 experiments_to_retrieve = all_experiments
 total_experiments_to_retrieve = length(experiments_to_retrieve)
@@ -86,3 +87,5 @@ save(df_correlation_full, file=file.path(output_results, "df_correlation_full.RD
 save(df_eigenvalues_full, file=file.path(output_results, "df_eigenvalues_full.RData"))
 save(df_mds_paramenters_full, file=file.path(output_results,"df_mds_paramenters_full.RData"))
 
+duplicated(df_scenarios_full$scenario_id)
+View(df_scenarios_full)
