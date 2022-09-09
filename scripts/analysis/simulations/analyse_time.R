@@ -65,7 +65,7 @@ df_summary_time_l %>%
 
 # Time for sample size
 df_summary_time_sample_size = df_join_scenarios_time %>%
-  mutate(x = sample_size) %>% 
+  mutate(x = log_sample_size) %>% 
   group_by(Algorithm, x) %>%
   summarise(
     mean_elapsed_time = mean(elapsed_time), 
@@ -81,8 +81,33 @@ df_summary_time_sample_size %>%
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
   xlab("log10 of sample size") + 
   ylab("Mean of log10 of elapsed time (seconds)") +
-  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) +
-  ggsave(file.path(getwd(), "images",  "mean_log_time_all.png"), dev = 'png', width = 22, height = 18, units = "cm")
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91"))
+  #ggsave(file.path(getwd(), "images",  "mean_log_time_all.png"), dev = 'png', width = 22, height = 18, units = "cm")
+
+#Log scale
+df_summary_time_sample_size_log_scale = df_join_scenarios_time %>%
+  mutate(x = sample_size) %>% 
+  group_by(Algorithm, x) %>%
+  summarise(
+    mean_elapsed_time = mean(elapsed_time), 
+    mean_log_elapsed_time = mean(log_elapsed_time)
+  ) 
+
+levels(df_summary_time_sample_size_log_scale$Algorithm) <- c("D&C", "Interpolation MDS", "Fast", "RMDS (Paradis 2021)")
+
+
+df_summary_time_sample_size_log_scale %>% 
+  ggplot(aes(x = x, y = mean_elapsed_time, group = Algorithm, color = Algorithm)) +
+  geom_point(size = 2) +
+  geom_line() +
+  theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
+  scale_x_log10() +
+  scale_y_log10() + 
+  xlab("sample size") + 
+  ylab("Mean of elapsed time (in seconds)") +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91"))
+ggsave(file.path(getwd(), "images",  "mean_time_all_log_scale.png"), dev = 'png', width = 22, height = 18, units = "cm")
+
 
 # Quantiles: Particular case
 quant = c(0.025, 1-0.025)

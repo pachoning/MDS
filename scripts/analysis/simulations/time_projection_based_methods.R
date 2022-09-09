@@ -57,8 +57,22 @@ df_data %>%
   geom_line() + 
   geom_point() + 
   xlab("Log sample size") +
-  ylab("Log elapsed time (sec.)")
+  ylab("Log elapsed time (in seconds)")
 #dev.off()
+
+#Log-log scale plot
+pdf('images/projection_based_comparison_log_scale.pdf', width = 8, height = 4)
+df_data %>%
+  group_by(sample_size, Algorithm) %>%
+  summarise(time = mean(elapsed_time)) %>%
+  ggplot(aes(x = sample_size, y = time, group = Algorithm, color = Algorithm)) +
+  geom_line() + 
+  geom_point() + 
+  xlab("Sample size") +
+  ylab("Elapsed time (in seconds)") +
+  scale_x_log10() +
+  scale_y_log10()
+dev.off()
 
 boxplot(log_elapsed ~ Algorithm*sample_size,data = df_data)
 

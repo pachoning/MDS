@@ -16,7 +16,7 @@ scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main"
 # Avoid using scenarions which sample size is 10^6
 scenarios_with_main_dimesions = df_scenarios_full %>% 
   left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
-  filter(n_main_dimensions > 0, !is.na(processed_at), experiment_label %in% c("l_experiment"))
+  filter(n_main_dimensions > 0, !is.na(processed_at), !experiment_label %in% c("l_experiment"))
 
 # Join scenarios and correlation
 df_join_scenarios_correlation = scenarios_with_main_dimesions %>% 
@@ -87,12 +87,32 @@ df_join_scenarios_correlation %>%
   theme(panel.spacing.y = unit(0.5, "lines"), legend.position="bottom") +
   scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   xlab("Sample Size") + 
-  ylab("Correlation") +
-  ggsave(file.path(getwd(), "images", "correlation_all.png"),  dev = 'png', height = 18, width = 22, units = "cm")
+  ylab("Correlation") 
+  #ggsave(file.path(getwd(), "images", "correlation_all.png"),  dev = 'png', height = 18, width = 22, units = "cm")
+
+# Using another variable in the facet_wrap
+#pdf('images/correlation_all_by_n.pdf', width = 4, height = 8)
+df_join_scenarios_correlation %>% 
+  group_by(Algorithm, sample_size, dim) %>%
+  summarise(mean_correlation = mean(correlation)) %>%
+  mutate(x = dim) %>%
+  mutate(x = as.factor(x))%>% 
+  ggplot(aes(x = x, y = mean_correlation, color = Algorithm, group = Algorithm)) +
+  geom_point() +
+  facet_wrap( ~ sample_size, ncol = 1) +
+  theme(
+    panel.spacing.y = unit(0.5, "lines"), 
+    legend.position="bottom",
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+    ) +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
+  xlab("Dimension") + 
+  ylab("Correlation") 
+#dev.off()
   
 # Particular cases
 df_join_scenarios_correlation %>% 
-  filter(sample_size == 10^6, n_main_dimensions == 10, n_cols == 100) %>% 
+  #filter(sample_size == 10^6, n_main_dimensions == 10, n_cols == 100) %>% 
   ggplot(aes(x = Algorithm, y = correlation, fill = Algorithm)) + 
   geom_boxplot() + 
   facet_wrap(. ~ dim, ncol = 5) +
@@ -103,6 +123,5 @@ df_join_scenarios_correlation %>%
     axis.ticks.x = element_blank(),
     legend.position = "bottom") +
   ylab("Correlation coefficient") +
-  scale_fill_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
-  ggsave(file.path(getwd(), "images", "correlation_1000000_100_10.png"),
-         dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
+  scale_fill_manual(values = c("#0000FF", "#FF0000", "#00AF91")) 
+  #ggsave(file.path(getwd(), "images", "correlation_1000000_100_10.png"),dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")

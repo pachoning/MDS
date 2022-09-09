@@ -8,9 +8,9 @@ experiments_folder = file.path(data_folder, "experiments")
 all_files = list.files(experiments_folder)
 #all_experiments = all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
 all_experiments = c(
-  all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="all_projections_"))],
-  all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="rmds_interpolation_"))]
-  #all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
+  #all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="all_projections_"))]
+  #all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="no_noise"))]
+  all_files[which(stringi::stri_detect_fixed(str=all_files, pattern="experiment_"))]
 )
 experiments_to_retrieve = all_experiments
 total_experiments_to_retrieve = length(experiments_to_retrieve)

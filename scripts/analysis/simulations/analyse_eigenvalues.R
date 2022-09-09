@@ -15,7 +15,7 @@ scenario_identifier = c("sample_size", "n_cols", "n_main_dimensions", "var_main"
 # Join scenarios and eigenvalues
 scenarios_with_main_dimensions = df_scenarios_full %>% 
   left_join(df_mds_paramenters_full, by = c("id" = "scenario_id")) %>% 
-  filter(n_main_dimensions > 0,  !is.na(processed_at), experiment_label %in% c("l_experiment"))
+  filter(n_main_dimensions > 0,  !is.na(processed_at), !experiment_label %in% c("l_experiment"))
 
 total_scenarios = nrow(scenarios_with_main_dimensions)
 
@@ -110,11 +110,30 @@ eigenvalues_information %>%
   scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   xlab("Sample Size") + 
   ylab("Bias") +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  ggsave(file.path(getwd(), "images", "bias_all.png"),
-         dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
+  geom_hline(yintercept = 0, linetype = "dashed") 
+  #ggsave(file.path(getwd(), "images", "bias_all.png"),dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
 
-# MSE
+# Using another variable in the facet_wrap
+#pdf('images/bias_all_by_n.pdf', width = 4, height = 8)
+eigenvalues_information %>% 
+  group_by(sample_size, Algorithm, dim) %>% 
+  summarise(bias = mean(error)) %>% 
+  mutate(sample_size = as.factor(sample_size)) %>% 
+  ggplot(aes(x = dim, y = bias, group = Algorithm, color = Algorithm)) +
+  geom_point() +
+  facet_wrap( ~ sample_size, ncol = 1) +
+  theme(
+    panel.spacing.y=unit(0.5, "lines"), 
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
+  xlab("Dimension") + 
+  ylab("Bias") +
+  geom_hline(yintercept = 0, linetype = "dashed")
+#dev.off()
+
+# MSE/RMSE
 eigenvalues_information %>% 
   group_by(sample_size, Algorithm, dim) %>% 
   summarise(
@@ -122,15 +141,37 @@ eigenvalues_information %>%
     rmse = sqrt(mse)
   ) %>% 
   mutate(sample_size = as.factor(sample_size)) %>% 
-  ggplot(aes(x = sample_size, y = mse, group = Algorithm, color = Algorithm)) +
+  ggplot(aes(x = sample_size, y = rmse, group = Algorithm, color = Algorithm)) +
   geom_point() +
   facet_wrap( ~ dim, ncol = 2) +
   theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
   scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
-  xlab("Sample Size") + 
-  ylab("MSE") +
-  ggsave(file.path(getwd(), "images", "mse_all.png"),
-         dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
+  xlab("Dimension") + 
+  ylab("RMSE")
+  #ggsave(file.path(getwd(), "images", "rmse_all.png"),dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
+
+
+# Using another variable in the facet_wrap
+#pdf('images/rmse_all_by_n.pdf', width = 4, height = 8)
+eigenvalues_information %>% 
+  group_by(sample_size, Algorithm, dim) %>% 
+  summarise(
+    mse = mean(error^2),
+    rmse = sqrt(mse)
+  ) %>% 
+  mutate(sample_size = as.factor(sample_size)) %>% 
+  ggplot(aes(x = dim, y = rmse, group = Algorithm, color = Algorithm)) +
+  geom_point() +
+  facet_wrap( ~ sample_size, ncol = 1) +
+  theme(
+    panel.spacing.y=unit(0.5, "lines"),
+    legend.position="bottom",
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  scale_color_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
+  xlab("Dimension") + 
+  ylab("RMSE")
+#dev.off()
 
 # Error for a particular scenario
 eigenvalues_information %>% 
@@ -147,6 +188,5 @@ eigenvalues_information %>%
   ) +
   scale_fill_manual(values = c("#0000FF", "#FF0000", "#00AF91")) + 
   ylab("Error") +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  ggsave(file.path(getwd(), "images", "error_1000000_100_10.png"),
-         dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
+  geom_hline(yintercept = 0, linetype = "dashed")
+  #ggsave(file.path(getwd(), "images", "error_1000000_100_10.png"),dpi = 300, dev = 'png', height = 18, width = 22, units = "cm")
