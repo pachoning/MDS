@@ -8,8 +8,11 @@ load_libraries <- function(packages_list){
       library(pkg, character.only=TRUE)
     }
   }
-  
-  
 }
 
-load_libraries(packages_list=c("pdist", "sets", "stringi", "parallel"))
+load_libraries(
+  packages_list = c(
+    "pdist", "sets", "stringi", "parallel",
+    "tidyverse", "svd", "R.utils", "lubridate"
+  )
+)
