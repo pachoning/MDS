@@ -113,15 +113,24 @@ fake_plot <- df_scenario_corr %>%
   geom_line() +
   geom_point() +
   #xlab("\u2113 value") + 
-  ylab("Correlation")
+  ylab("Correlation") +
+  theme(
+    legend.position="bottom",
+    legend.title = element_blank(),
+    legend.margin = margin(c(0, 0, 0, 0)),
+    legend.key.spacing.x = unit(0, "pt")
+  ) +
+  guides(colour = guide_legend(nrow = 1))
+
+fake_plot
 
 legend <- cowplot::get_legend(fake_plot)
 
 cairo_pdf(
-  "/Users/cristianpachon/MEGA/tesis_cristian/mds_for_big_data/to_ADAC/legend.pdf",
+  "/Users/cristianpachon/MEGA/tesis_cristian/mds_for_big_data/to_ADAC/legend_temp.pdf",
   family = "Helvetica",
-  width = 4,
-  height = 4
+  width = 8,
+  height = 0.3
 )
 #cairo_pdf("images/legend.pdf", family = "Helvetica", width = 8, height = 8)
 grid.newpage()
