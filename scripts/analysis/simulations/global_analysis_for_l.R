@@ -245,5 +245,9 @@ df_scenario_eigen %>%
   xlab(expression("\u2113 value")) + 
   #xlab("\u2113 value") + 
   theme(legend.position = "none") +
-  ylab("RMSE eigenvalues") 
+  ylab(TeX("RMSE"))
 dev.off()
+
+
+library(latex2exp)
+TeX("RMSE $\\sigma$")
