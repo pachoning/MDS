@@ -228,12 +228,26 @@ df_scenario_times %>%
   ggplot(aes(x = n_sample, y = mean_elapsed_time, group = algorithm, color = algorithm)) +
   geom_point() +
   geom_line() +
-  theme(panel.spacing.y=unit(0.5, "lines"), legend.position="bottom") +
+  theme(
+    panel.spacing.y=unit(0.5, "lines"),
+    legend.position="bottom",
+    plot.background = element_rect(fill='transparent', color=NA),
+  ) +
   scale_x_log10() +
   scale_y_log10() + 
   xlab("sample size") + 
   ylab("Mean of elapsed time (in seconds)")
 dev.off()
+
+
+theme(
+  panel.background = element_rect(fill='transparent'),
+  plot.background = element_rect(fill='transparent', color=NA),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  legend.background = element_rect(fill='transparent'),
+  legend.box.background = element_rect(fill='transparent')
+)
 
 df_scenario_times %>% 
   group_by(algorithm) %>% 

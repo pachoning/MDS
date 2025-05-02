@@ -217,7 +217,8 @@ df_embedding %>%
     legend.position = "bottom",
     legend.title = element_blank(),
     axis.title.x = element_blank(),
-    axis.title.y = element_blank()
+    axis.title.y = element_blank(),
+    plot.background = element_rect(fill='transparent', color=NA)
   )
 dev.off()
 
