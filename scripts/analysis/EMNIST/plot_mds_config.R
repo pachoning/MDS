@@ -204,7 +204,8 @@ order_algorithms <- c(
 
 df_embedding$algorithm <- factor(df_embedding$algorithm, levels = c(order_algorithms))
 
-pdf('images/emnist_all.pdf', width = 8, height = 4)
+#pdf('images/emnist_all.pdf', width = 8, height = 4)
+pdf('images/emnist_all_thesis.pdf', width = 8, height = 4)
 #png('images/emnist_all.png')
 df_embedding %>% 
   ggplot(aes(x = x, y = y, color = target, tit)) + 
@@ -218,7 +219,9 @@ df_embedding %>%
     legend.title = element_blank(),
     axis.title.x = element_blank(),
     axis.title.y = element_blank(),
-    plot.background = element_rect(fill='transparent', color=NA)
+    plot.background = element_rect(fill='transparent', color = NA),
+    legend.background = element_rect(fill='transparent', color = NA),
+    legend.box.background = element_rect(fill='transparent', color = NA)
   )
 dev.off()
 
