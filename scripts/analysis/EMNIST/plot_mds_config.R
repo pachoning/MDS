@@ -180,7 +180,7 @@ df_mds_landmark_sample$y <- -df_mds_landmark_sample$y
 df_mds_pivot_sample$y <- -df_mds_pivot_sample$y
 #df_mds_divide_sample$x <- -df_mds_divide_sample$x
 df_mds_fast_sample$x <- -df_mds_fast_sample$x
-df_mds_fast_sample$y <- -df_mds_fast_sample$y
+df_mds_fast_sample$y <- df_mds_fast_sample$y
 
 
 
@@ -204,8 +204,7 @@ order_algorithms <- c(
 
 df_embedding$algorithm <- factor(df_embedding$algorithm, levels = c(order_algorithms))
 
-#pdf('images/emnist_all.pdf', width = 8, height = 4)
-pdf('images/emnist_all_thesis.pdf', width = 8, height = 4)
+pdf('images/emnist_all.pdf', width = 8, height = 4)
 #png('images/emnist_all.png')
 df_embedding %>% 
   ggplot(aes(x = x, y = y, color = target, tit)) + 
